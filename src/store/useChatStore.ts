@@ -283,7 +283,7 @@ export const useChatStore = create<ChatState>()(
 
 // 模擬串流回應的函數
 async function simulateStreamingResponse(
-  input: string,
+  _input: string, // 暫時未使用，預留給未來的內容分析
   options: {
     personaId: string;
     mode: ChatMode;

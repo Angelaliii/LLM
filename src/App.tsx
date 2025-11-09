@@ -109,7 +109,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <Routes>
           <Route path="/" element={<LandingPage />} />

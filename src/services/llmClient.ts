@@ -17,7 +17,7 @@ export class LLMClient {
   // 構建完整的提示詞
   private buildPrompt(
     userInput: string,
-    personaId: string,
+    _personaId: string, // 暫時未使用，預留給未來擴展
     mode: ChatMode,
     rigorLevel: RigorLevel,
     language: Language,
@@ -160,7 +160,6 @@ export class LLMClient {
   // 生成模擬回應
   private generateMockResponse(prompt: string): string {
     // 簡化的回應生成邏輯（實際應用中會調用真實的 LLM）
-    const isTeachingMode = prompt.includes("教學模式");
     const isQuickMode = prompt.includes("快問快答");
     const isSocraticMode = prompt.includes("蘇格拉底");
 

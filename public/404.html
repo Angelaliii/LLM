@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- SEO Meta Tags -->
+    <title>歷史人物對話系統｜與秦始皇對話學歷史｜LLM 互動教學平台</title>
+    <meta
+      name="description"
+      content="革命性的歷史教學平台，讓學生與秦始皇進行第一人稱對話學習。基於 LLM 技術，提供沉浸式互動體驗，適合國高中歷史教學。免費試用，教育授權優惠。"
+    />
+    <meta
+      name="keywords"
+      content="歷史對話,第一人稱,教學模式,React,LLM,秦始皇,互動教學,歷史教育,AI教學"
+    />
+    <meta name="author" content="歷史對話系統" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="歷史人物對話系統｜與秦始皇對話學歷史" />
+    <meta
+      property="og:description"
+      content="革命性的歷史教學平台，讓學生與秦始皇進行第一人稱對話學習。基於 LLM 技術的沉浸式互動體驗。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://angelaliii.github.io/LLM/" />
+    <meta property="og:image" content="<IMG_PLACEHOLDER>" />
+    <meta property="og:locale" content="zh_TW" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="歷史人物對話系統｜與秦始皇對話學歷史" />
+    <meta
+      name="twitter:description"
+      content="革命性的歷史教學平台，讓學生與秦始皇進行第一人稱對話學習。"
+    />
+    <meta name="twitter:image" content="<IMG_PLACEHOLDER>" />
+
+    <!-- SPA Redirect Script for GitHub Pages -->
+    <script type="text/javascript">
+      // 單頁應用程式重新導向腳本
+      // https://github.com/rafgraph/spa-github-pages
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      })(window.location);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

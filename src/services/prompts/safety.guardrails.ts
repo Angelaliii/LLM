@@ -137,7 +137,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
 
 // 生成替代提問
 function generateAlternativePrompt(
-  originalContent: string,
+  _originalContent: string, // 暫時未使用，預留給未來複雜邏輯
   issues: SafetyCheckResult["issues"]
 ): string {
   const hasViolence = issues.some(
