@@ -1,0 +1,76 @@
+/.github
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md
+
+# Node / package
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite / build outputs
+dist/
+build/
+out/
+.output/
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment files (local secrets)
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+logs/**
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cache and temp
+.cache/
+.tmp/
+*.tmp
+*.temp
+
+# Test coverage and caches
+coverage/
+.nyc_output/
+jest-cache/
+/jest-cache
+
+# ESLint / Prettier
+.eslintcache
+.prettiercache
+
+# pnpm store
+.pnpm-store/
+
+# Generated lockfiles should NOT be ignored (keep package-lock.json / yarn.lock / pnpm-lock.yaml)
+
+# Build artifacts from tools
+*.tgz
+
+# Misc
+.idea/
+*.log
+
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github\instructions\snyk_rules.instructions.md
