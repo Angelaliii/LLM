@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getCurrentCopy } from "../data/copy";
+// 不再需要讀取文案狀態於 NavBar
 import { useUIStore } from "../store/useUIStore";
 import Icon from "./Icon";
 
 const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isMobileMenuOpen, toggleMobileMenu, variant } = useUIStore();
-  const copy = getCurrentCopy(variant);
+  const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
   const location = useLocation();
 
   // 判斷是否在聊天頁面

@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
         <div className="absolute bottom-20 right-20 w-40 h-40 bg-accent-500 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="container-max py-16 relative">
+      <div className="container-max py-16 px-6 relative">
         <div className="grid md:grid-cols-4 gap-8">
           {/* 公司資訊 */}
           <div className="md:col-span-2">
@@ -29,21 +29,6 @@ const Footer: React.FC = () => {
               技術，讓學生與歷史人物直接對話，
               創造沉浸式的學習體驗，提升歷史教育的趣味性與效果。
             </p>
-
-            <div className="flex space-x-4">
-              <a
-                href="mailto:contact@example.com"
-                className="text-gray-400 hover:text-primary-500 transition-colors"
-              >
-                <Icon name="email" size="md" />
-              </a>
-              <a
-                href="tel:+886-2-1234-5678"
-                className="text-gray-400 hover:text-primary-500 transition-colors"
-              >
-                <Icon name="phone" size="md" />
-              </a>
-            </div>
           </div>
 
           {/* 產品連結 */}
@@ -84,51 +69,12 @@ const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
-
-          {/* 支援連結 */}
-          <div>
-            <h4 className="font-semibold mb-4">客戶支援</h4>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/help"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  使用手冊
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/support"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  技術支援
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/contact"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  聯絡我們
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/feedback"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  意見回饋
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
 
       {/* 底部版權區 */}
       <div className="border-t border-gray-800">
-        <div className="container-max py-6">
+        <div className="container-max py-6 px-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
               <p className="text-gray-400 text-sm">
@@ -162,8 +108,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* 聯絡表單已移出，請放置於 LandingPage main 區塊，確保 footer 在其後 */}
     </footer>
   );
 };

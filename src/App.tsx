@@ -19,7 +19,6 @@ import LiveDemo from "./components/LiveDemo";
 import NavBar from "./components/NavBar";
 import PricingPlans from "./components/PricingPlans";
 import SocialProof from "./components/SocialProof";
-import TeachingFriendly from "./components/TeachingFriendly";
 
 // 主對話頁面
 const ChatPage: React.FC = () => {
@@ -65,9 +64,6 @@ const LandingPage: React.FC = () => {
 
         {/* 互動展示 */}
         <LiveDemo />
-
-        {/* 教學友善說明 */}
-        <TeachingFriendly />
 
         {/* 社會證明 */}
         <SocialProof />

@@ -88,16 +88,6 @@ const PricingPlans: React.FC = () => {
 
         <div className="text-center mt-12">
           <p className="text-dark-700 mb-4">需要客製化方案或有其他問題？</p>
-          <CTAButton
-            variant="ghost"
-            to="/chat/"
-            openInNewTab
-            trackingLabel="聯絡專人服務"
-            trackingLocation="pricing-footer"
-          >
-            <Icon name="email" size="sm" className="mr-2" />
-            聯絡專人服務
-          </CTAButton>
         </div>
       </div>
     </section>

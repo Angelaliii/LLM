@@ -5,6 +5,7 @@ export default defineConfig({
   base: "/LLM/",
   plugins: [react()],
   build: {
+    outDir: "docs",
     rollupOptions: {
       output: {
         manualChunks: {

@@ -14,7 +14,7 @@ const ContactSection: React.FC = () => {
             小時內與您聯繫，提供完整的產品展示與客製化建議
           </p>
 
-          <form className="bg-white rounded-xl p-8 shadow-xl">
+          <form className="bg-white rounded-xl p-8 shadow-xl text-left">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label

@@ -107,10 +107,7 @@ const LiveDemo: React.FC = () => {
             </div>
 
             {/* 聊天內容：滾動顯示 — 右側 user、左側 assistant（每個氣泡逐一顯示） */}
-            <div
-              ref={containerRef}
-              className="h-96 overflow-y-auto p-6 space-y-4"
-            >
+            <div ref={containerRef} className="overflow-y-auto p-6 space-y-4">
               {bubbles.map((b, i) => (
                 <div
                   key={`bubble-${i}-${b.role}`}
