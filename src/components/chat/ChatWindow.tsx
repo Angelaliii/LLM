@@ -69,7 +69,7 @@ const ChatWindow: React.FC = () => {
                 <MessageBubble key={message.id} message={message} />
               ))}
 
-              {/* 串流訊息顯示 */}
+              {/* 串流逐字預覽：在 isStreaming 時顯示臨時的 assistant 訊息 */}
               {isStreaming && (
                 <MessageBubble
                   message={{
@@ -82,7 +82,7 @@ const ChatWindow: React.FC = () => {
                 />
               )}
 
-              {/* 輸入指示器 */}
+              {/* 仍保留 loading 指示（可視情況顯示） */}
               {isLoading && !isStreaming && <TypingIndicator />}
 
               {/* 錯誤顯示 */}

@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { findAnswerById, predefinedQuestions } from "../../data/predefinedQA";
+import { predefinedQuestions } from "../../data/predefinedQA";
 import { useChatStore } from "../../store/useChatStore";
-import type { Message } from "../../types/chat";
 
 const InputArea: React.FC = () => {
   const { isLoading, actions } = useChatStore();
   const [input, setInput] = useState("");
 
   const handleQuestionSelect = async (
-    questionId: string,
+    _questionId: string,
     questionText: string
   ) => {
     if (isLoading) return;
@@ -16,20 +15,7 @@ const InputArea: React.FC = () => {
     // 發送用戶選擇的問題
     await actions.sendMessage(questionText);
 
-    // 若有預設答案，模擬回覆以提升互動感
-    const predefinedAnswer = findAnswerById(questionId);
-    if (predefinedAnswer) {
-      setTimeout(() => {
-        const assistantMessage: Message = {
-          id: `answer_${questionId}_${Date.now()}`,
-          content: predefinedAnswer,
-          role: "assistant",
-          timestamp: new Date(),
-          metadata: { mode: "teaching", readabilityScore: 75 },
-        };
-        actions.completeStreaming(assistantMessage);
-      }, 500);
-    }
+    // 不在此處直接插入預設答案；sendMessage() 會透過 store 檢查並在串流時使用預設答案
   };
 
   const handleSendInput = async () => {

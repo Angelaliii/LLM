@@ -159,18 +159,49 @@ export class LLMClient {
 
   // 生成模擬回應
   private generateMockResponse(prompt: string): string {
-    // 簡化的回應生成邏輯（實際應用中會調用真實的 LLM）
-    const isQuickMode = prompt.includes("快問快答");
-    const isSocraticMode = prompt.includes("蘇格拉底");
+    // 根據 prompt（內含使用者輸入）做簡單關鍵字判斷，回傳更貼切的首段以利即時串流預覽
+    const lower = prompt.toLowerCase();
 
-    // 根據不同模式生成不同風格的回應
-    if (isQuickMode) {
-      return "朕推行郡縣制是為了加強中央集權，避免分封制造成的諸侯割據。郡守縣令由朝廷任免，直接對中央負責，這樣可以有效控制全國。此制度影響深遠，成為後世中央集權的基礎。";
-    } else if (isSocraticMode) {
-      return "你提到郡縣制，那麼請思考：如果繼續沿用分封制，會對新統一的帝國帶來什麼風險？再者，郡縣制中官員由中央任免，這與分封制中的世襲制有何根本差異？最後，你認為這種制度變革對於普通百姓的生活會產生什麼影響？";
-    } else {
-      return "朕統一六國後，深知分封制之弊端。戰國時期，諸侯割據，各自為政，導致戰亂不斷。朕推行郡縣制，乃是以中央直接派遣官員治理各地，而非依賴世襲貴族。此制度確保了中央政府的有效控制，避免了地方勢力的再次崛起。郡縣制的核心在於「郡守」與「縣令」皆由朝廷任免，而非世襲。這樣的安排使得地方官員必須對中央負責，而非對當地豪族效忠。此外，朕還建立了嚴密的監察體系，確保各級官員忠於職守。史學界對此制度評價頗高，認為它為後世中國的中央集權制奠定了基礎。然而，也有學者指出，過度的中央集權可能導致地方活力的喪失。你認為這種制度對於維護國家統一有何重要意義？";
+    const quick =
+      "朕推行郡縣制是為了加強中央集權，避免分封制造成的諸侯割據。郡守縣令由朝廷任免，直接對中央負責，這樣可以有效控制全國。此制度影響深遠，成為後世中央集權的基礎。";
+
+    const socratic =
+      "你提到郡縣制，那麼請思考：如果繼續沿用分封制，會對新統一的帝國帶來什麼風險？再者，郡縣制中官員由中央任免，這與分封制中的世襲制有何根本差異？最後，你認為這種制度變革對於普通百姓的生活會產生什麼影響？";
+
+    const teachingShort =
+      "郡縣制是朕為了加強中央集權而推行的重要制度，目的是減少地方割據與世襲勢力的影響，並由朝廷直接任命地方官員以穩定統治。";
+
+    if (
+      lower.includes("快問快答") ||
+      lower.includes("快答") ||
+      lower.includes("quick")
+    ) {
+      return quick;
     }
+
+    if (lower.includes("蘇格拉底") || lower.includes("socratic")) {
+      return socratic;
+    }
+
+    // 針對 user input 關鍵字給出更貼切回覆
+    if (lower.includes("焚書") || lower.includes("坑儒")) {
+      return "焚書坑儒是朕為了鞏固統一與思想一致性所採取的極端政策，重點在於消除分裂勢力與統一典籍標準，但其對學術自由造成了長期負面影響。";
+    }
+
+    if (lower.includes("長城") || lower.includes("修長城")) {
+      return "長城的現代形象是多個時期防禦工程的總稱。朕曾整合與加強邊防工事以保衛疆域，但後代對長城的擴建與改造也相當重要。";
+    }
+
+    if (
+      lower.includes("統一") ||
+      lower.includes("何時") ||
+      lower.includes("六國")
+    ) {
+      return quick;
+    }
+
+    // 預設教學型簡短首段
+    return teachingShort;
   }
 
   // 取消當前請求

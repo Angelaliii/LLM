@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { findAnswerByQuestion } from "../data/predefinedQA";
 import type {
   ChatMode,
   ChatSession,
@@ -107,13 +108,17 @@ export const useChatStore = create<ChatState>()(
               // 開始串流
               get().actions.startStreaming();
 
-              // TODO: 實際呼叫 LLM API
+              // 使用模擬串流回應（實際情況可替換為真實 LLM 呼叫）
+              // 如果問題與預定義問答匹配，優先使用預設答案（保持打字串流效果）
+              const predefined = findAnswerByQuestion(content);
+
               // 模擬串流回應
               await simulateStreamingResponse(content, {
                 personaId,
                 mode,
                 rigorLevel,
                 language,
+                forcedResponse: predefined || undefined,
                 onChunk: (chunk) => {
                   get().actions.updateStreamingContent(chunk);
                 },
@@ -125,7 +130,7 @@ export const useChatStore = create<ChatState>()(
                     timestamp: new Date(),
                     metadata: {
                       mode,
-                      readabilityScore: 75, // TODO: 實際計算
+                      readabilityScore: 75, // placeholder readability score
                     },
                   };
                   get().actions.completeStreaming(assistantMessage);
@@ -302,7 +307,7 @@ export const useChatStore = create<ChatState>()(
 
 // 模擬串流回應的函數
 async function simulateStreamingResponse(
-  _input: string, // 暫時未使用，預留給未來的內容分析
+  _input: string, // 使用者原始輸入
   options: {
     personaId: string;
     mode: ChatMode;
@@ -311,29 +316,59 @@ async function simulateStreamingResponse(
     onChunk: (chunk: string) => void;
     onComplete: (response: string) => void;
     onError: (error: Error) => void;
+    // 若提供，強制使用此回覆文字並串流其內容（用於預置問答）
+    forcedResponse?: string;
   }
 ) {
   try {
-    // 模擬回應內容
-    const responses = {
-      teaching: `朕統一六國後，深知分封制之弊端。戰國時期，諸侯割據，各自為政，導致戰亂不斷。朕推行郡縣制，乃是以中央直接派遣官員治理各地，而非依賴世襲貴族。此制度確保了中央政府的有效控制，避免了地方勢力的再次崛起。
+    // 根據使用者輸入選擇更貼切的回應首段，避免每次都出現固定模板開頭
+    const generateResponseForInput = (input: string, mode: ChatMode) => {
+      const q = (input || "").toLowerCase();
 
-郡縣制的核心在於「郡守」與「縣令」皆由朝廷任免，而非世襲。這樣的安排使得地方官員必須對中央負責，而非對當地豪族效忠。此外，朕還建立了嚴密的監察體系，確保各級官員忠於職守。
+      const quick =
+        "朕推行郡縣制是為了加強中央集權，避免分封制造成的諸侯割據。郡守縣令由朝廷任免，直接對中央負責，這樣可以有效控制全國。此制度影響深遠，成為後世中央集權的基礎。";
 
-史學界對此制度評價頗高，認為它為後世中國的中央集權制奠定了基礎。然而，也有學者指出，過度的中央集權可能導致地方活力的喪失。你認為這種制度對於維護國家統一有何重要意義？`,
+      const socratic =
+        "你提到郡縣制，那麼請思考：如果繼續沿用分封制，會對新統一的帝國帶來什麼風險？再者，郡縣制中官員由中央任免，這與分封制中的世襲制有何根本差異？最後，你認為這種制度變革對於普通百姓的生活會產生什麼影響？";
 
-      quick: `朕推行郡縣制是為了加強中央集權，避免分封制造成的諸侯割據。郡守縣令由朝廷任免，直接對中央負責，這樣可以有效控制全國。此制度影響深遠，成為後世中央集權的基礎。`,
+      const teachingFull =
+        "郡縣制是朕為了加強中央集權而推行的重要制度，目的是減少地方割據與世襲勢力的影響，並由朝廷直接任命地方官員以穩定統治。郡守與縣令由中央任免，配合嚴密的監察體制，確保地方官員效忠朝廷。此制度為後世中央集權的基礎，但也有人指出過度集權可能抑制地方活力。";
 
-      socratic: `你提到郡縣制，那麼請思考：如果繼續沿用分封制，會對新統一的帝國帶來什麼風險？再者，郡縣制中官員由中央任免，這與分封制中的世襲制有何根本差異？最後，你認為這種制度變革對於普通百姓的生活會產生什麼影響？`,
+      // 先依模式決定基本風格
+      if (mode === "quick") return quick;
+      if (mode === "socratic") return socratic;
+
+      // 教學模式：嘗試根據關鍵字返回更直接的回覆
+      if (
+        q.includes("統一") ||
+        q.includes("何時") ||
+        q.includes("何時統一") ||
+        q.includes("六國")
+      ) {
+        return quick;
+      }
+
+      if (q.includes("焚書") || q.includes("坑儒") || q.includes("焚書坑儒")) {
+        return "焚書坑儒是朕為了鞏固統一與思想一致性所採取的極端政策，重點在於消除分裂勢力與統一史官與典籍的標準。但此舉對學術與思想自由造成嚴重傷害，後世學者多有批評。";
+      }
+
+      if (q.includes("長城") || q.includes("長城是") || q.includes("修長城")) {
+        return "長城的現代形象是多個時期防禦工程的總稱，雖然朕下令修繕和連接各地防線，但現有的長城多由後代擴建。朕的工程以鞏固邊防與監控交通為主。";
+      }
+
+      // 預設回覆（較精簡的教學版本）
+      return teachingFull;
     };
 
-    const response = responses[options.mode] || responses.teaching;
+    // 若有強制回覆，直接使用（保留逐字串流特效）
+    const response =
+      options.forcedResponse || generateResponseForInput(_input, options.mode);
     const chunks = response.split("");
 
     // 模擬打字效果
-    for (let i = 0; i < chunks.length; i++) {
+    for (const ch of chunks) {
       await new Promise((resolve) => setTimeout(resolve, 30));
-      options.onChunk(chunks[i]);
+      options.onChunk(ch);
     }
 
     options.onComplete(response);

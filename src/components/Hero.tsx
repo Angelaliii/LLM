@@ -87,16 +87,18 @@ const Hero: React.FC = () => {
             {/* 社會證明數據 */}
             <div className="flex flex-wrap items-center gap-8 mt-12 pt-8 border-t border-gray-200">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-500">1000+</div>
-                <div className="text-sm text-dark-700">學生使用</div>
+                <div className="text-2xl font-bold text-primary-500">
+                  10000%
+                </div>
+                <div className="text-sm text-dark-700">期待程度</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-500">50+</div>
-                <div className="text-sm text-dark-700">合作學校</div>
+                <div className="text-sm text-dark-700">待合作學校</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-500">95%</div>
-                <div className="text-sm text-dark-700">滿意度</div>
+                <div className="text-2xl font-bold text-primary-500">98%</div>
+                <div className="text-sm text-dark-700">期望滿意度</div>
               </div>
             </div>
           </div>
