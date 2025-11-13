@@ -1,11 +1,11 @@
-import React from "react";
-import { findAnswerById } from "../../data/predefinedQA";
+import React, { useState } from "react";
+import { findAnswerById, predefinedQuestions } from "../../data/predefinedQA";
 import { useChatStore } from "../../store/useChatStore";
 import type { Message } from "../../types/chat";
-import QuestionSelector from "./QuestionSelector";
 
 const InputArea: React.FC = () => {
   const { isLoading, actions } = useChatStore();
+  const [input, setInput] = useState("");
 
   const handleQuestionSelect = async (
     questionId: string,
@@ -16,33 +16,75 @@ const InputArea: React.FC = () => {
     // 發送用戶選擇的問題
     await actions.sendMessage(questionText);
 
-    // 立即發送預定義的回答
+    // 若有預設答案，模擬回覆以提升互動感
     const predefinedAnswer = findAnswerById(questionId);
     if (predefinedAnswer) {
-      // 模擬短暫延遲，讓對話更自然
       setTimeout(() => {
-        // 手動添加秦始皇的回答
         const assistantMessage: Message = {
           id: `answer_${questionId}_${Date.now()}`,
           content: predefinedAnswer,
           role: "assistant",
           timestamp: new Date(),
-          metadata: {
-            mode: "teaching",
-            readabilityScore: 75,
-          },
+          metadata: { mode: "teaching", readabilityScore: 75 },
         };
         actions.completeStreaming(assistantMessage);
       }, 500);
     }
   };
 
+  const handleSendInput = async () => {
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput("");
+    await actions.sendMessage(text);
+  };
+
   return (
-    <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 max-h-80 overflow-y-auto">
-      <QuestionSelector
-        onQuestionSelect={handleQuestionSelect}
-        disabled={isLoading}
-      />
+    <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+      {/* 建議的三個問題（固定前三個） */}
+      <div className="mb-3">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+          建議問題
+        </h3>
+        <div className="flex gap-2">
+          {predefinedQuestions.slice(0, 3).map((q) => (
+            <button
+              key={q.id}
+              onClick={() => handleQuestionSelect(q.id, q.text)}
+              disabled={isLoading}
+              className="flex-1 text-left p-2 rounded border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 min-w-0"
+            >
+              <span className="text-xs text-gray-900 dark:text-white block truncate">
+                {q.text}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 輸入框 */}
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void handleSendInput();
+            }
+          }}
+          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="請輸入你的問題，或選擇上方建議問題..."
+          disabled={isLoading}
+        />
+        <button
+          onClick={() => void handleSendInput()}
+          disabled={isLoading}
+          className="px-3 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+        >
+          送出
+        </button>
+      </div>
 
       {/* 載入指示器 */}
       {isLoading && (
@@ -52,9 +94,8 @@ const InputArea: React.FC = () => {
         </div>
       )}
 
-      {/* 說明文字 */}
       <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-        選擇上方問題與秦始皇對話 • 所有問題都經過歷史考證
+        可直接輸入或選擇建議問題 • 所有建議問題均經過歷史考證
       </div>
     </div>
   );

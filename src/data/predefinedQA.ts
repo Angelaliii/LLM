@@ -127,15 +127,4 @@ export const findAnswerByQuestion = (question: string): string | null => {
   const qa = qinShihuangQA.find((item) => item.question === question);
   return qa ? qa.answer : null;
 };
-
-// 按分類篩選問題
-export const getQuestionsByCategory = (category: PredefinedQA["category"]) => {
-  return predefinedQuestions.filter((q) => q.category === category);
-};
-
-// 按難度篩選問題
-export const getQuestionsByDifficulty = (
-  difficulty: PredefinedQA["difficulty"]
-) => {
-  return predefinedQuestions.filter((q) => q.difficulty === difficulty);
-};
+// （已移除）分類/難度篩選功能如需可在未來復原或放入新的資料管理模組。

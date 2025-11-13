@@ -222,13 +222,15 @@ export class AnalyticsService {
 
 // React Hook for analytics
 export const useAnalytics = () => {
+  // Bind static methods to ensure `this` inside them refers to AnalyticsService
   return {
-    trackEvent: AnalyticsService.trackEvent,
-    trackConversion: AnalyticsService.trackConversion,
-    trackCTAClick: AnalyticsService.trackCTAClick,
-    trackFormSubmit: AnalyticsService.trackFormSubmit,
-    trackDemoInteraction: AnalyticsService.trackDemoInteraction,
-    trackPricingView: AnalyticsService.trackPricingView,
-    trackPageView: AnalyticsService.trackPageView,
+    trackEvent: AnalyticsService.trackEvent.bind(AnalyticsService),
+    trackConversion: AnalyticsService.trackConversion.bind(AnalyticsService),
+    trackCTAClick: AnalyticsService.trackCTAClick.bind(AnalyticsService),
+    trackFormSubmit: AnalyticsService.trackFormSubmit.bind(AnalyticsService),
+    trackDemoInteraction:
+      AnalyticsService.trackDemoInteraction.bind(AnalyticsService),
+    trackPricingView: AnalyticsService.trackPricingView.bind(AnalyticsService),
+    trackPageView: AnalyticsService.trackPageView.bind(AnalyticsService),
   };
 };

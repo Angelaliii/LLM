@@ -9,6 +9,7 @@ interface CTAButtonProps {
   onClick?: () => void;
   href?: string;
   to?: string; // 新增路由跳轉支援
+  openInNewTab?: boolean;
   disabled?: boolean;
   loading?: boolean;
   className?: string;
@@ -37,6 +38,7 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
   onClick,
   href,
   to,
+  openInNewTab = false,
   disabled = false,
   loading = false,
   className = "",
@@ -62,6 +64,12 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
 
     // 處理路由跳轉
     if (to) {
+      if (openInNewTab) {
+        // 開新分頁導向 app route
+        const origin = (globalThis as any).location?.origin ?? "";
+        window.open(origin + to, "_blank");
+        return;
+      }
       navigate(to);
       return;
     }
@@ -93,14 +101,17 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
 
   // 如果是外部連結
   if (href && !href.startsWith("#")) {
+    const targetAttr =
+      openInNewTab || href.startsWith("http") ? "_blank" : undefined;
+    const relAttr = targetAttr ? "noopener noreferrer" : undefined;
     return (
       <a
         href={href}
         className={classes}
         aria-label={ariaLabel}
         onClick={handleClick}
-        target={href.startsWith("http") ? "_blank" : undefined}
-        rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+        target={targetAttr}
+        rel={relAttr}
       >
         {loading && (
           <svg

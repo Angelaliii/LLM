@@ -1,78 +1,77 @@
-import React, { useEffect, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useRef } from "react";
 import { useAnalytics } from "../services/analytics";
-import { ChatMessage, DemoStreamService } from "../services/demoStream";
 import CTAButton from "./CTAButton";
 import Icon from "./Icon";
 
+gsap.registerPlugin(ScrollTrigger);
+
+// 兩組示範問答；展示順序為：使用者(Q) 右側 → 秦始皇(A) 左側 → 下一組 Q → A
+const qaPairs = [
+  {
+    q: "您為什麼要統一文字？",
+    a: "統一文字能促進政令傳達與文化整合，減少地方隔閡，對於治理大一統國家十分重要。",
+  },
+  {
+    q: "長城是誰建的？",
+    a: "長城由各時期邊防與民夫共同構築，始皇時期統一六國後，進行了連接與加固的工程以防外患。",
+  },
+];
+
 const LiveDemo: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [currentMessage, setCurrentMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [userInput, setUserInput] = useState("");
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const { trackDemoInteraction } = useAnalytics();
+  // 扁平化成依序顯示的氣泡：user(right) -> assistant(left) -> ...
+  const bubbles = qaPairs.flatMap((p) => [
+    { role: "user", text: p.q },
+    { role: "assistant", text: p.a },
+  ]);
 
   useEffect(() => {
-    // 初始化歡迎訊息
-    const welcomeMessage = DemoStreamService.getWelcomeMessage();
-    setMessages([welcomeMessage]);
-  }, []);
+    if (!containerRef.current) return;
 
-  const handleSendMessage = async () => {
-    if (!userInput.trim() || isTyping) return;
+    // 建立按顯示順序的一維氣泡清單：user(right), assistant(left), user, assistant
+    const bubbles = qaPairs.flatMap((p) => [
+      { role: "user", text: p.q },
+      { role: "assistant", text: p.a },
+    ]);
 
-    const userMessage: ChatMessage = {
-      id: DemoStreamService.generateMessageId(),
-      role: "user",
-      content: userInput,
-      timestamp: new Date(),
-    };
+    const items = Array.from(
+      containerRef.current.querySelectorAll<HTMLElement>(".chat-bubble")
+    );
 
-    setMessages((prev) => [...prev, userMessage]);
-    setUserInput("");
-    setIsTyping(true);
-
-    // 追蹤互動
-    trackDemoInteraction("message_sent", { userInput: userInput.slice(0, 50) });
-
-    try {
-      // 模擬串流回應
-      const assistantMessage: ChatMessage = {
-        id: DemoStreamService.generateMessageId(),
-        role: "assistant",
-        content: "",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      // 開始串流
-      for await (const chunk of DemoStreamService.streamResponse(userInput)) {
-        setCurrentMessage(chunk.content);
-
-        if (chunk.isComplete) {
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessage.id
-                ? { ...msg, content: chunk.content }
-                : msg
-            )
-          );
-          setCurrentMessage("");
-          setIsTyping(false);
+    for (let i = 0; i < items.length; i++) {
+      const el = items[i];
+      gsap.fromTo(
+        el,
+        { autoAlpha: 0, y: 18 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 92%",
+            toggleActions: "play none none reverse",
+            onEnter: () => {
+              trackDemoInteraction?.("demo_bubble_reveal", {
+                index: i,
+                role: bubbles[i]?.role,
+              });
+            },
+          },
         }
-      }
-    } catch (error) {
-      console.error("Demo error:", error);
-      setIsTyping(false);
+      );
     }
-  };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+    return () => {
+      for (const st of ScrollTrigger.getAll()) st.kill();
+      gsap.killTweensOf(items as any);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef.current]);
 
   return (
     <section id="demo" className="section-padding bg-gray-50">
@@ -107,74 +106,31 @@ const LiveDemo: React.FC = () => {
               </div>
             </div>
 
-            {/* 聊天內容 */}
-            <div className="h-96 overflow-y-auto p-6 space-y-4">
-              {messages.map((message) => (
+            {/* 聊天內容：滾動顯示 — 右側 user、左側 assistant（每個氣泡逐一顯示） */}
+            <div
+              ref={containerRef}
+              className="h-96 overflow-y-auto p-6 space-y-4"
+            >
+              {bubbles.map((b, i) => (
                 <div
-                  key={message.id}
-                  className={`flex ${
-                    message.role === "user" ? "justify-end" : "justify-start"
+                  key={`bubble-${i}-${b.role}`}
+                  className={`${
+                    b.role === "user"
+                      ? "flex justify-end"
+                      : "flex justify-start"
                   }`}
                 >
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
-                      message.role === "user"
+                    className={`chat-bubble max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                      b.role === "user"
                         ? "bg-primary-500 text-white"
                         : "bg-gray-100 text-dark-900"
                     }`}
                   >
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    <p className="text-xs mt-2 opacity-70">
-                      {message.timestamp.toLocaleTimeString("zh-TW", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    {b.text}
                   </div>
                 </div>
               ))}
-
-              {/* 正在輸入指示器 */}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 text-dark-900 px-4 py-3 rounded-lg max-w-xs lg:max-w-md">
-                    <div className="typing-cursor">
-                      {currentMessage || "正在思考中..."}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 輸入區域 */}
-            <div className="border-t border-gray-200 p-6">
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="問問秦始皇關於統一天下、修築長城，或任何歷史問題..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  disabled={isTyping}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!userInput.trim() || isTyping}
-                  className="bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-colors duration-200"
-                >
-                  <Icon name="arrow" size="sm" />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between mt-4 text-sm text-dark-700">
-                <div className="flex items-center space-x-4">
-                  <span>💡 試試問：「您為什麼要統一文字？」</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  按 Enter 發送 • 本為展示用模擬對話
-                </div>
-              </div>
             </div>
           </div>
 
@@ -189,7 +145,8 @@ const LiveDemo: React.FC = () => {
               </p>
               <CTAButton
                 size="lg"
-                href="#contact"
+                to="/chat/"
+                openInNewTab
                 trackingLabel="開始完整體驗"
                 trackingLocation="demo-cta"
               >

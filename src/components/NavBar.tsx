@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getCurrentCopy } from "../data/copy";
 import { useUIStore } from "../store/useUIStore";
-import CTAButton from "./CTAButton";
 import Icon from "./Icon";
 
 const NavBar: React.FC = () => {
@@ -75,17 +74,6 @@ const NavBar: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <CTAButton
-              href="#contact"
-              trackingLabel={copy.hero.cta.primary}
-              trackingLocation="navbar"
-            >
-              {copy.hero.cta.primary}
-            </CTAButton>
-          </div>
-
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2 text-dark-700 hover:text-primary-500 transition-colors"
@@ -120,16 +108,6 @@ const NavBar: React.FC = () => {
                 {item.label}
               </a>
             ))}
-            <div className="pt-4">
-              <CTAButton
-                href="#contact"
-                className="w-full"
-                trackingLabel={copy.hero.cta.primary}
-                trackingLocation="mobile-menu"
-              >
-                {copy.hero.cta.primary}
-              </CTAButton>
-            </div>
           </div>
         </div>
       </div>

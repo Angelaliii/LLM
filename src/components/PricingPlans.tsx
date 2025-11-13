@@ -74,7 +74,8 @@ const PricingPlans: React.FC = () => {
                 <CTAButton
                   variant={index === 1 ? "primary" : "secondary"}
                   className="w-full"
-                  href={index === 2 ? "#demo" : "#contact"}
+                  to="/chat/"
+                  openInNewTab
                   trackingLabel={plan.cta}
                   trackingLocation="pricing"
                 >
@@ -89,7 +90,8 @@ const PricingPlans: React.FC = () => {
           <p className="text-dark-700 mb-4">需要客製化方案或有其他問題？</p>
           <CTAButton
             variant="ghost"
-            href="#contact"
+            to="/chat/"
+            openInNewTab
             trackingLabel="聯絡專人服務"
             trackingLocation="pricing-footer"
           >

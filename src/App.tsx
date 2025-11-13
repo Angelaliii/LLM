@@ -10,7 +10,7 @@ import {
   initializeTheme,
 } from "./store/useUIStore";
 
-// 原有組件的保留導入
+import ContactSection from "./components/ContactSection";
 import FAQ from "./components/FAQ";
 import FeatureGrid from "./components/FeatureGrid";
 import Footer from "./components/Footer";
@@ -32,12 +32,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* 導覽列 */}
-      <div className="flex-shrink-0">
-        <NavBar />
-      </div>
-
-      {/* 對話窗口 */}
+      {/* 對話窗口（Chat 頁面不應有 header / 導覽列） */}
       <div className="flex-1 min-h-0">
         <ChatWindow />
       </div>
@@ -48,7 +43,7 @@ const ChatPage: React.FC = () => {
 // 原有的登陸頁面組件
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* 跳轉至主要內容的無障礙連結 */}
       <a
         href="#main-content"
@@ -61,7 +56,7 @@ const LandingPage: React.FC = () => {
       <NavBar />
 
       {/* 主要內容 */}
-      <main id="main-content" className="pt-16">
+      <main id="main-content" className="pt-16 flex-1">
         {/* Hero 區塊 */}
         <Hero />
 
@@ -82,6 +77,8 @@ const LandingPage: React.FC = () => {
 
         {/* 常見問題 */}
         <FAQ />
+        {/* 聯絡表單區（移出 Footer 並放在 Footer 之前） */}
+        <ContactSection />
       </main>
 
       {/* 頁腳 */}

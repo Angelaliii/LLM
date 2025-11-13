@@ -19,6 +19,8 @@ interface ChatState {
 
   // 對話配置
   personaId: string;
+  // 各 persona 的在線狀態
+  personaStatus: Record<string, "online" | "offline">;
   mode: ChatMode;
   rigorLevel: RigorLevel;
   language: Language;
@@ -33,6 +35,7 @@ interface ChatState {
 
     // 配置變更
     setPersona: (personaId: string) => void;
+    setPersonaStatus: (personaId: string, status: "online" | "offline") => void;
     setMode: (mode: ChatMode) => void;
     setRigorLevel: (level: RigorLevel) => void;
     setLanguage: (language: Language) => void;
@@ -73,6 +76,12 @@ export const useChatStore = create<ChatState>()(
         mode: "teaching",
         rigorLevel: "balanced",
         language: "zh-TW",
+        // 預設人物在線狀態
+        personaStatus: {
+          "qin-shi-huang": "online",
+          socrates: "offline",
+          "su-shi": "offline",
+        },
 
         sessions: [],
 
@@ -141,6 +150,15 @@ export const useChatStore = create<ChatState>()(
           setPersona: (personaId: string) => {
             set({ personaId });
             get().actions.startNewSession();
+          },
+
+          setPersonaStatus: (
+            personaId: string,
+            status: "online" | "offline"
+          ) => {
+            set((state) => ({
+              personaStatus: { ...state.personaStatus, [personaId]: status },
+            }));
           },
 
           setMode: (mode: ChatMode) => {
@@ -271,6 +289,7 @@ export const useChatStore = create<ChatState>()(
         partialize: (state) => ({
           sessions: state.sessions,
           personaId: state.personaId,
+          personaStatus: state.personaStatus,
           mode: state.mode,
           rigorLevel: state.rigorLevel,
           language: state.language,
