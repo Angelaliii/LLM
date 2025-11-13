@@ -4,7 +4,8 @@ export const qinShiHuangPersona: PersonaConfig = {
   id: "qin-shi-huang",
   name: "秦始皇",
   period: "秦朝 (259-210 BCE)",
-  avatar: "/avatars/qin-shi-huang.jpg",
+  // Use public assets folder for avatars so Vite can serve them directly
+  avatar: "/assets/qin_icon.png",
   description:
     "中國首位皇帝，統一六國，建立中央集權制度，推行書同文、車同軌等標準化政策。",
 

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>樣式測試</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6;
+        background-color: #ffffff;
+        color: #1b1b1d;
+      }
+
+      .container-max {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .section-padding {
+        padding: 4rem 1rem;
+      }
+
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+      }
+
+      .nav-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 4rem;
+        padding: 0 1rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: #c6a15b;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+      }
+
+      .hero {
+        padding-top: 8rem;
+        padding-bottom: 4rem;
+        background: linear-gradient(to bottom right, #fdf7ed, #ffffff, #faecc0);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        display: grid;
+        gap: 3rem;
+        align-items: center;
+      }
+
+      @media (min-width: 1024px) {
+        .hero-content {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .text-heading-1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        font-family: "Noto Serif TC", serif;
+        line-height: 1.3;
+        margin-bottom: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .text-heading-1 {
+          font-size: 3rem;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .text-heading-1 {
+          font-size: 3.75rem;
+        }
+      }
+
+      .btn-primary {
+        background-color: #c6a15b;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        margin-right: 1rem;
+      }
+
+      .btn-primary:hover {
+        background-color: #b8935a;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: #c6a15b;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #c6a15b;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .btn-secondary:hover {
+        background-color: #c6a15b;
+        color: white;
+      }
+
+      .features {
+        padding: 4rem 1rem;
+        background: #f9fafb;
+      }
+
+      .features-grid {
+        display: grid;
+        gap: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .features-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+
+      .card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .card-icon {
+        width: 4rem;
+        height: 4rem;
+        background: linear-gradient(to bottom right, #c6a15b, #b8935a);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .text-heading-3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        font-family: "Noto Serif TC", serif;
+        margin-bottom: 1rem;
+      }
+
+      .hero-demo {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .demo-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .demo-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: #c6a15b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 導航欄 -->
+    <nav class="nav">
+      <div class="container-max">
+        <div class="nav-content">
+          <div class="logo">
+            <div class="logo-icon">💬</div>
+            <div>
+              <h1 style="font-size: 1.25rem; font-weight: 700; margin: 0">
+                歷史對話系統
+              </h1>
+              <p style="font-size: 0.75rem; color: #6b7280; margin: 0">
+                LLM 互動教學平台
+              </p>
+            </div>
+          </div>
+          <div>
+            <a href="#" class="btn-primary">免費試用</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero 區塊 -->
+    <section class="hero">
+      <div class="container-max">
+        <div class="hero-content">
+          <div>
+            <h1 class="text-heading-1">與秦始皇對話<br />體驗歷史的真實</h1>
+            <p style="font-size: 1.25rem; color: #4a4a4f; margin-bottom: 2rem">
+              革命性的 LLM 歷史教學平台，讓學生與秦始皇進行第一人稱對話，
+              透過互動學習深度理解歷史脈絡，提升學習成效。
+            </p>
+
+            <div style="margin-bottom: 2rem">
+              <a href="#" class="btn-primary">立即體驗免費版</a>
+              <a href="#" class="btn-secondary">觀看展示影片</a>
+            </div>
+
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+                color: #6b7280;
+                font-size: 0.875rem;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 0.5rem">
+                <span style="color: #c6a15b">✓</span>
+                <span>5 分鐘即可上手</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem">
+                <span style="color: #c6a15b">✓</span>
+                <span>符合課綱設計</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-demo">
+            <div class="demo-header">
+              <div class="demo-avatar">秦</div>
+              <div>
+                <div style="font-weight: 600">秦始皇</div>
+                <div style="font-size: 0.875rem; color: #6b7280">
+                  正在對話中...
+                </div>
+              </div>
+            </div>
+
+            <div
+              style="
+                background: #f9fafb;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin-bottom: 1rem;
+              "
+            >
+              <p style="margin: 0; color: #1f2937">
+                <strong>學生：</strong>始皇帝，請問您當時為什麼要統一文字呢？
+              </p>
+            </div>
+
+            <div
+              style="
+                background: #fdf7ed;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                border-left: 4px solid #c6a15b;
+              "
+            >
+              <p style="margin: 0; color: #1f2937">
+                <strong>秦始皇：</strong
+                >朕統一六國後，發現各國文字不同，有礙政令傳達。
+                統一文字，是為了讓天下百姓都能理解朕的詔書，促進文化交流...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 功能特色 -->
+    <section class="features">
+      <div class="container-max">
+        <div style="text-align: center; margin-bottom: 3rem">
+          <h2
+            style="
+              font-size: 2.25rem;
+              font-weight: 700;
+              font-family: 'Noto Serif TC', serif;
+              margin-bottom: 1rem;
+            "
+          >
+            三大核心優勢
+          </h2>
+          <p
+            style="
+              font-size: 1.25rem;
+              color: #4a4a4f;
+              max-width: 48rem;
+              margin: 0 auto;
+            "
+          >
+            革命性的 LLM 技術結合歷史教育，為師生打造全新的學習體驗
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="card">
+            <div class="card-icon">🤖</div>
+            <h3 class="text-heading-3">AI 驅動對話</h3>
+            <p style="color: #4a4a4f; margin-bottom: 1rem">
+              基於先進 LLM 技術，提供自然流暢的歷史人物對話體驗
+            </p>
+            <div style="color: #c6a15b; font-weight: 500; font-size: 0.875rem">
+              ✓ 98% 的學生認為更有趣
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">📚</div>
+            <h3 class="text-heading-3">課綱完美對接</h3>
+            <p style="color: #4a4a4f; margin-bottom: 1rem">
+              完全符合國高中歷史課綱，涵蓋各朝代重要歷史人物
+            </p>
+            <div style="color: #c6a15b; font-weight: 500; font-size: 0.875rem">
+              ✓ 節省 70% 備課時間
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">👥</div>
+            <h3 class="text-heading-3">多元互動模式</h3>
+            <p style="color: #4a4a4f; margin-bottom: 1rem">
+              支持個人對話、小組討論、課堂辯論等多種教學情境
+            </p>
+            <div style="color: #c6a15b; font-weight: 500; font-size: 0.875rem">
+              ✓ 學習成效提升 45%
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

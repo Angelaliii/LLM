@@ -15,8 +15,6 @@ const ChatWindow: React.FC = () => {
     streamingContent,
     error,
     personaId,
-    mode,
-    rigorLevel,
     actions,
   } = useChatStore();
 
@@ -36,42 +34,24 @@ const ChatWindow: React.FC = () => {
   return (
     <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-6">
       <div className="mx-auto w-full max-w-6xl px-4">
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* 側欄（桌面可見） */}
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* 側欄 */}
           <PersonaSidebar />
 
           {/* 右側主區塊 */}
-          <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-[calc(100vh-4rem)]">
             {/* 頂部簡潔資訊列 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-start px-4 py-3 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <PersonaBadge
                   personaId={personaId}
                   size="medium"
                   showDescription={false}
                 />
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    與秦始皇對話
-                  </div>
-                  <div className="text-xs">
-                    {mode === "teaching"
-                      ? "教學模式"
-                      : mode === "quick"
-                      ? "快問快答"
-                      : "蘇格拉底模式"}{" "}
-                    •{" "}
-                    {rigorLevel === "strict"
-                      ? "嚴謹"
-                      : rigorLevel === "balanced"
-                      ? "平衡"
-                      : "輕鬆"}
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* 消息列表 */}
+            {/* 消息列表（內容超出時在此處滾動） */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && !isStreaming && (
                 <div className="text-center py-12">
@@ -129,14 +109,11 @@ const ChatWindow: React.FC = () => {
 
               <div ref={messagesEndRef} />
             </div>
-          </div>
-        </div>
 
-        {/* 輸入區塊置於整體底部（在右側主區塊內） */}
-        <div className="mx-auto max-w-6xl px-4 mt-4">
-          <div className="md:ml-72">
-            {/* 在桌面上為右側對齊留出側欄寬度 */}
-            <InputArea />
+            {/* 將輸入區放入右側卡片底部，與卡片樣式一致 */}
+            <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700">
+              <InputArea />
+            </div>
           </div>
         </div>
       </div>

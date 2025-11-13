@@ -49,7 +49,7 @@ const PersonaSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-72 lg:w-80 p-4 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+    <aside className="flex flex-col md:w-1/3 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <div className="mb-4">
         <PersonaBadge
           personaId={persona.id}
@@ -89,7 +89,7 @@ const PersonaSidebar: React.FC = () => {
           {persona.expertise?.primary?.slice(0, 6).map((t: string) => (
             <span
               key={t}
-              className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-xs"
+              className="px-3 py-1 bg-primary-50 dark:bg-primary-700 text-primary-700 dark:text-primary-100 rounded-full text-xs font-medium"
             >
               {t}
             </span>
@@ -111,14 +111,34 @@ const PersonaSidebar: React.FC = () => {
                 className={`w-full text-left flex items-center justify-between rounded-lg p-2 transition-all duration-150 ${
                   isActive
                     ? "bg-primary-50 dark:bg-primary-700 ring-1 ring-primary-300"
-                    : "bg-gray-50 dark:bg-gray-700 hover:scale-[1.02] hover:shadow-sm"
+                    : "bg-gray-50 dark:bg-gray-700 hover:translate-x-0.5 hover:shadow-sm"
                 }`}
                 title={`切換至 ${p.name}`}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center font-bold text-sm text-white">
-                    {p.name.slice(0, 1)}
-                  </div>
+                  {(() => {
+                    const resolveAsset = (p: string) => {
+                      if (!p) return p;
+                      const trimmed = p.replace(/^\/+/, "");
+                      return `${import.meta.env.BASE_URL || "/"}${trimmed}`;
+                    };
+
+                    const fallback =
+                      p.id === "su-shi"
+                        ? "assets/SuShi_icon.png"
+                        : "assets/Glashütte_icon.png";
+                    const raw = p.avatar
+                      ? p.avatar.replace(/^\/+/, "")
+                      : fallback;
+                    const src = raw ? resolveAsset(raw) : undefined;
+                    return (
+                      <img
+                        src={src}
+                        alt={p.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    );
+                  })()}
                   <div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                       {p.name}

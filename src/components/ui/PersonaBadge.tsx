@@ -44,23 +44,57 @@ const PersonaBadge: React.FC<PersonaBadgeProps> = ({
 
   return (
     <div className={classes.container}>
-      {/* 人物頭像 */}
-      <div
-        className={`${classes.avatar} bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg`}
-      >
-        始
-      </div>
+      {/* 人物頭像：優先使用 persona.avatar，其次 fallback 到 public assets */}
+      {(() => {
+        // Resolve asset paths so they respect BASE_URL (useful when app is served under a subpath)
+        const resolveAsset = (p: string) => {
+          if (!p) return p;
+          // remove leading slashes then prefix with base
+          const trimmed = p.replace(/^\/+/, "");
+          return `${import.meta.env.BASE_URL || "/"}${trimmed}`;
+        };
+
+        // 簡單的 fallback map 對應 workspace 中的 assets
+        const fallbackMap: Record<string, string> = {
+          "qin-shi-huang": "assets/qin_icon.png",
+          "su-shi": "assets/SuShi_icon.png",
+          socrates: "assets/Glashütte_icon.png",
+        };
+
+        const rawSrc = persona.avatar
+          ? persona.avatar.replace(/^\/+/, "")
+          : fallbackMap[persona.id];
+        const src = rawSrc ? resolveAsset(rawSrc) : null;
+
+        if (src) {
+          return (
+            <img
+              src={src}
+              alt={`${persona.name} 頭像`}
+              className={`${classes.avatar} rounded-full object-cover shadow-lg`}
+            />
+          );
+        }
+
+        return (
+          <div
+            className={`${classes.avatar} bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg`}
+          >
+            {persona.name.slice(0, 1)}
+          </div>
+        );
+      })()}
 
       {/* 人物資訊 */}
       <div className="flex-1">
-        <div className="flex items-baseline space-x-2">
+        <div className="flex flex-col">
           <h3
-            className={`${classes.text} font-bold text-gray-900 dark:text-gray-100`}
+            className={`${classes.text} font-bold text-gray-900 dark:text-gray-100 leading-tight`}
           >
             {persona.name}
           </h3>
           <span
-            className={`${classes.period} text-gray-500 dark:text-gray-400 font-medium`}
+            className={`${classes.period} text-gray-500 dark:text-gray-400 font-medium mt-1 block`}
           >
             {persona.period}
           </span>

@@ -43,18 +43,18 @@ const InputArea: React.FC = () => {
     <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
       {/* 建議的三個問題（固定前三個） */}
       <div className="mb-3">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2 text-center md:text-left">
           建議問題
         </h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
           {predefinedQuestions.slice(0, 3).map((q) => (
             <button
               key={q.id}
               onClick={() => handleQuestionSelect(q.id, q.text)}
               disabled={isLoading}
-              className="flex-1 text-left p-2 rounded border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 min-w-0"
+              className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-sm rounded-full hover:bg-primary-50 dark:hover:bg-primary-600 disabled:opacity-50"
             >
-              <span className="text-xs text-gray-900 dark:text-white block truncate">
+              <span className="text-xs text-gray-900 dark:text-white block truncate max-w-xs">
                 {q.text}
               </span>
             </button>
