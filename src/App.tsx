@@ -18,7 +18,6 @@ import Hero from "./components/Hero";
 import LiveDemo from "./components/LiveDemo";
 import NavBar from "./components/NavBar";
 import PricingPlans from "./components/PricingPlans";
-import SocialProof from "./components/SocialProof";
 
 // 主對話頁面
 const ChatPage: React.FC = () => {
@@ -64,9 +63,6 @@ const LandingPage: React.FC = () => {
 
         {/* 互動展示 */}
         <LiveDemo />
-
-        {/* 社會證明 */}
-        <SocialProof />
 
         {/* 價格方案 */}
         <PricingPlans />

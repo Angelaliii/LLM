@@ -9,8 +9,8 @@ const NavBar: React.FC = () => {
   const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
   const location = useLocation();
 
-  // 判斷是否在聊天頁面
-  const isChatPage = location.pathname === "/chat";
+  // 判斷是否在聊天頁面（考量 app 可能部署於子路徑）
+  const isChatPage = location.pathname.endsWith("/chat");
 
   useEffect(() => {
     const handleScroll = () => {

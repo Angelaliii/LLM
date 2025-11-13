@@ -65,9 +65,12 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
     // 處理路由跳轉
     if (to) {
       if (openInNewTab) {
-        // 開新分頁導向 app route
+        // 開新分頁導向 app route — 考量 app 被部署在子路徑時要加上 BASE_URL
         const origin = (globalThis as any).location?.origin ?? "";
-        window.open(origin + to, "_blank");
+        const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+        const path = to.replace(/^\/+/, "");
+        const url = `${origin}${base}/${path}`;
+        window.open(url, "_blank");
         return;
       }
       navigate(to);
