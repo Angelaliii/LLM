@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { findAnswerByQuestion } from "../data/predefinedQA";
-import { callOllamaChat } from "../services/ollama";
-import { e2Chunks, e2Npcs } from "../types/data/missions/e2-industrial-agri";
+import { streamChatViaBackend } from "../services/llmClient";
+import { e2Chunks } from "../types/data/missions/e2-industrial-agri";
 import type {
   ChatMode,
   ChatSession,
@@ -73,7 +73,7 @@ interface ChatState {
     clearMessages: () => void;
     reset: () => void;
     // 任務流程相關 actions
-    selectMission: (missionId: string) => void;
+    selectMission: (missionId: string) => Promise<void>;
     goToStage: (stage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => void;
     selectNpc: (npcId: string) => void;
     setHiddenSummary: (summary: string) => void;
@@ -173,46 +173,35 @@ export const useChatStore = create<ChatState>()(
                   },
                 });
               } else {
-                // 使用 Ollama 呼叫真實模型
+                // 使用後端 API 呼叫 Ollama（非預設答案）
                 try {
-                  get().actions.startStreaming();
-
-                  // 組裝 system prompt（若有選中的 NPC，使用其 persona）
-                  const personaPrompt = (() => {
-                    try {
-                      const npc = e2Npcs.find((n) => n.id === get().selectedNpcId);
-                      return npc ? npc.persona : undefined;
-                    } catch (e) {
-                      return undefined;
-                    }
-                  })();
-
-                  const payload = {
-                    model: "llama3.2-8b",
-                    systemPrompt: personaPrompt,
-                    messages: [...newMessages].map((m) => ({ role: m.role as any, content: m.content })),
-                  };
-
-                  const data = await callOllamaChat(payload as any);
-
-                  // 解析回傳（兼容不同回傳格式）
-                  const replyText =
-                    data?.message?.content ||
-                    (data?.choices && data.choices[0]?.message?.content) ||
-                    (typeof data === "string" ? data : JSON.stringify(data));
-
-                  const assistantMessage: Message = {
-                    id: crypto.randomUUID(),
-                    role: "assistant",
-                    content: replyText,
-                    timestamp: new Date(),
-                    metadata: {
-                      mode,
-                      readabilityScore: 75,
+                  // 呼叫前端 wrapper，wrapper 會 POST 到 /api/ollama/chat
+                  await streamChatViaBackend(content, {
+                    missionId: get().missionId ?? undefined,
+                    npcId: get().selectedNpcId ?? undefined,
+                    handlers: {
+                      onChunk: (chunk) => {
+                        get().actions.updateStreamingContent(chunk);
+                      },
+                      onComplete: (assistantText) => {
+                        const assistantMessage: Message = {
+                          id: crypto.randomUUID(),
+                          role: "assistant",
+                          content: assistantText,
+                          timestamp: new Date(),
+                          metadata: { mode, readabilityScore: 75 },
+                        };
+                        get().actions.completeStreaming(assistantMessage);
+                      },
+                      onError: (err) => {
+                        set({
+                          error: err.message,
+                          isLoading: false,
+                          isStreaming: false,
+                        });
+                      },
                     },
-                  };
-
-                  get().actions.completeStreaming(assistantMessage);
+                  });
                 } catch (error) {
                   set({
                     error: error instanceof Error ? error.message : String(error),
@@ -235,31 +224,58 @@ export const useChatStore = create<ChatState>()(
             get().actions.startNewSession();
           },
 
-          selectMission: (missionId: string) => {
-            // set mission and move directly to chat layout (S3) showing sidebar + chat
+          selectMission: async (missionId: string) => {
+            // set mission and move to S3 chat layout
             set({ missionId, missionStage: "S3", selectedNpcId: null });
 
-            // initialize a fresh session and inject the mission intro as the first assistant message
+            // initialize a fresh session
             get().actions.startNewSession();
 
-            // find a core intro chunk for this mission
-            const chunk = e2Chunks.find((c) => c.missionId === missionId && c.type === "core_fact") || e2Chunks[0];
-            const introText = chunk?.text || "歡迎進入任務。";
+            // Request backend to generate a mission intro (S1 behaviour per spec)
+            try {
+              const userPrompt = `請為任務 ${missionId} 產生一段 150-200 字的任務開場故事，並在最後列出 1 到 2 個引導式問題（每個問題一句話）。`;
 
-            const introMessage: Message = {
-              id: crypto.randomUUID(),
-              role: "assistant",
-              content: introText,
-              timestamp: new Date(),
-              metadata: { mode: "teaching" },
-            };
+              await new Promise<void>((resolve, reject) => {
+                streamChatViaBackend(userPrompt, {
+                  missionId,
+                  handlers: {
+                    onChunk: () => {},
+                    onComplete: (assistantText) => {
+                      const introMessage: Message = {
+                        id: crypto.randomUUID(),
+                        role: "assistant",
+                        content: assistantText,
+                        timestamp: new Date(),
+                        metadata: { mode: "teaching" },
+                      };
 
-            set((state) => ({
-              messages: [introMessage],
-              currentSession: state.currentSession
-                ? { ...state.currentSession, messages: [introMessage], updatedAt: new Date() }
-                : state.currentSession,
-            }));
+                      set((state) => ({
+                        messages: [introMessage],
+                        currentSession: state.currentSession
+                          ? { ...state.currentSession, messages: [introMessage], updatedAt: new Date() }
+                          : state.currentSession,
+                      }));
+
+                      resolve();
+                    },
+                    onError: (err) => reject(err),
+                  },
+                });
+              });
+            } catch (err) {
+              // fallback to local chunk if backend fails
+              const chunk = e2Chunks.find((c) => c.missionId === missionId && c.type === "core_fact") || e2Chunks[0];
+              const introText = chunk?.text || "歡迎進入任務。";
+              const introMessage: Message = {
+                id: crypto.randomUUID(),
+                role: "assistant",
+                content: introText,
+                timestamp: new Date(),
+                metadata: { mode: "teaching" },
+              };
+
+              set({ messages: [introMessage] });
+            }
           },
 
           goToStage: (missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => {
@@ -381,6 +397,66 @@ export const useChatStore = create<ChatState>()(
                   }
                 : null,
             }));
+
+            // 非同步觸發進度評估（S3-EVAL），每 2-3 輪或達到條件時呼叫後端 /api/eval
+            (async () => {
+              try {
+                const state = get();
+                const msgs = state.messages;
+
+                const userCount = msgs.filter((m) => m.role === 'user').length;
+                const conversationTurns = userCount; // 以使用者送出次數作為 turn 計數
+
+                // 只有在有 missionId 時才做 S3-EVAL
+                if (!state.missionId) return;
+
+                // 每 3 個使用者回合評估一次，或當使用者回合 >= 6 時強制評估
+                if ((conversationTurns >= 3 && conversationTurns % 3 === 0) || conversationTurns >= 6) {
+                  const conversationSummary = msgs.slice(-12).map((m) => `${m.role}: ${m.content}`).join('\n');
+
+                  const res = await fetch('/api/eval', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ missionId: state.missionId, conversationSummary }),
+                  });
+
+                  if (!res.ok) return;
+                  const data = await res.json();
+                  const evalResult = data?.eval;
+
+                  const masteredCount = evalResult?.overall?.masteredCount ?? 0;
+                  const confidence = evalResult?.overall?.confidence ?? 0;
+
+                  const readyToSummarize = conversationTurns >= 6 && masteredCount >= 3 && confidence >= 0.7;
+
+                  if (readyToSummarize) {
+                    // 產生任務完整整理（S4）並切換階段
+                    try {
+                      const summaryPrompt = `請根據任務 ${state.missionId} 的核心知識、學習目標，以及以下對話摘要，產出一篇 300 至 500 字、適合國中生閱讀的任務總結，並提供要點列點：\n\n對話摘要：\n${conversationSummary}`;
+
+                      await new Promise<void>((resolve, reject) => {
+                        streamChatViaBackend(summaryPrompt, {
+                          missionId: state.missionId ?? undefined,
+                          handlers: {
+                            onComplete: (summaryText) => {
+                              set({ hiddenSummary: summaryText, missionStage: 'S4' });
+                              resolve();
+                            },
+                            onError: (err) => reject(err),
+                          },
+                        });
+                      });
+                    } catch (e) {
+                      // 失敗則仍切換階段，但不一定有 summary
+                      set({ missionStage: 'S4' });
+                    }
+                  }
+                }
+              } catch (e) {
+                // 忽略評估錯誤，不中斷聊天
+                console.error('S3-EVAL error', e);
+              }
+            })();
           },
 
           setError: (error: string | null) => {

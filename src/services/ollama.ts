@@ -14,7 +14,7 @@ export interface ChatRequest {
 
 export async function callOllamaChat(req: ChatRequest) {
   const body = {
-    model: req.model ?? 'llama3.2-8b',
+    model: req.model ?? 'llama3.2:3b',
     messages: [
       req.systemPrompt
         ? { role: 'system', content: req.systemPrompt }
