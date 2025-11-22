@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { findAnswerByQuestion } from "../data/predefinedQA";
+import { callOllamaChat } from "../services/ollama";
 import { e2Chunks, e2Npcs } from "../types/data/missions/e2-industrial-agri";
 import type {
   ChatMode,
@@ -139,37 +140,87 @@ export const useChatStore = create<ChatState>()(
               // 如果問題與預定義問答匹配，優先使用預設答案（保持打字串流效果）
               const predefined = findAnswerByQuestion(content);
 
-              // 模擬串流回應
-              await simulateStreamingResponse(content, {
-                personaId,
-                mode,
-                rigorLevel,
-                language,
-                forcedResponse: predefined || undefined,
-                onChunk: (chunk) => {
-                  get().actions.updateStreamingContent(chunk);
-                },
-                onComplete: (response) => {
+              if (predefined) {
+                // 使用模擬串流效果顯示預設回覆
+                await simulateStreamingResponse(content, {
+                  personaId,
+                  mode,
+                  rigorLevel,
+                  language,
+                  forcedResponse: predefined,
+                  onChunk: (chunk) => {
+                    get().actions.updateStreamingContent(chunk);
+                  },
+                  onComplete: (response) => {
+                    const assistantMessage: Message = {
+                      id: crypto.randomUUID(),
+                      role: "assistant",
+                      content: response,
+                      timestamp: new Date(),
+                      metadata: {
+                        mode,
+                        readabilityScore: 75,
+                      },
+                    };
+                    get().actions.completeStreaming(assistantMessage);
+                  },
+                  onError: (error) => {
+                    set({
+                      error: error.message,
+                      isLoading: false,
+                      isStreaming: false,
+                    });
+                  },
+                });
+              } else {
+                // 使用 Ollama 呼叫真實模型
+                try {
+                  get().actions.startStreaming();
+
+                  // 組裝 system prompt（若有選中的 NPC，使用其 persona）
+                  const personaPrompt = (() => {
+                    try {
+                      const npc = e2Npcs.find((n) => n.id === get().selectedNpcId);
+                      return npc ? npc.persona : undefined;
+                    } catch (e) {
+                      return undefined;
+                    }
+                  })();
+
+                  const payload = {
+                    model: "llama3.2-8b",
+                    systemPrompt: personaPrompt,
+                    messages: [...newMessages].map((m) => ({ role: m.role as any, content: m.content })),
+                  };
+
+                  const data = await callOllamaChat(payload as any);
+
+                  // 解析回傳（兼容不同回傳格式）
+                  const replyText =
+                    data?.message?.content ||
+                    (data?.choices && data.choices[0]?.message?.content) ||
+                    (typeof data === "string" ? data : JSON.stringify(data));
+
                   const assistantMessage: Message = {
                     id: crypto.randomUUID(),
                     role: "assistant",
-                    content: response,
+                    content: replyText,
                     timestamp: new Date(),
                     metadata: {
                       mode,
-                      readabilityScore: 75, // placeholder readability score
+                      readabilityScore: 75,
                     },
                   };
+
                   get().actions.completeStreaming(assistantMessage);
-                },
-                onError: (error) => {
+                } catch (error) {
                   set({
-                    error: error.message,
+                    error: error instanceof Error ? error.message : String(error),
                     isLoading: false,
                     isStreaming: false,
                   });
-                },
-              });
+                }
+              }
             } catch (error) {
               set({
                 error: error instanceof Error ? error.message : "發生未知錯誤",
