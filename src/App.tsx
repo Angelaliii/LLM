@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatWindow from "./components/chat/ChatWindow";
+import MissionFlow from "./components/mission/MissionFlow";
 import { AnalyticsService } from "./services/analytics";
 import { useChatStore } from "./store/useChatStore";
 import {
@@ -30,9 +31,8 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* 對話窗口（Chat 頁面不應有 header / 導覽列） */}
       <div className="flex-1 min-h-0">
-        <ChatWindow />
+        <MissionFlow />
       </div>
     </div>
   );

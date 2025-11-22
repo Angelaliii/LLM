@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { findAnswerByQuestion } from "../data/predefinedQA";
+import { e2Chunks, e2Npcs } from "../types/data/missions/e2-industrial-agri";
 import type {
   ChatMode,
   ChatSession,
@@ -29,6 +30,16 @@ interface ChatState {
   // 歷史會話
   sessions: ChatSession[];
 
+  // 調查完成旗標（由前端 UI 控制，用於觸發摘要/測驗步驟）
+  investigationComplete: boolean;
+
+  // 任務流程狀態（S0..S5）
+  missionId: string | null;
+  missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
+  selectedNpcId?: string | null;
+  hiddenSummary?: string | null;
+
+
   // 操作方法
   actions: {
     // 發送訊息
@@ -53,11 +64,22 @@ interface ChatState {
 
     // 錯誤處理
     setError: (error: string | null) => void;
+    // 使用者標示調查完成（由 UI 呼叫）
+    markInvestigationComplete: () => void;
     retry: () => Promise<void>;
 
     // 清理
     clearMessages: () => void;
     reset: () => void;
+    // 任務流程相關 actions
+    selectMission: (missionId: string) => void;
+    goToStage: (stage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => void;
+    selectNpc: (npcId: string) => void;
+    setHiddenSummary: (summary: string) => void;
+    // Quiz actions
+    startQuiz: () => void;
+    answerQuiz: (questionId: string, answerKey: string) => void;
+    finishQuiz: () => void;
   };
 }
 
@@ -85,6 +107,11 @@ export const useChatStore = create<ChatState>()(
         },
 
         sessions: [],
+        investigationComplete: false,
+        missionId: null,
+        missionStage: "S0",
+        selectedNpcId: null,
+        hiddenSummary: null,
 
         actions: {
           sendMessage: async (content: string) => {
@@ -157,6 +184,59 @@ export const useChatStore = create<ChatState>()(
             get().actions.startNewSession();
           },
 
+          selectMission: (missionId: string) => {
+            // set mission and move directly to chat layout (S3) showing sidebar + chat
+            set({ missionId, missionStage: "S3", selectedNpcId: null });
+
+            // initialize a fresh session and inject the mission intro as the first assistant message
+            get().actions.startNewSession();
+
+            // find a core intro chunk for this mission
+            const chunk = e2Chunks.find((c) => c.missionId === missionId && c.type === "core_fact") || e2Chunks[0];
+            const introText = chunk?.text || "歡迎進入任務。";
+
+            const introMessage: Message = {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: introText,
+              timestamp: new Date(),
+              metadata: { mode: "teaching" },
+            };
+
+            set((state) => ({
+              messages: [introMessage],
+              currentSession: state.currentSession
+                ? { ...state.currentSession, messages: [introMessage], updatedAt: new Date() }
+                : state.currentSession,
+            }));
+          },
+
+          goToStage: (missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => {
+            set({ missionStage });
+          },
+
+          selectNpc: (npcId: string) => {
+            // select the NPC identity for conversation context but don't clear the mission intro
+            set({ selectedNpcId: npcId, missionStage: "S3", personaId: npcId });
+          },
+
+          setHiddenSummary: (summary: string) => {
+            set({ hiddenSummary: summary });
+          },
+
+          startQuiz: () => {
+            set({ missionStage: "S5" });
+          },
+
+          answerQuiz: (_questionId: string, _answerKey: string) => {
+            // placeholder: quiz scoring handled in finishQuiz for now
+          },
+
+          finishQuiz: () => {
+            // After finishing quiz, reset to S0 or keep at S5; here we'll go back to S0
+            set({ missionStage: "S0", missionId: null, selectedNpcId: null });
+          },
+
           setPersonaStatus: (
             personaId: string,
             status: "online" | "offline"
@@ -197,6 +277,7 @@ export const useChatStore = create<ChatState>()(
               error: null,
               isStreaming: false,
               streamingContent: "",
+              investigationComplete: false,
             });
           },
 
@@ -253,6 +334,11 @@ export const useChatStore = create<ChatState>()(
 
           setError: (error: string | null) => {
             set({ error, isLoading: false, isStreaming: false });
+          },
+
+          // 標示使用者認為調查已經差不多了，前端可在此做後續流程切換
+          markInvestigationComplete: () => {
+            set({ investigationComplete: true, missionStage: "S4" });
           },
 
           retry: async () => {

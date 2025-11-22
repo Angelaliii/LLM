@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { useChatStore } from "../../store/useChatStore";
-import PersonaBadge from "../ui/PersonaBadge";
 import InputArea from "./InputArea";
 import MessageBubble from "./MessageBubble";
-import PersonaSidebar from "./PersonaSidebar";
 import TypingIndicator from "./TypingIndicator";
+
+import { e2Npcs } from "../../types/data/missions/e2-industrial-agri";
 
 const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -14,8 +14,9 @@ const ChatWindow: React.FC = () => {
     isStreaming,
     streamingContent,
     error,
-    personaId,
     actions,
+    investigationComplete,
+    selectedNpcId,
   } = useChatStore();
 
   // 自動滾動到最新消息
@@ -35,19 +36,34 @@ const ChatWindow: React.FC = () => {
     <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-6">
       <div className="mx-auto w-full max-w-6xl px-4">
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* 側欄 */}
-          <PersonaSidebar />
+          {/* 側欄 由上層負責，這裡可隱藏以方便兩欄 layout */}
 
           {/* 右側主區塊 */}
           <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-[calc(100vh-4rem)]">
             {/* 頂部簡潔資訊列 */}
-            <div className="flex items-center justify-start px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <PersonaBadge
-                  personaId={personaId}
-                  size="medium"
-                  showDescription={false}
-                />
+                <div className="flex flex-col">
+                  <div className="text-sm text-gray-500">目前對象</div>
+                  <div className="text-base font-semibold text-gray-800 dark:text-gray-200">
+                    {selectedNpcId
+                      ? (e2Npcs.find((n) => n.id === selectedNpcId)?.name || selectedNpcId)
+                      : "系統 / 敘事者"}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{investigationComplete ? "S4 - 準備整理故事" : "S3 - 與 NPC 對話"}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    actions && (actions as any).markInvestigationComplete && (actions as any).markInvestigationComplete();
+                  }}
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                  aria-label="標記調查完成，進入整理階段"
+                >
+                  我覺得差不多了
+                </button>
               </div>
             </div>
 
