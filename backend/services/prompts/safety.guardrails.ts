@@ -1,5 +1,5 @@
 // Backend safety guardrails moved from frontend
-import type { SafetyCheckResult } from "../../src/types/api";
+import type { SafetyCheckResult } from "../../types/api";
 
 export const SAFETY_KEYWORDS = {
   violence: [

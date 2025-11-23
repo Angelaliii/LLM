@@ -1,4 +1,4 @@
-import { e2Chunks, e2Npcs } from "../../src/types/data/missions/e2-industrial-agri";
+import { e2Chunks, e2Npcs } from "../data/missions/e2-industrial-agri";
 
 export function buildSystemPrompt(params: { missionId?: string; npcId?: string }) {
   const { missionId = "E2", npcId } = params;

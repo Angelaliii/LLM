@@ -3,9 +3,10 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   base: "/LLM/",
+  root: "frontend", // Point to frontend folder
   plugins: [react()],
   build: {
-    outDir: "docs",
+    outDir: "../docs", // Output relative to frontend folder
     rollupOptions: {
       output: {
         manualChunks: {

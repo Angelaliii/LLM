@@ -1,4 +1,4 @@
-import type { PersonaConfig, PersonaPrompts } from "../../src/types/persona";
+import type { PersonaConfig, PersonaPrompts } from "../../types/persona";
 
 export const qinShiHuangPersona: PersonaConfig = {
   id: "qin-shi-huang",

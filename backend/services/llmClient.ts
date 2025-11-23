@@ -1,5 +1,5 @@
-import type { APIConfig } from "../../src/types/api";
-import type { ChatMode, Language, RigorLevel } from "../../src/types/chat";
+import type { APIConfig } from "../types/api";
+import type { ChatMode, Language, RigorLevel } from "../types/chat";
 import { qinShiHuangPrompts } from "./prompts/persona.qinShihuang";
 import { checkContentSafety, checkResponseSafety } from "./prompts/safety.guardrails";
 
