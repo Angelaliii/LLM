@@ -1,23 +1,40 @@
 import React, { useEffect, useRef } from "react";
-import { useChatStore } from "../../store/useChatStore";
+import { useMultiChatStore } from "../../store/useMultiChatStore";
 import InputArea from "./InputArea";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
+import ChatHeader from "./ChatHeader";
+import PersonaSwitcher from "./PersonaSwitcher";
 
 import { e2Npcs } from "../../data/missions/e2-industrial-agri";
 
 const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // 使用新的多角色 store：選取 actions 與需要的狀態屬性
   const {
-    messages,
+    actions,
     isLoading,
     isStreaming,
     streamingContent,
     error,
-    actions,
     investigationComplete,
-    selectedNpcId,
-  } = useChatStore();
+    currentPersonaId,
+  } = useMultiChatStore((state) => ({
+    actions: state.actions,
+    isLoading: state.isLoading,
+    isStreaming: state.isStreaming,
+    streamingContent: state.streamingContent,
+    error: state.error,
+    investigationComplete: state.investigationComplete,
+    currentPersonaId: state.currentPersonaId,
+  }));
+
+  // 將 currentPersonaId 映射為 selectedNpcId（舊變數名兼容）
+  const selectedNpcId = currentPersonaId;
+
+  // 透過 actions 取得當前角色的訊息陣列
+  const messages = actions.getCurrentMessages();
 
   // 自動滾動到最新消息
   const scrollToBottom = () => {
@@ -40,26 +57,23 @@ const ChatWindow: React.FC = () => {
 
           {/* 右側主區塊 */}
           <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-[calc(100vh-4rem)]">
-            {/* 頂部簡潔資訊列 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col">
-                  <div className="text-sm text-gray-500">目前對象</div>
-                  <div className="text-base font-semibold text-gray-800 dark:text-gray-200">
-                    {selectedNpcId
-                      ? (e2Npcs.find((n) => n.id === selectedNpcId)?.name || selectedNpcId)
-                      : "系統 / 敘事者"}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">{investigationComplete ? "S4 - 準備整理故事" : "S3 - 與 NPC 對話"}</div>
-                </div>
-              </div>
+            {/* LINE 風格聊天頭部 */}
+            <ChatHeader personaId={selectedNpcId || "default-character"} />
 
-              <div className="flex items-center gap-3">
+            {/* 角色切換器 */}
+            <PersonaSwitcher />
+
+            {/* 任務狀態列 */}
+            <div className="px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {investigationComplete ? "S4 - 準備整理故事" : "S3 - 與 NPC 對話"}
+                </div>
                 <button
                   onClick={() => {
-                    actions && (actions as any).markInvestigationComplete && (actions as any).markInvestigationComplete();
+                    actions.markInvestigationComplete();
                   }}
-                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
                   aria-label="標記調查完成，進入整理階段"
                 >
                   我覺得差不多了
@@ -71,12 +85,12 @@ const ChatWindow: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && !isStreaming && (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">👑</div>
+                  <div className="text-6xl mb-4">🏛️</div>
                   <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    與秦始皇對話
+                    與歷史人物對話
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                    請在下方選擇您想詢問的問題，朕將以史實為基礎，為您提供詳細的解答。
+                    請在下方輸入您的問題，與歷史人物進行深度對話，探索歷史的奧秘。
                   </p>
                 </div>
               )}

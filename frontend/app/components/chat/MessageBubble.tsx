@@ -12,12 +12,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const isUser = message.role === "user";
 
-  // 格式化時間戳
-  const formatTime = (timestamp: Date) => {
+  // 格式化時間戳，容錯處理不同型別或無效時間
+  const formatTime = (timestamp?: string | number | Date) => {
+    if (!timestamp) return "";
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp as any);
+    if (isNaN(date.getTime())) return "";
     return new Intl.DateTimeFormat("zh-TW", {
       hour: "2-digit",
       minute: "2-digit",
-    }).format(timestamp);
+    }).format(date);
   };
 
   // 計算可讀性顯示

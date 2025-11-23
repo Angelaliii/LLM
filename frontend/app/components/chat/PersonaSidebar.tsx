@@ -1,9 +1,19 @@
 import React from "react";
-import { qinShiHuangPersona } from "../../services/prompts/persona.qinShihuang";
 import { useChatStore } from "../../store/useChatStore";
 import PersonaBadge from "../ui/PersonaBadge";
 
-// 最簡易的其他人物資料，未來可抽成獨立檔案
+// 最簡易的人物資料，未來可抽成獨立檔案
+const defaultPersona = {
+  id: "default-character",
+  name: "歷史人物",
+  period: "歷史時代",
+  description: "與歷史人物對話學習歷史知識。",
+  anchors: {
+    timeframe: { reign: "—", birth: "—", death: "—" },
+    keyEvents: ["歷史事件"],
+  },
+  expertise: { primary: ["歷史知識"] },
+};
 const socratesPersona = {
   id: "socrates",
   name: "蘇格拉底",
@@ -32,12 +42,12 @@ const PersonaSidebar: React.FC = () => {
   const { personaId, personaStatus, actions } = useChatStore();
 
   const personaMap: Record<string, any> = {
-    [qinShiHuangPersona.id]: qinShiHuangPersona,
+    [defaultPersona.id]: defaultPersona,
     [socratesPersona.id]: socratesPersona,
     [suShiPersona.id]: suShiPersona,
   };
 
-  const persona = personaMap[personaId] || qinShiHuangPersona;
+  const persona = personaMap[personaId] || defaultPersona;
 
   const otherPersonas = Object.values(personaMap).filter(
     (p) => p.id !== persona.id

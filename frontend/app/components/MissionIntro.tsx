@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from "react";
+﻿import React, { useEffect, useCallback } from "react";
 import { useMissionStore } from "../store/useMissionStore";
 import { e2Chunks } from "../data/missions/e2-industrial-agri";
 import { callOllamaChat } from "../services/ollama";
@@ -7,32 +7,21 @@ const MissionIntro: React.FC = () => {
   const { currentMissionId, missionIntro, guidingQuestions, actions } = useMissionStore();
   const chunk = e2Chunks.find((c) => c.missionId === currentMissionId) || e2Chunks[0];
 
+  const generateMissionIntro = useCallback(async () => {
+    if (!currentMissionId) return;
+    // 使用任務資料中的靜態介紹（不再呼叫 LLM 生成）
+    const content = chunk.text;
+    const questions = ['你覺得誰最清楚真相？', '想先問誰問題？'];
+    actions.setMissionIntro(content, questions);
+  }, [currentMissionId, chunk.text, chunk.topic, actions]);
+
   useEffect(() => {
     // S1: 生成任務開場故事
     if (currentMissionId && !missionIntro) {
+      console.log('Starting mission intro generation...');
       generateMissionIntro();
     }
-  }, [currentMissionId, missionIntro]);
-
-  const generateMissionIntro = async () => {
-    try {
-      const systemPrompt = `你是一位歷史老師，請為任務 ${currentMissionId} 產生一段 150-200 字的任務開場故事，並在最後列出 1 到 2 個引導式問題。`;
-      
-      const data = await callOllamaChat({
-        systemPrompt,
-        messages: [{ role: "user", content: `請為任務「${chunk.topic}」產生開場故事。` }]
-      });
-      
-      const content = data.message?.content || chunk.text;
-      const questions = ['你覺得誰最清楚真相？', '想先問誰問題？'];
-      
-      actions.setMissionIntro(content, questions);
-    } catch (error) {
-      console.error('Failed to generate mission intro:', error);
-      // 使用預設內容
-      actions.setMissionIntro(chunk.text, ['你覺得誰最清楚真相？', '想先問誰問題？']);
-    }
-  };
+  }, [currentMissionId, missionIntro, generateMissionIntro]);
 
   if (!currentMissionId) {
     return <div className="p-6">請先選擇任務</div>;

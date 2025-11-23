@@ -1,5 +1,4 @@
 import React from "react";
-import { qinShiHuangPersona } from "../../services/prompts/persona.qinShihuang";
 
 interface PersonaBadgeProps {
   personaId: string;
@@ -7,17 +6,22 @@ interface PersonaBadgeProps {
   showDescription?: boolean;
 }
 
+// 預設人物配置（臨時）
+const defaultPersona = {
+  id: "default-character",
+  name: "歷史人物",
+  period: "歷史時代",
+  description: "與歷史人物對話學習",
+  avatar: null,
+};
+
 const PersonaBadge: React.FC<PersonaBadgeProps> = ({
   personaId,
   size = "medium",
   showDescription = false,
 }) => {
   // TODO: 從 persona 配置獲取數據，目前使用預設配置
-  const persona = personaId === "qin-shi-huang" ? qinShiHuangPersona : null;
-
-  if (!persona) {
-    return <div className="text-gray-500 dark:text-gray-400">未知人物</div>;
-  }
+  const persona = defaultPersona;
 
   const sizeClasses = {
     small: {

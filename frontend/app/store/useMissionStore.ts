@@ -109,7 +109,7 @@ export const useMissionStore = create<MissionState>()(
             set({
               missionIntro: intro,
               guidingQuestions: questions,
-              currentStage: "S2",
+              // 不要自動跳轉，讓用戶有時間閱讀
             });
           },
 

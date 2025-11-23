@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { predefinedQuestions } from "../../data/predefinedQA";
-import { useChatStore } from "../../store/useChatStore";
+import { useMultiChatStore } from "../../store/useMultiChatStore";
 
 const InputArea: React.FC = () => {
-  const { isLoading, actions } = useChatStore();
+  const { isLoading, actions } = useMultiChatStore();
   const [input, setInput] = useState("");
 
   const handleQuestionSelect = async (

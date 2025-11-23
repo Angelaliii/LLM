@@ -61,10 +61,8 @@ const ContactSection: React.FC = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">請選擇身分</option>
-                  <option value="teacher">教師</option>
                   <option value="student">學生</option>
                   <option value="parent">家長</option>
-                  <option value="administrator">教育行政人員</option>
                 </select>
               </div>
 

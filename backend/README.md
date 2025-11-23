@@ -93,7 +93,6 @@ backend/
 │   │   ├── progressEval.ts      # S3-EVAL 進度評估
 │   │   ├── ragService.ts        # RAG 知識檢索
 │   │   └── prompts/
-│   │       ├── persona.qinShihuang.ts  # 秦始皇角色
 │   │       └── safety.guardrails.ts    # 安全防護
 │   ├── 📁 data/
 │   │   └── missions/

@@ -1,7 +1,7 @@
 import type { APIConfig } from "../types/api";
 import type { ChatMode, Language, RigorLevel } from "../types/chat";
-import { qinShiHuangPrompts } from "./prompts/persona.qinShihuang";
 import { checkContentSafety, checkResponseSafety } from "./prompts/safety.guardrails";
+import { personaManager } from "./personaManager";
 
 export class LLMClient {
   private config: APIConfig;
@@ -13,22 +13,30 @@ export class LLMClient {
 
   private buildPrompt(
     userInput: string,
-    _personaId: string,
+    personaId: string,
     mode: ChatMode,
     rigorLevel: RigorLevel,
     language: Language,
     conversationHistory: Array<{ role: string; content: string }> = []
   ): string {
-    const prompts = qinShiHuangPrompts;
+    // 獲取角色配置和提示詞
+    const prompts = personaManager.generatePrompts(personaId);
+    const persona = personaManager.getPersona(personaId);
+    const personaName = persona?.name || "歷史人物";
 
     let systemPrompt = prompts.system;
 
+    // 添加模式指令
     systemPrompt += "\n\n" + prompts.modeInstructions[mode];
 
-    systemPrompt += "\n\n" + prompts.rigorInstructions[rigorLevel];
+    // 添加嚴謹度指令
+    const rigorKey = rigorLevel === "low" ? "casual" : rigorLevel === "high" ? "strict" : "balanced";
+    systemPrompt += "\n\n" + prompts.rigorInstructions[rigorKey];
 
+    // 添加安全指令
     systemPrompt += "\n\n" + prompts.safety;
 
+    // 語言設置
     if (language !== "zh-TW") {
       systemPrompt += `\n\n請使用${
         language === "zh-CN" ? "簡體中文" : "英文"
@@ -37,13 +45,14 @@ export class LLMClient {
 
     let fullPrompt = systemPrompt + "\n\n";
 
+    // 添加對話歷史
     conversationHistory.forEach((msg) => {
-      fullPrompt += `${msg.role === "user" ? "學生" : "秦始皇"}：${
+      fullPrompt += `${msg.role === "user" ? "學生" : personaName}：${
         msg.content
       }\n\n`;
     });
 
-    fullPrompt += `學生：${userInput}\n\n秦始皇：`;
+    fullPrompt += `學生：${userInput}\n\n${personaName}：`;
 
     return fullPrompt;
   }

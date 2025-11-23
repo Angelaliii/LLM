@@ -68,7 +68,7 @@ export class FormValidator {
 
   // 驗證身分選擇
   static validateRole(role: string): ValidationResult {
-    const validRoles = ["teacher", "student", "parent", "administrator"];
+    const validRoles = ["student", "parent"];
 
     if (!role) {
       return { isValid: false, message: "請選擇身分" };

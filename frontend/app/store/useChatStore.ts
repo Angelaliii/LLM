@@ -14,7 +14,11 @@ import type {
 interface ChatState {
   // 當前對話狀態
   currentSession: ChatSession | null;
-  messages: Message[];
+  
+  // 多角色對話記錄 - 每個角色都有獨立的消息列表
+  conversationsByPersona: Record<string, Message[]>;
+  currentPersonaId: string;
+  
   isLoading: boolean;
   isStreaming: boolean;
   streamingContent: string;
@@ -43,6 +47,10 @@ interface ChatState {
 
   // 操作方法
   actions: {
+    // 多角色對話管理
+    switchToPersona: (personaId: string) => void;
+    getCurrentMessages: () => Message[];
+    
     // 發送訊息
     sendMessage: (content: string) => Promise<void>;
 
@@ -90,13 +98,14 @@ export const useChatStore = create<ChatState>()(
       (set, get) => ({
         // 初始狀態
         currentSession: null,
-        messages: [],
+        conversationsByPersona: {},
+        currentPersonaId: "default-emperor",
         isLoading: false,
         isStreaming: false,
         streamingContent: "",
         error: null,
 
-        personaId: "qin-shi-huang",
+        personaId: "default-emperor",
         mode: "teaching",
         rigorLevel: "balanced",
         language: "zh-TW",

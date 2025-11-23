@@ -105,7 +105,6 @@ npm run dev
 │   │   ├── progressEval.ts        # S3-EVAL 進度評估
 │   │   ├── llmClient.ts           # LLM 業務邏輯
 │   │   └── prompts/
-│   │       ├── persona.qinShihuang.ts  # 秦始皇角色配置
 │   │       └── safety.guardrails.ts    # 安全防護機制
 │   ├── 🛣 routes/
 │   │   ├── ollama.ts              # POST /api/ollama/chat
@@ -219,7 +218,19 @@ const summary = await missionPrompt.generateSummary({
 - 作答時：前端根據題庫中的 `answer` 判斷對錯，無需再叫 LLM
 - 結果記錄：正確題數、使用提示次數、作答時間
 
-## 🏛️ 教師監控功能
+## 📚 學習進度分析
+
+### 1. 任務完成度追蹤
+
+```typescript
+// 學生學習狀態監控
+const progress = useMissionStore(state => ({
+  currentStage: state.currentStage, // S0-S5 當前階段
+  conversationTurns: state.conversationTurns, // 對話輪數
+  masteredGoals: state.evalResult?.masteredCount, // 已掌握目標數
+  timeSpent: state.sessionDuration, // 學習時間
+}));
+```
 
 ### 1. 即時任務控制
 
@@ -463,7 +474,7 @@ CORS_ORIGIN=http://localhost:3000
 ### 🟡 部分實現標準
 
 - [~] **歷史任務擴展**：框架完整，需增加更多任務
-- [~] **教師監控面板**：狀態管理完成，UI 待開發
+- [~] **學生進度追蹤**：狀態管理完成，UI 待開發
 - [~] **學習數據分析**：基礎機制完成，需增強分析
 
 ### 📋 後續開發優先級
@@ -473,7 +484,7 @@ CORS_ORIGIN=http://localhost:3000
 2. 添加更多歷史任務（E3, E4...）
 
 **P1（短期）**：
-1. 實現教師控制面板 UI
+1. 提升使用者介面設計
 2. 添加數據持久化（學習歷程記錄）
 3. 完善可讀性分析算法
 
