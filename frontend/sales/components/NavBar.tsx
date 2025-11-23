@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 // 不再需要讀取文案狀態於 NavBar
-import { useUIStore } from "../store/useUIStore";
+import { useUIStore } from "../../app/store/useUIStore";
 import Icon from "./Icon";
 
 const NavBar: React.FC = () => {

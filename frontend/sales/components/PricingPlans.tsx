@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { getCurrentCopy } from "../data/copy";
-import { useUIStore } from "../store/useUIStore";
+import { getCurrentCopy } from "../../app/data/copy";
+import { useUIStore } from "../../app/store/useUIStore";
 import CTAButton from "./CTAButton";
 import Icon from "./Icon";
 

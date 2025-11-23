@@ -1,7 +1,7 @@
 import React from "react";
-import ChatWindow from "../chat/ChatWindow";
+import ChatWindow from "./chat/ChatWindow";
 import NPCSelector from "./NPCSelector";
-import { useChatStore } from "../../store/useChatStore";
+import { useChatStore } from "../store/useChatStore";
 
 const ChatRoom: React.FC = () => {
   const { actions, missionId } = useChatStore();

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { e2Quizzes } from "../../types/data/missions/e2-industrial-agri";
-import { useChatStore } from "../../store/useChatStore";
+import { e2Quizzes } from "../data/missions/e2-industrial-agri";
+import { useMissionStore } from "../store/useMissionStore";
 
 const QuizView: React.FC = () => {
   const { actions } = useChatStore();

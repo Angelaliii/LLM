@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAnalytics } from "../services/analytics";
+import { useAnalytics } from "../../app/services/analytics";
 
 interface CTAButtonProps {
   children: React.ReactNode;

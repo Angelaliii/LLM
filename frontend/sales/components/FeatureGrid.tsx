@@ -1,6 +1,6 @@
 import React from "react";
-import { getCurrentCopy } from "../data/copy";
-import { useUIStore } from "../store/useUIStore";
+import { getCurrentCopy } from "../../app/data/copy";
+import { useUIStore } from "../../app/store/useUIStore";
 import Icon from "./Icon";
 
 const FeatureGrid: React.FC = () => {

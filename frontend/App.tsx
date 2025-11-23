@@ -1,78 +1,19 @@
-// 合併自 AppNew.tsx - 保留較新的應用結構（含 Controls 與 ChatWindow）
+// 主應用路由 - 統合銷售頁面和主系統
 import React, { useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import ChatWindow from "./components/chat/ChatWindow";
-import Controls from "./components/controls/Controls";
-import { AnalyticsService } from "./services/analytics";
-import { useChatStore } from "./store/useChatStore";
+import { AnalyticsService } from "./app/services/analytics";
 import {
   initializeABTest,
   initializeExitIntent,
   initializeScrollTracking,
   initializeTheme,
-} from "./store/useUIStore";
+} from "./app/store/useUIStore";
 
-// 原有組件的保留導入
-import FAQ from "./components/FAQ";
-import FeatureGrid from "./components/FeatureGrid";
-import Footer from "./components/Footer";
-import Hero from "./components/Hero";
-import LiveDemo from "./components/LiveDemo";
-import NavBar from "./components/NavBar";
-import PricingPlans from "./components/PricingPlans";
+// 銷售頁面
+import SalesPage from "./sales/SalesPage";
 
-// 主對話頁面（使用 Controls + ChatWindow）
-const ChatPage: React.FC = () => {
-  const { actions } = useChatStore();
-
-  useEffect(() => {
-    // 初始化新會話
-    actions.startNewSession();
-  }, [actions]);
-
-  return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* 導覽列 */}
-      <div className="flex-shrink-0">
-        <NavBar />
-      </div>
-
-      {/* 控制面板 */}
-      <Controls />
-
-      {/* 對話窗口 */}
-      <div className="flex-1 min-h-0">
-        <ChatWindow />
-      </div>
-    </div>
-  );
-};
-
-// 登陸頁（保留精簡版本）
-const LandingPage: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-white">
-      <a
-        href="#main-content"
-        className="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        跳轉至主要內容
-      </a>
-
-      <NavBar />
-
-      <main id="main-content" className="pt-16">
-        <Hero />
-        <FeatureGrid />
-        <LiveDemo />
-        <PricingPlans />
-        <FAQ />
-      </main>
-
-      <Footer />
-    </div>
-  );
-};
+// 主系統
+import AppMain from "./app/AppMain";
 
 function App() {
   useEffect(() => {
@@ -94,8 +35,17 @@ function App() {
     <Router>
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/chat" element={<ChatPage />} />
+          {/* 銷售/行銷頁面 */}
+          <Route path="/" element={<SalesPage />} />
+          
+          {/* 主系統 - S0-S5 使用者流程 */}
+          <Route path="/app/*" element={<AppMain />} />
+          
+          {/* 兼容舊路由 */}
+          <Route path="/chat" element={<AppMain />} />
+          
+          {/* 404 重導向到首頁 */}
+          <Route path="*" element={<SalesPage />} />
         </Routes>
       </div>
     </Router>

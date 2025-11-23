@@ -1,7 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import React, { useEffect, useRef } from "react";
-import { useAnalytics } from "../services/analytics";
+import { useAnalytics } from "../../app/services/analytics";
 import CTAButton from "./CTAButton";
 import Icon from "./Icon";
 

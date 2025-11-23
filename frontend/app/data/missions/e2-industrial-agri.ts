@@ -49,6 +49,34 @@ export const e2Npcs = [
   },
 ];
 
+export const e2LearningGoals = [
+  {
+    id: "e2-g1",
+    missionId: "E2",
+    description: "理解殖民經濟的分工：工業日本、農業臺灣政策的目的與影響",
+  },
+  {
+    id: "e2-g2",
+    missionId: "E2", 
+    description: "認識蓬萊米改良技術對台灣農業現代化的貢獻與限制",
+  },
+  {
+    id: "e2-g3",
+    missionId: "E2",
+    description: "分析製糖業會社制度對農民生活的具體影響",
+  },
+  {
+    id: "e2-g4", 
+    missionId: "E2",
+    description: "評估水利建設（如嘉南大圳）在殖民農業發展中的角色",
+  },
+  {
+    id: "e2-g5",
+    missionId: "E2", 
+    description: "理解契作制度與農民困境的關聯性",
+  },
+];
+
 export const e2Quizzes = [
   {
     id: "e2-q1",

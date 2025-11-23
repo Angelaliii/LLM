@@ -1,5 +1,5 @@
 import React from "react";
-import { testimonials } from "../data/testimonials";
+import { testimonials } from "../../app/data/testimonials";
 import Icon from "./Icon";
 
 const SocialProof: React.FC = () => {

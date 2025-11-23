@@ -19,6 +19,12 @@ export interface Npc {
   avoid: string[];         // 不談什麼
 }
 
+export interface LearningGoal {
+  id: string;            // e2-g1
+  missionId: string;
+  description: string;   // 例：理解殖民經濟的分工：工業日本、農業臺灣
+}
+
 export interface QuizOption {
   key: 'A' | 'B' | 'C' | 'D';
   text: string;

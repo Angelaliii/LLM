@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { faqData } from "../data/faq";
+import { faqData } from "../../app/data/faq";
 import Icon from "./Icon";
 
 const FAQ: React.FC = () => {

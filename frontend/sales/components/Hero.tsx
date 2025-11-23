@@ -1,6 +1,6 @@
 import React from "react";
-import { getCurrentCopy } from "../data/copy";
-import { useUIStore } from "../store/useUIStore";
+import { getCurrentCopy } from "../../app/data/copy";
+import { useUIStore } from "../../app/store/useUIStore";
 import CTAButton from "./CTAButton";
 import Icon from "./Icon";
 
@@ -62,7 +62,7 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <CTAButton
                 size="lg"
-                to="/chat/"
+                to="/app/missions"
                 trackingLabel={copy.hero.cta.primary}
                 trackingLocation="hero"
                 ariaLabel={`${copy.hero.cta.primary} - 開始免費體驗歷史對話系統`}

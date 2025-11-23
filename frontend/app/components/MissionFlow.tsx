@@ -1,5 +1,5 @@
 import React from "react";
-import { useChatStore } from "../../store/useChatStore";
+import { useChatStore } from "../store/useChatStore";
 import MissionList from "./MissionList";
 import MissionIntro from "./MissionIntro";
 import NPCSelector from "./NPCSelector";
