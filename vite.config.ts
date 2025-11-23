@@ -2,11 +2,10 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/LLM/",
-  root: "frontend", // Point to frontend folder
+  root: "frontend",
   plugins: [react()],
   build: {
-    outDir: "../docs", // Output relative to frontend folder
+    outDir: "../docs", // Output to docs for GitHub Pages
     rollupOptions: {
       output: {
         manualChunks: {
@@ -18,6 +17,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: true,
     proxy: {
       "/api": {
         target: "http://localhost:4000",

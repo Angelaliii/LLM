@@ -4,7 +4,7 @@ import InputArea from "./InputArea";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
 
-import { e2Npcs } from "../../types/data/missions/e2-industrial-agri";
+import { e2Npcs } from "../../data/missions/e2-industrial-agri";
 
 const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);

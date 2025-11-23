@@ -1,8 +1,8 @@
-// 合併自 AppNew.tsx - 保留較新的應用結構（含 Controls 與 ChatWindow）
 import React, { useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatWindow from "./components/chat/ChatWindow";
-import Controls from "./components/controls/Controls";
+import MissionFlow from "./components/mission/MissionFlow";
+import ConnectionTest from "./components/ConnectionTest";
 import { AnalyticsService } from "./services/analytics";
 import { useChatStore } from "./store/useChatStore";
 import {
@@ -12,7 +12,7 @@ import {
   initializeTheme,
 } from "./store/useUIStore";
 
-// 原有組件的保留導入
+import ContactSection from "./components/ContactSection";
 import FAQ from "./components/FAQ";
 import FeatureGrid from "./components/FeatureGrid";
 import Footer from "./components/Footer";
@@ -21,7 +21,7 @@ import LiveDemo from "./components/LiveDemo";
 import NavBar from "./components/NavBar";
 import PricingPlans from "./components/PricingPlans";
 
-// 主對話頁面（使用 Controls + ChatWindow）
+// 主對話頁面
 const ChatPage: React.FC = () => {
   const { actions } = useChatStore();
 
@@ -32,26 +32,18 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* 導覽列 */}
-      <div className="flex-shrink-0">
-        <NavBar />
-      </div>
-
-      {/* 控制面板 */}
-      <Controls />
-
-      {/* 對話窗口 */}
       <div className="flex-1 min-h-0">
-        <ChatWindow />
+        <MissionFlow />
       </div>
     </div>
   );
 };
 
-// 登陸頁（保留精簡版本）
+// 原有的登陸頁面組件
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* 跳轉至主要內容的無障礙連結 */}
       <a
         href="#main-content"
         className="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded"
@@ -59,16 +51,30 @@ const LandingPage: React.FC = () => {
         跳轉至主要內容
       </a>
 
+      {/* 導覽列 */}
       <NavBar />
 
-      <main id="main-content" className="pt-16">
+      {/* 主要內容 */}
+      <main id="main-content" className="pt-16 flex-1">
+        {/* Hero 區塊 */}
         <Hero />
+
+        {/* 產品特色 */}
         <FeatureGrid />
+
+        {/* 互動展示 */}
         <LiveDemo />
+
+        {/* 價格方案 */}
         <PricingPlans />
+
+        {/* 常見問題 */}
         <FAQ />
+        {/* 聯絡表單區（移出 Footer 並放在 Footer 之前） */}
+        <ContactSection />
       </main>
 
+      {/* 頁腳 */}
       <Footer />
     </div>
   );
@@ -81,9 +87,11 @@ function App() {
     initializeABTest();
     initializeTheme();
 
+    // 初始化追蹤
     const cleanupScroll = initializeScrollTracking();
     const cleanupExitIntent = initializeExitIntent();
 
+    // 清理函數
     return () => {
       cleanupScroll();
       cleanupExitIntent();
@@ -91,11 +99,12 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/test" element={<ConnectionTest />} />
         </Routes>
       </div>
     </Router>

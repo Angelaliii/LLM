@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { findAnswerByQuestion } from "../data/predefinedQA";
 import { streamChatViaBackend } from "../services/llmClient";
-import { e2Chunks } from "../types/data/missions/e2-industrial-agri";
+import { e2Chunks } from "../data/missions/e2-industrial-agri";
 import type {
   ChatMode,
   ChatSession,
