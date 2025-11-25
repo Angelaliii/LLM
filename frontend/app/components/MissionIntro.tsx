@@ -1,30 +1,75 @@
-﻿import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useMissionStore } from "../store/useMissionStore";
 import { e2Chunks } from "../data/missions/e2-industrial-agri";
-import { callOllamaChat } from "../services/ollama";
+import LoadingPage from "./ui/LoadingPage";
+
+// Minimum loading time in milliseconds to prevent flickering
+const MIN_LOADING_TIME = 1500;
 
 const MissionIntro: React.FC = () => {
-  const { currentMissionId, missionIntro, guidingQuestions, actions } = useMissionStore();
+  const { currentMissionId, missionIntro, guidingQuestions, isGenerating, generationError, actions } = useMissionStore();
   const chunk = e2Chunks.find((c) => c.missionId === currentMissionId) || e2Chunks[0];
+  const loadingStartTime = useRef<number | null>(null);
 
   const generateMissionIntro = useCallback(async () => {
     if (!currentMissionId) return;
-    // 使用任務資料中的靜態介紹（不再呼叫 LLM 生成）
-    const content = chunk.text;
-    const questions = ['你覺得誰最清楚真相？', '想先問誰問題？'];
-    actions.setMissionIntro(content, questions);
-  }, [currentMissionId, chunk.text, chunk.topic, actions]);
+    
+    // Record start time for minimum loading duration
+    loadingStartTime.current = Date.now();
+    
+    try {
+      // Simulate API call / use static data
+      // In real implementation, this would be an async API call
+      const content = chunk.text;
+      const questions = ['你覺得誰最清楚真相？', '想先問誰問題？'];
+      
+      // Calculate remaining time to meet minimum loading requirement
+      const elapsed = Date.now() - loadingStartTime.current;
+      const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsed);
+      
+      // Wait for minimum loading time to complete
+      await new Promise(resolve => setTimeout(resolve, remainingTime));
+      
+      actions.setMissionIntro(content, questions);
+    } catch (error) {
+      // Handle errors gracefully
+      const errorMessage = error instanceof Error ? error.message : "載入失敗，請稍後再試";
+      actions.setGenerationError(errorMessage);
+    }
+  }, [currentMissionId, chunk.text, actions]);
 
   useEffect(() => {
-    // S1: 生成任務開場故事
-    if (currentMissionId && !missionIntro) {
+    // S1: Generate mission intro when entering this stage
+    if (currentMissionId && !missionIntro && isGenerating) {
       console.log('Starting mission intro generation...');
       generateMissionIntro();
     }
-  }, [currentMissionId, missionIntro, generateMissionIntro]);
+  }, [currentMissionId, missionIntro, isGenerating, generateMissionIntro]);
+
+  // Handle retry action
+  const handleRetry = useCallback(() => {
+    actions.setGenerating(true);
+    generateMissionIntro();
+  }, [actions, generateMissionIntro]);
+
+  // Handle go back action
+  const handleGoBack = useCallback(() => {
+    actions.resetMission();
+  }, [actions]);
 
   if (!currentMissionId) {
     return <div className="p-6">請先選擇任務</div>;
+  }
+
+  // Show loading page while generating or if there's an error
+  if (isGenerating || generationError) {
+    return (
+      <LoadingPage
+        error={generationError}
+        onRetry={handleRetry}
+        onGoBack={handleGoBack}
+      />
+    );
   }
 
   return (

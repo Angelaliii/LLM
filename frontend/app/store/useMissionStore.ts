@@ -12,6 +12,10 @@ interface MissionState {
   currentMissionId: string | null;
   selectedNpcId: string | null;
   
+  // S0 → S1 Loading 狀態
+  isGenerating: boolean;
+  generationError: string | null;
+  
   // S1 任務開場故事
   missionIntro: string | null;
   guidingQuestions: string[];
@@ -35,6 +39,10 @@ interface MissionState {
   actions: {
     // S0 → S1: 選擇任務
     selectMission: (missionId: string) => void;
+    
+    // S1 Loading 狀態管理
+    setGenerating: (isGenerating: boolean) => void;
+    setGenerationError: (error: string | null) => void;
     
     // S1 → S2: 設置任務介紹
     setMissionIntro: (intro: string, questions: string[]) => void;
@@ -72,6 +80,9 @@ export const useMissionStore = create<MissionState>()(
         currentMissionId: null,
         selectedNpcId: null,
         
+        isGenerating: false,
+        generationError: null,
+        
         missionIntro: null,
         guidingQuestions: [],
         
@@ -91,6 +102,8 @@ export const useMissionStore = create<MissionState>()(
             set({
               currentMissionId: missionId,
               currentStage: "S1",
+              isGenerating: true,
+              generationError: null,
               // 重置其他狀態
               selectedNpcId: null,
               missionIntro: null,
@@ -105,10 +118,23 @@ export const useMissionStore = create<MissionState>()(
             });
           },
 
+          setGenerating: (isGenerating: boolean) => {
+            set({ isGenerating });
+          },
+
+          setGenerationError: (error: string | null) => {
+            set({ 
+              generationError: error,
+              isGenerating: false,
+            });
+          },
+
           setMissionIntro: (intro: string, questions: string[]) => {
             set({
               missionIntro: intro,
               guidingQuestions: questions,
+              isGenerating: false,
+              generationError: null,
               // 不要自動跳轉，讓用戶有時間閱讀
             });
           },
@@ -168,6 +194,8 @@ export const useMissionStore = create<MissionState>()(
               currentStage: "S0",
               currentMissionId: null,
               selectedNpcId: null,
+              isGenerating: false,
+              generationError: null,
               missionIntro: null,
               guidingQuestions: [],
               conversationTurns: 0,
