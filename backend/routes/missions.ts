@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     const missions = [
       {
         id: 'E2',
-        title: '工業日本・農業臺灣',
+        title: '臺南：六法下的權力與土地',
         period: '日治時期 (1895-1945)',
         difficulty: 'intermediate',
         description: '探索日治時期糖業經濟的複雜面貌',
@@ -40,7 +40,7 @@ router.get('/:id', (req, res) => {
       // 之後從 backend/data/missions/e2-industrial-agri.ts 讀取
       const mission = {
         id: 'E2',
-        title: '工業日本・農業臺灣',
+        title: '臺南：六法下的權力與土地',
         period: '日治時期 (1895-1945)',
         difficulty: 'intermediate',
         chunks: [], // 稍後從檔案讀取

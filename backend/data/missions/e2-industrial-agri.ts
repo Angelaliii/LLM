@@ -1,91 +1,112 @@
-// Copied mission data for backend use to avoid importing frontend TS modules at runtime.
-export const e2Chunks = [
-	{
-		id: "e2-001",
-		missionId: "E2",
-		topic: "工業日本・農業臺灣政策",
-		type: "core_fact",
-		text: `日治初期，日本總督府推動「工業日本、農業臺灣」的殖民經濟政策。其核心目標是讓台灣成為日本的農業供應基地，滿足日本本土對米、糖等民生物資的需求；同時日本本土則專注於發展製造業與重工業。此政策的實施使台灣的農業逐漸走向單一化生產，稻米與甘蔗的產量大幅提升，並多以出口日本為導向。然而，這種殖民式分工也造成台灣本地農業結構失衡，農民受到契作制度、會社壟斷、肥料價格等因素的影響，生活負擔反而加重。`,
-	},
-	{
-		id: "e2-002",
-		missionId: "E2",
-		topic: "蓬萊米的改良與推廣",
-		type: "core_fact",
-		text: `日本殖民政府大力推動稻米改良，其中最著名的是磯永吉等人培育的「蓬萊米」。蓬萊米適合台灣的氣候與水土，其米質優良、產量高，深受日本市場喜愛。為了推廣蓬萊米，總督府引入新式耕作技術，例如施肥、除蟲、育苗法等，使稻米生產效率提升。蓬萊米的推廣帶動台灣稻米出口量增加，使台灣成為日本重要的糧食供應地。但同時，農民必須購買指定肥料與遵從政府指導，也使其生產成本提高。`,
-	},
-	{
-		id: "e2-003",
-		missionId: "E2",
-		topic: "新式製糖業與會社制度",
-		type: "core_fact",
-		text: `日治時期，日本政府鼓勵日本企業在台灣設立現代化新式糖廠。這些糖廠引進蒸汽機械、鐵道運輸與大型設備，使製糖效率遠高於清代傳統製糖業。日本的製糖會社（企業）得到政府補助與保護，逐漸壟斷台灣的糖業，使糖成為殖民政府最重要的出口商品之一。然而，糖業發展的基礎往往建立在壓榨農民的契作制度上：農民必須種植會社指定的甘蔗，並以會社價格出售給工廠，使農民缺乏議價能力。`,
-	},
-	{
-		id: "e2-004",
-		missionId: "E2",
-		topic: "契作制度與農民困境",
-		type: "core_fact",
-		text: `糖業會社通常要求農民與其簽訂「契作契約」。農民必須購買會社指定的肥料、交付固定比例收成，並必須用會社規定的秤重方式交貨。由於會社掌握資金、設備與收購權，農民常感受到被壓榨。例如「第一惡、種甘蔗予會社磅」形容農民在秤重時常遭扣重，導致收入降低。契作制度使農民在外表上收入增加，但實際可支配所得有限，造成普遍的經濟壓力。`,
-	},
-	{
-		id: "e2-005",
-		missionId: "E2",
-		topic: "嘉南大圳與水利建設",
-		type: "core_fact",
-		text: `為提升農業生產，日本政府在台灣修建多項水利工程，其中最重要的是八田與一主持興建的「嘉南大圳」（1930 完工）。嘉南大圳是台灣歷史上規模最大的水利工程，改善嘉南平原的灌溉，使原本常受旱災影響的土地得以穩定耕作。大圳的完成大幅提升稻米、甘蔗等作物產量，是日治時期農業現代化的重要象徵。然而，水利工程帶來的收益多集中於大型農場與會社，農民的生活改善有限。`,
-	},
-];
+/**
+ * 任務資料 - E2: 臺南：六法下的權力與土地
+ * 臨時兼容文件
+ */
 
 export const e2Npcs = [
-	{
-		id: "npc-yamada",
-		missionId: "E2",
-		name: "山田清一",
-		role: "日本技師",
-		avatar: "assets/Yamada_icon.png",
-		persona: `角色定位：總督府派駐地方的農業技術官。
-背景：擅長育苗、施肥技術，負責協助當地推廣蓬萊米與改良耕作法。語氣偏理性且帶有殖民官員的自信與優越感；談話重點放在技術與成效。`,
-		canTalkAbout: ["蓬萊米改良技術", "稻米產量與栽培方法", "水利工程對產量的影響"],
-		avoid: ["批判日本政府", "描述農民被壓榨的細節"],
-	},
-	{
-		id: "npc-afu",
-		missionId: "E2",
-		name: "阿福",
-		role: "臺灣佃農",
-		avatar: "assets/Afu_icon.png",
-		persona: `角色定位：嘉南平原的佃農，生活依賴田地，面對會社契作與市場壓力。語氣口語、帶有無奈與抱怨，常提日常成本與被扣重的經驗，但不會提供精確統計數字。`,
-		canTalkAbout: ["肥料成本與取得", "秤重會被扣重的經驗", "種甘蔗的風險與收成問題", "「第一惡、種甘蔗予會社磅」的含義"],
-		avoid: ["提供精確數據", "討論殖民政策的整體架構"],
-	},
-	{
-		id: "npc-sato",
-		missionId: "E2",
-		name: "佐藤正雄",
-		role: "製糖會社幹部",
-		avatar: "assets/Sato_icon.png",
-		persona: `角色定位：製糖會社的管理人，代表企業與市場立場。
-背景：負責工廠營運與採購策略，重視設備投資與成本控制。語氣官方且理性，強調契約與效率的重要性。`,
-		canTalkAbout: ["契約精神", "設備投資與製糖成本", "糖業對整體經濟的貢獻"],
-		avoid: ["承認或描述壓榨農民的說法", "談農民生活困境的情感面"],
-	},
+  {
+    id: "police_officer",
+    name: "警察 佐藤敬一",
+    role: "日本基層警察",
+    persona: "直接、具有權威感，堅信日本統治的進步性",
+    knowledgeScope: ["六三法", "總督專制", "警察政治", "保甲制度"],
+  },
+  {
+    id: "student",
+    name: "學生 小清",
+    role: "公學校學生",
+    persona: "天真、好奇，對權威有敬畏",
+    knowledgeScope: ["公學校教育", "警察干預", "陋習取締", "保甲制度"],
+  },
+  {
+    id: "land_surveyor",
+    name: "土地測量員 山本勘助",
+    role: "土地測量員",
+    persona: "務實、專業，專注於技術和數字",
+    knowledgeScope: ["土地調查", "林野調查", "專賣制度", "田賦收入"],
+  },
+];
+
+export const e2Chunks = [
+  {
+    id: "chunk_1",
+    missionId: "E2",
+    topic: "臺南：六法下的權力與土地",
+    period: "日治初期 (1905年)",
+    text: "1905年的臺南，日本殖民統治已經進入第十年。作為總督府的基層文官，你親眼目睹了殖民體制如何透過法律、警察和土地制度，牢牢掌控這片土地。",
+    keywords: ["六三法", "警察政治", "土地調查", "專賣制度"],
+    relatedKnowledgeIds: ["JP002", "JP004", "JP008", "JP009"],
+  },
 ];
 
 export const e2Quizzes = [
-	{
-		id: "e2-q1",
-		missionId: "E2",
-		stem: "日治時期推行「工業日本、農業臺灣」的主要目的為何？",
-		options: [
-			{ key: "A", text: "讓臺灣成為工業中心" },
-			{ key: "B", text: "提高臺灣農民所得" },
-			{ key: "C", text: "滿足日本對糧食與原料需求" },
-			{ key: "D", text: "促進臺灣與歐美貿易" },
-		],
-		answer: "C",
-		explanation: "政策重點是臺灣供應農產與原料，日本本土發展工業。",
-	},
-	// ...其他題目
+  {
+    id: "q1",
+    question: "《法律第六十三號》（六三法）賦予了臺灣總督什麼權力？",
+    options: [
+      "頒布具有法律效力的命令",
+      "任命地方官員",
+      "徵收田賦",
+      "建設鐵路",
+    ],
+    correctAnswer: 0,
+    explanation:
+      "《法律第六十三號》授權臺灣總督可以頒布具有法律效力的命令，使總督集行政、立法、司法及軍事大權於一身。",
+    relatedKnowledgeId: "JP002",
+  },
+  {
+    id: "q2",
+    question: "日治初期，總督府如何控制臺灣基層社會？",
+    options: [
+      "透過警察政治和保甲制度",
+      "設立地方議會",
+      "推動民主選舉",
+      "成立自治組織",
+    ],
+    correctAnswer: 0,
+    explanation:
+      "總督府建立嚴密的警察制度，並利用保甲制度（十戶一甲、十甲一保）來輔佐警察執行公共事務，形成「警察政治」。",
+    relatedKnowledgeId: "JP004",
+  },
+  {
+    id: "q3",
+    question: "總督府進行土地調查的主要目的是什麼？",
+    options: [
+      "增加田賦稅收，穩定財政",
+      "保護原住民土地權益",
+      "推動土地平均分配",
+      "發展觀光產業",
+    ],
+    correctAnswer: 0,
+    explanation:
+      "總督府透過土地調查確定土地所有權，使得田賦稅收大幅增加，這是建立殖民地財政基礎的重要環節。",
+    relatedKnowledgeId: "JP008",
+  },
 ];
 
+export interface MissionNPC {
+  id: string;
+  name: string;
+  role: string;
+  persona: string;
+  knowledgeScope: string[];
+}
+
+export interface MissionChunk {
+  id: string;
+  missionId: string;
+  topic: string;
+  period: string;
+  text: string;
+  keywords: string[];
+  relatedKnowledgeIds: string[];
+}
+
+export interface Quiz {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  relatedKnowledgeId: string;
+}

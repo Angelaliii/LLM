@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { predefinedQuestions } from "../../data/predefinedQA";
 import { useMultiChatStore } from "../../store/useMultiChatStore";
 
-const InputArea: React.FC = () => {
+interface InputAreaProps {
+  personaName?: string;
+}
+
+const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) => {
   const { isLoading, actions } = useMultiChatStore();
   const [input, setInput] = useState("");
 
@@ -76,7 +80,7 @@ const InputArea: React.FC = () => {
       {isLoading && (
         <div className="mt-3 flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm">秦始皇正在思考...</span>
+          <span className="text-sm">{personaName}正在思考...</span>
         </div>
       )}
 

@@ -4,11 +4,13 @@ import type { Message } from "../../types/chat";
 interface MessageBubbleProps {
   message: Message;
   isStreaming?: boolean;
+  personaName?: string;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isStreaming = false,
+  personaName = "對話角色",
 }) => {
   const isUser = message.role === "user";
 
@@ -41,25 +43,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
       <div className={`max-w-[70%] ${isUser ? "order-2" : "order-1"}`}>
-        {/* 用戶頭像與名稱 */}
+        {/* 用戶名稱 */}
         <div
           className={`flex items-center mb-2 ${
             isUser ? "justify-end" : "justify-start"
           }`}
         >
-          {!isUser && (
-            <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
-              始
-            </div>
-          )}
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            {isUser ? "您" : "秦始皇"}
+            {isUser ? "您" : personaName}
           </span>
-          {isUser && (
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold ml-2">
-              學
-            </div>
-          )}
         </div>
 
         {/* 消息內容 */}

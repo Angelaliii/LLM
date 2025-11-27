@@ -54,6 +54,45 @@ export interface PersonaConfig {
   };
 }
 
+// NPC 遊戲角色專用配置 (劇本殺模式)
+export interface NPCGameConfig {
+  id: string;
+  name: string;
+  role: string; // 學生、警察、測量員
+  period: string; // 1905年
+  description: string;
+  
+  // 語言特徵
+  language: {
+    tone: "naive" | "authoritative" | "professional" | "casual"; // 天真、威嚴、專業、隨性
+    maxResponseLength: number; // 2-3句 (100-200字)
+    forbiddenPhrases: string[]; // 禁止的教學口吻
+  };
+
+  // 知識範圍 (白名單/黑名單)
+  knowledge: {
+    canAnswer: string[]; // 能回答的主題
+    cannotAnswer: string[]; // 絕對不能答的主題
+    knowledgeSource: "daily_life" | "work_observation" | "official_duty"; // 知識來源
+  };
+
+  // 角色轉接規則
+  redirectRules: {
+    [topic: string]: {
+      targetNPC: string; // 要引導去找的 NPC ID
+      redirectPhrase: string; // 引導話術
+    };
+  };
+
+  // 對話規則
+  conversationRules: {
+    noSelfIntroAfterFirst: boolean; // 第一次後不再自我介紹
+    mustStayInCharacter: boolean; // 必須維持角色身份
+    avoidTeachingTone: boolean; // 避免教學語氣
+    responseStyle: "short" | "concise" | "detailed"; // 回答風格
+  };
+}
+
 export interface FewShotExample {
   mode: "teaching" | "quick" | "socratic";
   rigor: "strict" | "balanced" | "casual";

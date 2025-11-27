@@ -1,8 +1,9 @@
 // S0 - 任務選單：從任務列表中選擇要挑戰的任務
 import React from "react";
 import { useMissionStore } from "../store/useMissionStore";
+import { allMissions } from "../data/missions";
 
-interface Mission {
+interface MissionDisplay {
   id: string;
   name: string;
   era: string;
@@ -11,20 +12,22 @@ interface Mission {
   bestScore?: number;
   description: string;
   estimatedTime: string;
+  stageCount: number;
+  learningGoals: string[];
 }
 
-const missions: Mission[] = [
-  {
-    id: "E2",
-    name: "工業日本・農業臺灣",
-    era: "台灣史",
-    difficulty: "中級",
-    status: "未開始",
-    description: "探索日治時期殖民經濟政策的影響，了解蓬萊米、製糖業與農民生活的變化。",
-    estimatedTime: "15-20分鐘",
-  },
-  // 可擴展更多任務
-];
+// 將任務資料轉換為顯示格式
+const missions: MissionDisplay[] = allMissions.map((mission) => ({
+  id: mission.id,
+  name: mission.title,
+  era: mission.period,
+  difficulty: mission.difficulty,
+  status: "未開始",
+  description: mission.description,
+  estimatedTime: mission.estimatedTime,
+  stageCount: mission.stages.length,
+  learningGoals: mission.learningGoals,
+}));
 
 const MissionList: React.FC = () => {
   const { actions } = useMissionStore();
@@ -33,7 +36,7 @@ const MissionList: React.FC = () => {
     actions.selectMission(missionId);
   };
 
-  const getDifficultyColor = (difficulty: Mission["difficulty"]) => {
+  const getDifficultyColor = (difficulty: MissionDisplay["difficulty"]) => {
     switch (difficulty) {
       case "初級":
         return "bg-green-100 text-green-800";
@@ -46,7 +49,7 @@ const MissionList: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: Mission["status"]) => {
+  const getStatusIcon = (status: MissionDisplay["status"]) => {
     switch (status) {
       case "已完成":
         return "✅";
@@ -100,9 +103,21 @@ const MissionList: React.FC = () => {
                 </span>
               </div>
 
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-gray-700 mb-4 leading-relaxed">
                 {mission.description}
               </p>
+
+              {/* 任務資訊 */}
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>📚</span>
+                  <span>{mission.stageCount} 個關卡</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>🎯</span>
+                  <span>{mission.learningGoals.length} 個學習目標</span>
+                </div>
+              </div>
 
               {mission.bestScore && (
                 <div className="mb-4 p-3 bg-primary-50 rounded-lg">

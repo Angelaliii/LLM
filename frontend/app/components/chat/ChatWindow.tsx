@@ -36,6 +36,14 @@ const ChatWindow: React.FC = () => {
   // 透過 actions 取得當前角色的訊息陣列
   const messages = actions.getCurrentMessages();
 
+  // 取得當前角色名稱
+  const getCurrentPersonaName = () => {
+    const npc = e2Npcs.find((npc) => npc.id === selectedNpcId);
+    return npc?.name || "對話角色";
+  };
+
+  const personaName = getCurrentPersonaName();
+
   // 自動滾動到最新消息
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,16 +95,16 @@ const ChatWindow: React.FC = () => {
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🏛️</div>
                   <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    與歷史人物對話
+                    與日治時期人物對話
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                    請在下方輸入您的問題，與歷史人物進行深度對話，探索歷史的奧秘。
+                    請從左側選擇 NPC 角色，輸入您的問題，探索日治時期台灣的歷史真相。
                   </p>
                 </div>
               )}
 
               {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
+                <MessageBubble key={message.id} message={message} personaName={personaName} />
               ))}
 
               {/* 串流逐字預覽：在 isStreaming 時顯示臨時的 assistant 訊息 */}
@@ -109,11 +117,12 @@ const ChatWindow: React.FC = () => {
                     timestamp: new Date(),
                   }}
                   isStreaming={true}
+                  personaName={personaName}
                 />
               )}
 
               {/* 仍保留 loading 指示（可視情況顯示） */}
-              {isLoading && !isStreaming && <TypingIndicator />}
+              {isLoading && !isStreaming && <TypingIndicator personaName={personaName} />}
 
               {/* 錯誤顯示 */}
               {error && (
@@ -142,7 +151,7 @@ const ChatWindow: React.FC = () => {
 
             {/* 將輸入區放入右側卡片底部，與卡片樣式一致 */}
             <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700">
-              <InputArea />
+              <InputArea personaName={personaName} />
             </div>
           </div>
         </div>

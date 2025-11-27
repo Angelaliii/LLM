@@ -31,7 +31,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       name: "歷史人物",
       title: "與您對話",
       avatar: "",
-      period: "古代",
+      period: "日治時期 (1905年)",
     };
   };
 

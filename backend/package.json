@@ -12,9 +12,14 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@mistralai/mistralai": "^1.10.0",
+    "chromadb": "^3.1.6",
+    "chromadb-default-embed": "^2.14.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",

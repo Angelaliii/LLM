@@ -116,7 +116,7 @@ const Hero: React.FC = () => {
                     </div>
                     <div>
                       <div className="font-semibold text-dark-900">
-                        秦始皇嬴政
+                        日治時期人物
                       </div>
                       <div className="text-sm text-primary-500">● 在線中</div>
                     </div>

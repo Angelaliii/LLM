@@ -12,6 +12,15 @@ interface MissionState {
   currentMissionId: string | null;
   selectedNpcId: string | null;
   
+  // 新增：當前關卡追蹤
+  currentStageIndex: number;
+  completedStages: string[]; // 已完成的關卡 ID
+  stageProgress: Record<string, {
+    started: boolean;
+    completed: boolean;
+    collectedKeywords: string[];
+  }>;
+  
   // S1 任務開場故事
   missionIntro: string | null;
   guidingQuestions: string[];
@@ -33,6 +42,9 @@ interface MissionState {
   
   // 操作方法
   actions: {
+    // 初始化任務
+    initializeMission: (missionId: string) => void;
+    
     // S0 → S1: 選擇任務
     selectMission: (missionId: string) => void;
     
@@ -41,6 +53,11 @@ interface MissionState {
     
     // S2 → S3: 選擇 NPC
     selectNpc: (npcId: string) => void;
+    
+    // 新增：關卡進度管理
+    startStage: (stageId: string) => void;
+    completeStage: (stageId: string, keywords: string[]) => void;
+    nextStage: () => void;
     
     // S3: 更新對話狀態
     updateConversation: (summary: string, turns: number) => void;
@@ -72,6 +89,10 @@ export const useMissionStore = create<MissionState>()(
         currentMissionId: null,
         selectedNpcId: null,
         
+        currentStageIndex: 0,
+        completedStages: [],
+        stageProgress: {},
+        
         missionIntro: null,
         guidingQuestions: [],
         
@@ -87,10 +108,22 @@ export const useMissionStore = create<MissionState>()(
         quizCompleted: false,
 
         actions: {
+          initializeMission: (missionId: string) => {
+            set({
+              currentMissionId: missionId,
+              currentStageIndex: 0,
+              completedStages: [],
+              stageProgress: {},
+            });
+          },
+
           selectMission: (missionId: string) => {
             set({
               currentMissionId: missionId,
               currentStage: "S1",
+              currentStageIndex: 0,
+              completedStages: [],
+              stageProgress: {},
               // 重置其他狀態
               selectedNpcId: null,
               missionIntro: null,
@@ -102,6 +135,42 @@ export const useMissionStore = create<MissionState>()(
               missionSummary: null,
               quizScore: null,
               quizCompleted: false,
+            });
+          },
+
+          startStage: (stageId: string) => {
+            const state = get();
+            set({
+              stageProgress: {
+                ...state.stageProgress,
+                [stageId]: {
+                  started: true,
+                  completed: false,
+                  collectedKeywords: [],
+                },
+              },
+            });
+          },
+
+          completeStage: (stageId: string, keywords: string[]) => {
+            const state = get();
+            set({
+              stageProgress: {
+                ...state.stageProgress,
+                [stageId]: {
+                  started: true,
+                  completed: true,
+                  collectedKeywords: keywords,
+                },
+              },
+              completedStages: [...state.completedStages, stageId],
+            });
+          },
+
+          nextStage: () => {
+            const state = get();
+            set({
+              currentStageIndex: state.currentStageIndex + 1,
             });
           },
 
@@ -168,6 +237,9 @@ export const useMissionStore = create<MissionState>()(
               currentStage: "S0",
               currentMissionId: null,
               selectedNpcId: null,
+              currentStageIndex: 0,
+              completedStages: [],
+              stageProgress: {},
               missionIntro: null,
               guidingQuestions: [],
               conversationTurns: 0,

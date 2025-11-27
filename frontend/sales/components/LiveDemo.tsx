@@ -7,7 +7,7 @@ import Icon from "./Icon";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// 兩組示範問答；展示順序為：使用者(Q) 右側 → 秦始皇(A) 左側 → 下一組 Q → A
+// 兩組示範問答；展示順序為：使用者(Q) 右側 → 歷史人物(A) 左側 → 下一組 Q → A
 const qaPairs = [
   {
     q: "您為什麼要統一文字？",
@@ -81,7 +81,7 @@ const LiveDemo: React.FC = () => {
             立即體驗歷史對話
           </h2>
           <p className="text-xl text-dark-700 max-w-3xl mx-auto">
-            與秦始皇直接對話，感受革命性的歷史學習體驗。輸入您的問題，立即獲得第一人稱回應。
+            與日治時期歷史人物直接對話，感受革命性的歷史學習體驗。輸入您的問題，立即獲得第一人稱回應。
           </p>
         </div>
 
@@ -94,7 +94,7 @@ const LiveDemo: React.FC = () => {
                   <Icon name="user" size="md" className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">秦始皇嬴政</h3>
+                  <h3 className="text-xl font-bold">日治時期人物</h3>
                   <p className="text-primary-100">始皇帝 • 統一六國 • 在線中</p>
                 </div>
                 <div className="ml-auto">
