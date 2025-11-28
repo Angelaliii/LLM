@@ -7,14 +7,17 @@ interface InputAreaProps {
 }
 
 const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) => {
-  const { isLoading, actions } = useMultiChatStore();
+  const { isLoading, currentPersonaId, actions } = useMultiChatStore();
   const [input, setInput] = useState("");
+  
+  // 檢查是否已選擇角色
+  const hasSelectedPersona = currentPersonaId && currentPersonaId.trim() !== "";
 
   const handleQuestionSelect = async (
     _questionId: string,
     questionText: string
   ) => {
-    if (isLoading) return;
+    if (isLoading || !hasSelectedPersona) return;
 
     // 發送用戶選擇的問題
     await actions.sendMessage(questionText);
@@ -24,7 +27,7 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
 
   const handleSendInput = async () => {
     const text = input.trim();
-    if (!text || isLoading) return;
+    if (!text || isLoading || !hasSelectedPersona) return;
     setInput("");
     await actions.sendMessage(text);
   };
@@ -41,9 +44,9 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
             <button
               key={q.id}
               onClick={() => handleQuestionSelect(q.id, q.text)}
-              disabled={isLoading}
-              className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-sm rounded-full hover:bg-primary-50 dark:hover:bg-primary-600 disabled:opacity-50"
-            >
+              disabled={isLoading || !hasSelectedPersona}
+              className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-sm rounded-full hover:bg-primary-50 dark:hover:bg-primary-600 disabled:opacity-50">
+            
               <span className="text-xs text-gray-900 dark:text-white block truncate max-w-xs">
                 {q.text}
               </span>
@@ -64,14 +67,13 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
             }
           }}
           className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="請輸入你的問題，或選擇上方建議問題..."
-          disabled={isLoading}
+          placeholder={hasSelectedPersona ? "請輸入你的問題,或選擇上方建議問題..." : "請先選擇對話角色"}
+          disabled={isLoading || !hasSelectedPersona}
         />
         <button
           onClick={() => void handleSendInput()}
-          disabled={isLoading}
-          className="px-3 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-        >
+          disabled={isLoading || !hasSelectedPersona}
+          className="px-3 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
           送出
         </button>
       </div>

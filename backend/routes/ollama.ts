@@ -1,19 +1,15 @@
 import { Router } from "express";
 import { chatWithOllama } from "../services/ollamaClient";
-import { buildSystemPrompt } from "../services/missionPrompt";
 
 const router = Router();
 
 router.post("/chat", async (req, res) => {
   try {
-    const { model, systemPrompt, messages, missionId, npcId } = req.body;
-
-    const finalSystemPrompt =
-      systemPrompt ?? buildSystemPrompt({ missionId, npcId });
+    const { model, systemPrompt, messages } = req.body;
 
     const data = await chatWithOllama({
       model,
-      systemPrompt: finalSystemPrompt,
+      systemPrompt: systemPrompt || "You are a helpful assistant.",
       messages,
     });
 

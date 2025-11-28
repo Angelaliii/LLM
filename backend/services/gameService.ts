@@ -6,6 +6,7 @@ import {
   isSelfIntroduction,
   containsForbiddenTeachingTone 
 } from './ragToneFilter';
+import { getMissionById, getNPCInfo } from './missionLoader';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -85,31 +86,47 @@ function filterConversationHistory(
 
 /**
  * 建構完整的 System Prompt (強化版)
+ * 
+ * 處理流程:
+ * 1. 載入 NPC PERSONA 檔案 (個性、語氣、知識範圍)
+ * 2. 使用 RAG 檢索 knowledge_base.json 相關知識
+ * 3. 從 mission 資料中獲取相關劇本資訊
+ * 4. 結合所有資料生成完整的 System Prompt
  */
 async function buildSystemPrompt(
   npcId: string,
   userQuery: string,
-  conversationTurns: number = 0
+  conversationTurns: number = 0,
+  missionId: string = 'E2'
 ): Promise<string> {
   const npcInfo = NPC_MAPPING[npcId];
   const npcConfig = getNPCConfig(npcId);
+  
+  // 1️⃣ 載入 NPC PERSONA 檔案
   const npcPersona = loadNPCPersona(npcId);
+  console.log(`📝 Loaded PERSONA for ${npcInfo.name}`);
   
   if (!npcConfig) {
     throw new Error(`NPC config not found: ${npcId}`);
   }
 
+  // 2️⃣ 從 mission 中獲取相關資訊
+  const missionData = getMissionById(missionId);
+  const missionNPCInfo = getNPCInfo(npcId);
+  console.log(`📦 Loaded mission data: ${missionData.chunks.length} chunks`);
+
   // 檢查是否需要轉接到其他 NPC
   const redirectCheck = checkTopicRedirect(npcId, userQuery);
 
-  // 使用 RAG 檢索相關知識
+  // 3️⃣ 使用 RAG 檢索 knowledge_base.json 相關知識
   const knowledgeResults = await searchKnowledge(userQuery, {
     npcRole: npcInfo.role,
     topK: 3,
     minSimilarity: 0.5
   });
+  console.log(`🔍 RAG search results: ${knowledgeResults.length} matches`);
 
-  // 透過語氣過濾器轉換 RAG 內容
+  // 4️⃣ 透過語氣過濾器轉換 RAG 內容
   const ragKnowledge = convertRAGToRoleTone(knowledgeResults, npcId);
 
   const systemPrompt = `# 你的角色身份
@@ -218,11 +235,20 @@ export interface GameChatResponse {
 
 /**
  * 處理遊戲對話 - 使用 Mistral API (強化版)
+ * 
+ * 處理流程:
+ * 1. 過濾對話歷史 (移除重複自介、教學口吻)
+ * 2. 建構 System Prompt (載入 PERSONA + RAG + mission)
+ * 3. 生成兩個不同 temperature 的回答
+ * 4. 檢查回答品質
  */
 export async function handleGameChat(request: GameChatRequest): Promise<GameChatResponse> {
-  const { npcId, message, conversationHistory = [] } = request;
+  const { npcId, message, conversationHistory = [], sessionId } = request;
 
   try {
+    console.log(`\n--- 💬 開始處理對話 (Session: ${sessionId}) ---`);
+    console.log(`👤 NPC: ${npcId} | 📨 Message: ${message.substring(0, 50)}...`);
+    
     const npcInfo = NPC_MAPPING[npcId];
     const npcConfig = getNPCConfig(npcId);
     
@@ -230,17 +256,17 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       throw new Error(`NPC config not found: ${npcId}`);
     }
 
-    // 🔧 過濾對話歷史 (移除重複自介、教學口吻)
+    // 🔧 1. 過濾對話歷史 (移除重複自介、教學口吻)
     const filteredHistory = filterConversationHistory(conversationHistory, npcId);
-    
     console.log(`📝 History filtered: ${conversationHistory.length} -> ${filteredHistory.length} messages`);
 
-    // 建構 System Prompt (包含 RAG 知識、角色規則)
+    // 🔧 2. 建構 System Prompt (PERSONA → mission → knowledge_base)
     const systemPrompt = await buildSystemPrompt(
       npcId,
       message,
       filteredHistory.length / 2
     );
+    console.log(`📋 System prompt built (${systemPrompt.length} chars)`);
 
     // 建構對話訊息
     const messages: MistralChatMessage[] = [
@@ -252,7 +278,8 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       { role: 'user', content: message }
     ];
 
-    // 生成兩個不同 temperature 的回答
+    // 🔧 3. 生成兩個不同 temperature 的回答
+    console.log(`🤖 Generating responses...`);
     const [responseA, responseB] = await Promise.all([
       chatWithMistral(messages, { 
         temperature: 0.7,
@@ -264,7 +291,7 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       })
     ]);
 
-    // 檢查回答品質
+    // 🔧 4. 檢查回答品質
     const qualityCheckA = checkResponseQuality(responseA, npcId);
     const qualityCheckB = checkResponseQuality(responseB, npcId);
 
@@ -283,6 +310,9 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       npcRole: npcInfo.role,
       topK: 2
     });
+
+    console.log(`✅ Chat processed successfully`);
+    console.log(`--- 對話處理完成 ---\n`);
 
     return {
       responseId: generateResponseId(),

@@ -1,4 +1,39 @@
-import { NPCGameConfig } from '../types/persona';
+// Local type declarations to avoid external module import
+export interface NPCLanguageConfig {
+  tone: string;
+  maxResponseLength: number;
+  forbiddenPhrases: string[];
+}
+
+export interface NPCKnowledgeConfig {
+  canAnswer: string[];
+  cannotAnswer: string[];
+  knowledgeSource: string;
+}
+
+export interface NPCConversationRules {
+  noSelfIntroAfterFirst: boolean;
+  mustStayInCharacter: boolean;
+  avoidTeachingTone: boolean;
+  responseStyle: string;
+}
+
+export interface RedirectRule {
+  targetNPC: string;
+  redirectPhrase: string;
+}
+
+export interface NPCGameConfig {
+  id: string;
+  name: string;
+  role: string;
+  period: string;
+  description: string;
+  language: NPCLanguageConfig;
+  knowledge: NPCKnowledgeConfig;
+  redirectRules: Record<string, RedirectRule>;
+  conversationRules: NPCConversationRules;
+}
 
 /**
  * NPC 遊戲角色配置 - 1905 年台灣日治時期劇本
@@ -15,12 +50,15 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       tone: 'naive',
       maxResponseLength: 150,
       forbiddenPhrases: [
-        '我們今天要討論',
-        '讓我們來看看',
-        '從歷史角度',
-        '根據史料',
-        '讓我為你解釋',
-        '這是一個很好的問題'
+        '我們今天要討論', '讓我們來看看', '從歷史角度', '根據史料', '讓我為你解釋',
+        '這是一個很好的問題', '讓我來告訴你', '首先', '其次', '最後',
+        '總而言之', '綜上所述', '換句話說', '值得注意的是', '可以說', '事實上',
+        '從某種意義上', '需要理解', '我們可以看到', '這反映了',
+        '在當時', '在那個年代', '在日治時期', '殖民統治', '日本政府',
+        '總督府實施', '政策', '制度', '體制', '統治', '帝國主義',
+        '根據記載', '歷史上', '當年', '那時候', '在1905年',
+        '這個時代', '這段時期', '這反映出', '可見', '由此可知',
+        '藉此', '透過', '基於', '鑑於', '關於這點'
       ]
     },
     
@@ -86,12 +124,14 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       tone: 'authoritative',
       maxResponseLength: 180,
       forbiddenPhrases: [
-        '讓我來教你',
-        '從教育的角度',
-        '我們可以討論',
-        '這是一個複雜的問題',
-        '讓我詳細說明',
-        '根據現代觀點'
+        '讓我來教你', '我們今天要討論', '讓我們來看看', '從歷史角度', '根據史料',
+        '讓我為你解釋', '這是一個很好的問題', '讓我來告訴你', '首先', '其次', '最後',
+        '總而言之', '綜上所述', '換句話說', '值得注意的是', '可以說', '事實上',
+        '需要理解', '我們可以看到', '這反映了', '讓我說明',
+        '在當時', '在那個年代', '在日治時期', '殖民統治', '帝國主義',
+        '總督府的政策', '制度上', '體制內', '根據法律', '依法',
+        '歷史背景', '時代背景', '當年', '那時候', '在1905年',
+        '這說明了', '這證明了', '由此可見', '藉此', '透過此', '基於'
       ]
     },
     
@@ -153,12 +193,14 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       tone: 'professional',
       maxResponseLength: 200,
       forbiddenPhrases: [
-        '讓我們探討',
-        '從社會學角度',
-        '這需要深入分析',
-        '讓我為你上一課',
-        '我們今天來學習',
-        '這是歷史的重要轉折'
+        '讓我們探討', '從社會學角度', '這需要深入分析', '讓我為你上一課', '我們今天來學習',
+        '這是歷史的重要轉折', '讓我來教你', '讓我們來看看', '從歷史角度', '根據史料',
+        '讓我為你解釋', '這是一個很好的問題', '讓我來告訴你', '首先', '其次', '最後',
+        '總而言之', '綜上所述', '換句話說', '值得注意的是', '可以說', '需要理解', '這反映了',
+        '在當時', '在那個年代', '在日治時期', '殖民統治', '殖民政府', '帝國',
+        '總督府政策', '制度性', '結構性', '系統性', '歷史意義', '時代意義',
+        '根據調查', '數據顯示', '統計表明', '研究發現', '分析結果',
+        '這說明', '這證明', '可見', '由此可知', '藉此', '透過', '基於', '鑑於'
       ]
     },
     
@@ -225,10 +267,11 @@ export function checkTopicRedirect(
   // 檢查是否包含需要轉接的關鍵詞
   for (const [topic, redirect] of Object.entries(config.redirectRules)) {
     if (userMessage.includes(topic)) {
+      const redirectInfo = redirect as { targetNPC: string; redirectPhrase: string };
       return {
         shouldRedirect: true,
-        targetNPC: redirect.targetNPC,
-        phrase: redirect.redirectPhrase
+        targetNPC: redirectInfo.targetNPC,
+        phrase: redirectInfo.redirectPhrase
       };
     }
   }
@@ -250,7 +293,7 @@ export function isTopicInKnowledgeScope(
 
   // 檢查是否在黑名單
   const inBlacklist = config.knowledge.cannotAnswer.some(
-    forbidden => topic.includes(forbidden) || forbidden.includes(topic)
+    (forbidden: string) => topic.includes(forbidden) || forbidden.includes(topic)
   );
   
   if (inBlacklist) {
@@ -259,7 +302,7 @@ export function isTopicInKnowledgeScope(
 
   // 檢查是否在白名單
   const inWhitelist = config.knowledge.canAnswer.some(
-    allowed => topic.includes(allowed) || allowed.includes(topic)
+    (allowed: string) => topic.includes(allowed) || allowed.includes(topic)
   );
 
   if (inWhitelist) {

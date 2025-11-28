@@ -1,6 +1,6 @@
 import express from 'express';
 import { evaluateProgress } from '../services/progressEval';
-import { e2Chunks, e2Npcs, e2Quizzes } from '../data/missions/e2-industrial-agri';
+import { e2Chunks, e2Npcs, e2Quizzes } from '../data/missions/mission';
 
 const router = express.Router();
 

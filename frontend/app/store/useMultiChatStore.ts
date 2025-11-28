@@ -74,7 +74,7 @@ export const useMultiChatStore = create<MultiChatState>()(
       (set, get) => ({
         // 初始狀態
         conversationsByPersona: {},
-        currentPersonaId: "default-emperor",
+        currentPersonaId: "",
         missionId: null,
         missionStage: "S0",
         selectedNpcId: null,
@@ -287,6 +287,10 @@ export const useMultiChatStore = create<MultiChatState>()(
           },
 
           clearAllConversations: () => {
+            // 清除所有 game sessions
+            const { clearAllGameSessions } = require("../services/llmClient");
+            clearAllGameSessions();
+            
             set({
               conversationsByPersona: {},
               error: null,
@@ -296,9 +300,13 @@ export const useMultiChatStore = create<MultiChatState>()(
           },
 
           reset: () => {
+            // 清除所有 game sessions
+            const { clearAllGameSessions } = require("../services/llmClient");
+            clearAllGameSessions();
+            
             set({
               conversationsByPersona: {},
-              currentPersonaId: "default-emperor",
+              currentPersonaId: "",
               missionId: null,
               missionStage: "S0",
               selectedNpcId: null,

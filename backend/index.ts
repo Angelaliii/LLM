@@ -10,6 +10,7 @@ import evalRouter from "./routes/eval";
 import missionsRouter from "./routes/missions";
 import gameRouter from "./routes/game";
 import { initializeVectorDB, getKnowledgeStats } from "./services/simpleVectorDB";
+import { preloadMissionData } from "./services/missionLoader";
 
 const app = express();
 app.use(cors());
@@ -49,10 +50,17 @@ app.use("/api/game", gameRouter);
 
 const PORT = process.env.PORT || 4000;
 
-// 初始化向量資料庫後啟動伺服器
+// 初始化向量資料庫和 Mission 資料後啟動伺服器
 async function startServer() {
   try {
-    console.log('🔄 正在初始化向量資料庫...');
+    console.log('🔄 正在初始化系統...');
+    
+    // 1. 預載入 Mission 資料
+    console.log('📦 載入 Mission 資料...');
+    preloadMissionData();
+    
+    // 2. 初始化向量資料庫
+    console.log('🔄 初始化向量資料庫...');
     await initializeVectorDB();
     console.log('✅ 向量資料庫初始化完成');
     

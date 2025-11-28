@@ -131,48 +131,48 @@ const SimpleChatRoom: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* 角色選擇器 */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-700">選擇對話角色:</h3>
-            <div className="flex gap-2">
-              {npcs.map((npc) => (
-                <button
-                  key={npc.id}
-                  onClick={() => handleSelectNpc(npc)}
-                  className={`px-4 py-2 rounded-lg border-2 transition-all flex items-center gap-2 ${
-                    selectedNpc.id === npc.id
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700"
-                  }`}
-                >
-                  <span className="text-xl">{npc.icon}</span>
-                  <div className="text-left">
-                    <div className="text-sm font-semibold">{npc.name}</div>
-                    <div className="text-xs text-gray-500">{npc.role}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="h-screen flex bg-gray-50">
+      {/* 左側角色選擇欄 */}
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-700">選擇對話角色</h3>
+        </div>
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {npcs.map((npc) => (
+            <button
+              key={npc.id}
+              onClick={() => handleSelectNpc(npc)}
+              className={`w-full px-3 py-3 rounded-lg border-2 transition-all text-left ${
+                selectedNpc.id === npc.id
+                  ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{npc.icon}</span>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold">{npc.name}</div>
+                  <div className="text-xs text-gray-500">{npc.role}</div>
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* 對話區 */}
+      {/* 右側對話區 */}
       <div className="flex-1 flex flex-col">
         {/* 消息區 */}
         <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center text-gray-500">
-                    <p className="text-lg">開始對話吧!</p>
-                    <p className="text-sm mt-2">試著問問關於日治時期的事情</p>
+                    <p className="text-lg">👈 請先選擇對話角色</p>
+                    <p className="text-sm mt-2">然後開始你的歷史探索之旅</p>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4 max-w-4xl mx-auto">
+                <div className="space-y-4 max-w-3xl mx-auto">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -238,7 +238,7 @@ const SimpleChatRoom: React.FC = () => {
 
         {/* 輸入區 */}
         <div className="bg-white border-t border-gray-200 p-4">
-          <div className="max-w-4xl mx-auto flex gap-3">
+          <div className="max-w-3xl mx-auto flex gap-3">
                 <input
                   type="text"
                   value={input}
