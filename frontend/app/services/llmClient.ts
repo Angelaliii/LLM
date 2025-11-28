@@ -135,6 +135,17 @@ export async function streamChatViaBackend(
       throw new Error(data.error || "Unknown error");
     }
 
+    // 檢查是否達成關鍵點
+    if (data.data?.keyPointAchieved) {
+      const keyPoint = data.data.keyPointAchieved;
+      console.log(`🌟 Key point achieved:`, keyPoint);
+      
+      // 調用 ChatWindow 的處理函數
+      if (typeof (window as any).handleKeyPointAchieved === 'function') {
+        (window as any).handleKeyPointAchieved(keyPoint);
+      }
+    }
+
     // 使用第一個回答 (temperature 0.7 的版本)
     const assistantContent = data.data?.responses?.[0]?.content || "無法獲取回答";
 

@@ -4,9 +4,15 @@ import { useMultiChatStore } from "../../store/useMultiChatStore";
 
 interface InputAreaProps {
   personaName?: string;
+  currentStage?: number;
+  totalStages?: number;
 }
 
-const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) => {
+const InputArea: React.FC<InputAreaProps> = ({ 
+  personaName = "對話角色",
+  currentStage = 1,
+  totalStages = 5
+}) => {
   const { isLoading, currentPersonaId, actions } = useMultiChatStore();
   const [input, setInput] = useState("");
   
@@ -34,27 +40,6 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
 
   return (
     <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
-      {/* 建議的三個問題（固定前三個） */}
-      <div className="mb-3">
-        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2 text-center md:text-left">
-          建議問題
-        </h3>
-        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-          {predefinedQuestions.slice(0, 3).map((q) => (
-            <button
-              key={q.id}
-              onClick={() => handleQuestionSelect(q.id, q.text)}
-              disabled={isLoading || !hasSelectedPersona}
-              className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-sm rounded-full hover:bg-primary-50 dark:hover:bg-primary-600 disabled:opacity-50">
-            
-              <span className="text-xs text-gray-900 dark:text-white block truncate max-w-xs">
-                {q.text}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* 輸入框 */}
       <div className="mt-2 flex items-center gap-2">
         <input
@@ -67,7 +52,7 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
             }
           }}
           className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder={hasSelectedPersona ? "請輸入你的問題,或選擇上方建議問題..." : "請先選擇對話角色"}
+          placeholder={hasSelectedPersona ? "請輸入你的問題..." : "請先選擇對話角色"}
           disabled={isLoading || !hasSelectedPersona}
         />
         <button
@@ -85,10 +70,6 @@ const InputArea: React.FC<InputAreaProps> = ({ personaName = "對話角色" }) =
           <span className="text-sm">{personaName}正在思考...</span>
         </div>
       )}
-
-      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-        可直接輸入或選擇建議問題 • 所有建議問題均經過歷史考證
-      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 // S0 - 任務選單：從任務列表中選擇要挑戰的任務
 import React from "react";
 import { useMissionStore } from "../store/useMissionStore";
+import { useMultiChatStore } from "../store/useMultiChatStore";
 import { allMissions } from "../data/missions";
 
 interface MissionDisplay {
@@ -17,23 +18,45 @@ interface MissionDisplay {
 }
 
 // 將任務資料轉換為顯示格式
-const missions: MissionDisplay[] = allMissions.map((mission) => ({
-  id: mission.id,
-  name: mission.title,
-  era: mission.period,
-  difficulty: mission.difficulty,
-  status: "未開始",
-  description: mission.description,
-  estimatedTime: mission.estimatedTime,
-  stageCount: mission.stages.length,
-  learningGoals: mission.learningGoals,
-}));
+const getMissionStatus = (missionId: string, currentMissionId: string | null, selectedNpcId: string | null, chatStore: any): "未開始" | "進行中" | "已完成" => {
+  if (currentMissionId === missionId && selectedNpcId && chatStore.conversationsByPersona[selectedNpcId]?.length > 0) {
+    return "進行中";
+  }
+  return "未開始";
+};
 
 const MissionList: React.FC = () => {
-  const { actions } = useMissionStore();
+  const { actions, currentMissionId, selectedNpcId } = useMissionStore();
+  const chatStore = useMultiChatStore();
+
+  // 將任務資料轉換為顯示格式（動態狀態）
+  const missions: MissionDisplay[] = allMissions.map((mission) => ({
+    id: mission.id,
+    name: mission.title,
+    era: mission.period,
+    difficulty: mission.difficulty,
+    status: getMissionStatus(mission.id, currentMissionId, selectedNpcId, chatStore),
+    description: mission.description,
+    estimatedTime: mission.estimatedTime,
+    stageCount: mission.stages.length,
+    learningGoals: mission.learningGoals,
+  }));
+
+  // 檢查是否有進行中的對話
+  const hasOngoingConversation = (missionId: string) => {
+    // 檢查該任務是否有對話記錄
+    return currentMissionId === missionId && selectedNpcId && 
+           chatStore.conversationsByPersona[selectedNpcId]?.length > 0;
+  };
 
   const handleMissionSelect = (missionId: string) => {
-    actions.selectMission(missionId);
+    // 如果有進行中的對話，直接跳到 S3（對話頁面）
+    if (hasOngoingConversation(missionId)) {
+      actions.goToStage('S3');
+    } else {
+      // 否則正常進入任務流程（S1）
+      actions.selectMission(missionId);
+    }
   };
 
   const getDifficultyColor = (difficulty: MissionDisplay["difficulty"]) => {
@@ -134,11 +157,19 @@ const MissionList: React.FC = () => {
                 onClick={() => handleMissionSelect(mission.id)}
                 className="w-full btn-primary flex items-center justify-center gap-2 group"
               >
-                <span>開始任務</span>
+                <span>
+                  {hasOngoingConversation(mission.id) ? '繼續對話' : '開始任務'}
+                </span>
                 <span className="group-hover:translate-x-1 transition-transform">
                   →
                 </span>
               </button>
+              
+              {hasOngoingConversation(mission.id) && (
+                <div className="mt-2 text-xs text-center text-green-600 dark:text-green-400">
+                  💬 有進行中的對話
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -148,15 +179,21 @@ const MissionList: React.FC = () => {
           <h2 className="text-heading-3 text-center mb-8">學習進度統計</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-primary-500 mb-2">1</div>
+              <div className="text-3xl font-bold text-primary-500 mb-2">
+                {missions.length}
+              </div>
               <div className="text-sm text-gray-600">可用任務</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-green-500 mb-2">0</div>
+              <div className="text-3xl font-bold text-green-500 mb-2">
+                {missions.filter(m => m.status === "已完成").length}
+              </div>
               <div className="text-sm text-gray-600">已完成</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-yellow-500 mb-2">0</div>
+              <div className="text-3xl font-bold text-yellow-500 mb-2">
+                {missions.filter(m => m.status === "進行中").length}
+              </div>
               <div className="text-sm text-gray-600">進行中</div>
             </div>
             <div>

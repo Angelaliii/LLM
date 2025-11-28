@@ -231,6 +231,11 @@ export interface GameChatResponse {
   gameCompleted: boolean;
   hint?: string;
   knowledgeUsed?: KnowledgeSearchResult[];
+  keyPointAchieved?: {
+    id: string;
+    title: string;
+    description: string;
+  };
 }
 
 /**
@@ -302,6 +307,13 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       console.warn(`⚠️  Response B quality issues: ${qualityCheckB.issues.join(', ')}`);
     }
 
+    // 檢查是否達成關鍵點
+    const keyPointAchieved = checkKeyPointAchieved(
+      message,
+      responseA,
+      filteredHistory
+    );
+
     // 檢查是否解鎖 Stage
     const stageUnlocked = checkStageUnlock(message, filteredHistory.length);
 
@@ -312,6 +324,9 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     });
 
     console.log(`✅ Chat processed successfully`);
+    if (keyPointAchieved) {
+      console.log(`🌟 New achievement: ${keyPointAchieved.title}`);
+    }
     console.log(`--- 對話處理完成 ---\n`);
 
     return {
@@ -333,7 +348,8 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       stageUnlocked,
       gameCompleted: false,
       hint: filteredHistory.length >= 3 ? generateHint(message) : undefined,
-      knowledgeUsed
+      knowledgeUsed,
+      keyPointAchieved: keyPointAchieved || undefined
     };
   } catch (error: any) {
     console.error('❌ Game chat error:', error.message);
@@ -387,6 +403,73 @@ function checkResponseQuality(
     issues,
     score
   };
+}
+
+/**
+ * 檢查是否達成關鍵點
+ */
+function checkKeyPointAchieved(
+  userMessage: string, 
+  assistantResponse: string,
+  conversationHistory: Array<{ role: string; content: string }>
+): { id: string; title: string; description: string } | null {
+  const keyPoints = [
+    {
+      id: 'kp1',
+      title: '警察的角色',
+      description: '了解殖民警察在台灣社會中扮演的多重角色',
+      keywords: ['警察', '權力', '控制', '巡查', '維持秩序']
+    },
+    {
+      id: 'kp2',
+      title: '保甲制度',
+      description: '認識保甲制度如何輔助警察控制',
+      keywords: ['保甲', '甲長', '十戶', '壯丁團', '連帶責任']
+    },
+    {
+      id: 'kp3',
+      title: '連坐處罰',
+      description: '理解連坐制度對民眾的影響',
+      keywords: ['連坐', '處罰', '連帶', '責任', '懲罰']
+    },
+    {
+      id: 'kp4',
+      title: '土地調查',
+      description: '了解土地調查如何改變土地制度',
+      keywords: ['土地調查', '地籍', '田賦', '測量', '土地權']
+    },
+    {
+      id: 'kp5',
+      title: '專賣制度',
+      description: '探索專賣制度對經濟的影響',
+      keywords: ['專賣', '鴉片', '食鹽', '樟腦', '菸草']
+    }
+  ];
+
+  // 檢查對話中是否提到相關關鍵詞
+  const combinedText = userMessage + ' ' + assistantResponse;
+  
+  for (const kp of keyPoints) {
+    const matchCount = kp.keywords.filter(keyword => 
+      combinedText.includes(keyword)
+    ).length;
+    
+    // 如果匹配到 2 個以上關鍵詞，視為達成該關鍵點
+    if (matchCount >= 2) {
+      // 檢查是否已經達成過（簡單檢查歷史中是否多次出現）
+      const historyMentions = conversationHistory.filter(msg => 
+        kp.keywords.some(keyword => msg.content.includes(keyword))
+      ).length;
+      
+      // 如果歷史中提到不超過 2 次，視為新達成
+      if (historyMentions <= 2) {
+        console.log(`🌟 Key point achieved: ${kp.title} (matched: ${matchCount} keywords)`);
+        return kp;
+      }
+    }
+  }
+  
+  return null;
 }
 
 /**
