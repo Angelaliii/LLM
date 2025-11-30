@@ -42,7 +42,7 @@ const PersonaSwitcher: React.FC = () => {
               className={`
                 relative flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200
                 ${isActive 
-                  ? 'bg-blue-500 text-white shadow-lg' 
+                  ? 'bg-primary-600 text-white shadow-lg' 
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }
               `}
@@ -58,7 +58,7 @@ const PersonaSwitcher: React.FC = () => {
                 ) : (
                   <div className={`
                     w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-                    ${isActive ? 'bg-white text-blue-500' : 'bg-blue-500 text-white'}
+                    ${isActive ? 'bg-white text-primary-500' : 'bg-primary-500 text-white'}
                   `}>
                     {persona.name.slice(0, 1)}
                   </div>
@@ -78,8 +78,8 @@ const PersonaSwitcher: React.FC = () => {
                 <span className={`
                   min-w-[16px] h-4 px-1 text-xs rounded-full flex items-center justify-center
                   ${isActive 
-                    ? 'bg-white text-blue-500' 
-                    : 'bg-blue-500 text-white'
+                    ? 'bg-white text-primary-500' 
+                    : 'bg-primary-500 text-white'
                   }
                 `}>
                   {messageCount > 99 ? '99+' : messageCount}
@@ -89,16 +89,6 @@ const PersonaSwitcher: React.FC = () => {
           );
         })}
       </div>
-      
-      {/* 當前角色詳細資訊 */}
-      {currentPersonaId && (
-        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          {(() => {
-            const persona = availablePersonas.find(p => p.id === currentPersonaId);
-            return persona ? `${persona.title} • ${persona.period}` : '';
-          })()}
-        </div>
-      )}
     </div>
   );
 };

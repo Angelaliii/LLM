@@ -272,3 +272,66 @@ h6 {
     border-color: #c6a15b;
   }
 }
+
+/* 關鍵線索閃爍動畫 */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 10px 5px rgba(250, 204, 21, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1s ease-in-out 3;
+}
+
+/* 關卡解鎖動畫 */
+@keyframes unlock-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.animate-unlock {
+  animation: unlock-bounce 0.5s ease-in-out;
+}
+
+/* 恭喜卡片動畫 */
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.5s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}

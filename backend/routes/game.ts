@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { handleGameChat, GameChatRequest } from '../services/gameService';
+import { handleGameChat, GameChatRequest, summarizeConversation } from '../services/gameService';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -11,6 +11,8 @@ const gameSessions = new Map<string, {
   missionId: string;
   npcId: string;
   conversationHistory: Array<{ role: string; content: string; timestamp: number }>;
+  summaries: any[];
+  keyPoints: any[];
   feedbackHistory: Array<{ responseId: string; selectedId: string; timestamp: number }>;
   startedAt: number;
 }>();
@@ -63,6 +65,8 @@ router.post('/start', (req: Request, res: Response) => {
     missionId,
     npcId,
     conversationHistory: [],
+    summaries: [],
+    keyPoints: [],
     feedbackHistory: [],
     startedAt: Date.now()
   });
@@ -84,7 +88,7 @@ router.post('/start', (req: Request, res: Response) => {
  * POST /api/game/chat - 遊戲對話 (核心 RAG + LLM 端點)
  */
 router.post('/chat', async (req: Request, res: Response) => {
-  const { sessionId, message } = req.body;
+  const { sessionId, message, summaries, keyPoints } = req.body;
 
   if (!sessionId || !message) {
     return res.status(400).json({
@@ -101,13 +105,23 @@ router.post('/chat', async (req: Request, res: Response) => {
     });
   }
 
+  // 更新 session 中的記憶
+  if (summaries) {
+    session.summaries = summaries;
+  }
+  if (keyPoints) {
+    session.keyPoints = keyPoints;
+  }
+
   try {
     // 呼叫遊戲服務處理對話
     const response = await handleGameChat({
       sessionId,
       npcId: session.npcId,
       message,
-      conversationHistory: session.conversationHistory
+      conversationHistory: session.conversationHistory,
+      summaries: session.summaries,
+      keyPoints: session.keyPoints
     });
 
     // 更新對話歷史
@@ -202,6 +216,46 @@ router.get('/session/:sessionId', (req: Request, res: Response) => {
       duration: Date.now() - session.startedAt
     }
   });
+});
+
+/**
+ * POST /api/game/summarize - 濃縮對話記憶
+ */
+router.post('/summarize', async (req: Request, res: Response) => {
+  const { messages, personaId, existingSummaries, existingKeyPoints } = req.body;
+
+  if (!messages || !personaId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing messages or personaId'
+    });
+  }
+
+  try {
+    console.log(`📝 開始濃縮對話... (${messages.length} 條訊息)`);
+    
+    const result = await summarizeConversation(
+      messages,
+      personaId,
+      existingSummaries || [],
+      existingKeyPoints || []
+    );
+
+    console.log(`✅ 濃縮完成`);
+
+    res.json({
+      success: true,
+      summary: result.summary,
+      newKeyPoints: result.newKeyPoints
+    });
+  } catch (error: any) {
+    console.error('❌ Summarize error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to summarize conversation',
+      details: error.message
+    });
+  }
 });
 
 export default router;

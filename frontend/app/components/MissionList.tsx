@@ -90,26 +90,30 @@ const MissionList: React.FC = () => {
           <h1 className="text-heading-1 text-dark-900 mb-4">
             選擇您的歷史任務
           </h1>
-          <p className="text-xl text-dark-700 max-w-2xl mx-auto">
-            每個任務都是一段精彩的歷史旅程，與古代人物對話，探索歷史真相
-          </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {missions.map((mission) => (
             <div
               key={mission.id}
-              className="card bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+              className="card bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(
-                    mission.difficulty
-                  )}`}
-                >
-                  {mission.difficulty}
-                </span>
-                <span className="text-2xl">{getStatusIcon(mission.status)}</span>
+              {/* 頂部圖片區 */}
+              <div className="relative h-48 mb-4 -mx-6 -mt-6">
+                <img 
+                  src="/assets/images/background.png" 
+                  alt={mission.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 right-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(
+                      mission.difficulty
+                    )} backdrop-blur-sm bg-opacity-90`}
+                  >
+                    {mission.difficulty}
+                  </span>
+                </div>
               </div>
 
               <h3 className="text-heading-3 text-dark-900 mb-2">
@@ -126,21 +130,9 @@ const MissionList: React.FC = () => {
                 </span>
               </div>
 
-              <p className="text-gray-700 mb-4 leading-relaxed">
+              <p className="text-gray-700 mb-4 leading-relaxed line-clamp-3">
                 {mission.description}
               </p>
-
-              {/* 任務資訊 */}
-              <div className="mb-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span>📚</span>
-                  <span>{mission.stageCount} 個關卡</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span>🎯</span>
-                  <span>{mission.learningGoals.length} 個學習目標</span>
-                </div>
-              </div>
 
               {mission.bestScore && (
                 <div className="mb-4 p-3 bg-primary-50 rounded-lg">
@@ -174,34 +166,6 @@ const MissionList: React.FC = () => {
           ))}
         </div>
 
-        {/* 任務統計 */}
-        <div className="mt-16 bg-white rounded-xl p-8 shadow-lg">
-          <h2 className="text-heading-3 text-center mb-8">學習進度統計</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-primary-500 mb-2">
-                {missions.length}
-              </div>
-              <div className="text-sm text-gray-600">可用任務</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-green-500 mb-2">
-                {missions.filter(m => m.status === "已完成").length}
-              </div>
-              <div className="text-sm text-gray-600">已完成</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-yellow-500 mb-2">
-                {missions.filter(m => m.status === "進行中").length}
-              </div>
-              <div className="text-sm text-gray-600">進行中</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-primary-500 mb-2">0</div>
-              <div className="text-sm text-gray-600">總積分</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

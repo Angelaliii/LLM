@@ -1,9 +1,9 @@
-// 任務狀態管理 - 對應使用者流程 S0-S5
+// 任務狀態管理 - 對應使用者流程 S0-S5 (S2已整合至S3)
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-// 任務階段定義
-export type MissionStage = "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
+// 任務階段定義 (S2階段已整合至S3,不再單獨存在)
+export type MissionStage = "S0" | "S1" | "S3" | "S4" | "S5";
 
 // 任務狀態接口
 interface MissionState {
@@ -58,6 +58,7 @@ interface MissionState {
     startStage: (stageId: string) => void;
     completeStage: (stageId: string, keywords: string[]) => void;
     nextStage: () => void;
+    updateStageProgress: (stageId: string, keywords: string[]) => void;
     
     // S3: 更新對話狀態
     updateConversation: (summary: string, turns: number) => void;
@@ -146,7 +147,7 @@ export const useMissionStore = create<MissionState>()(
                 [stageId]: {
                   started: true,
                   completed: false,
-                  collectedKeywords: [],
+                  collectedKeywords: state.stageProgress[stageId]?.collectedKeywords || [],
                 },
               },
             });
@@ -154,6 +155,8 @@ export const useMissionStore = create<MissionState>()(
 
           completeStage: (stageId: string, keywords: string[]) => {
             const state = get();
+            const isAlreadyCompleted = state.completedStages.includes(stageId);
+            
             set({
               stageProgress: {
                 ...state.stageProgress,
@@ -163,7 +166,9 @@ export const useMissionStore = create<MissionState>()(
                   collectedKeywords: keywords,
                 },
               },
-              completedStages: [...state.completedStages, stageId],
+              completedStages: isAlreadyCompleted 
+                ? state.completedStages 
+                : [...state.completedStages, stageId],
             });
           },
 
@@ -171,6 +176,22 @@ export const useMissionStore = create<MissionState>()(
             const state = get();
             set({
               currentStageIndex: state.currentStageIndex + 1,
+            });
+          },
+
+          updateStageProgress: (stageId: string, keywords: string[]) => {
+            const state = get();
+            const existing = state.stageProgress[stageId] || { started: true, completed: false, collectedKeywords: [] };
+            const updatedKeywords = [...new Set([...existing.collectedKeywords, ...keywords])];
+            
+            set({
+              stageProgress: {
+                ...state.stageProgress,
+                [stageId]: {
+                  ...existing,
+                  collectedKeywords: updatedKeywords,
+                },
+              },
             });
           },
 

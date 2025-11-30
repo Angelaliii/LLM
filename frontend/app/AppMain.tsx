@@ -4,7 +4,7 @@ import { useMissionStore } from "./store/useMissionStore";
 import MissionList from "./components/MissionList";  // S0
 import MissionIntro from "./components/MissionIntro"; // S1
 import NPCSelector from "./components/NPCSelector";   // S2
-import ChatRoom from "./components/ChatRoom";         // S3 (重命名為統一介面)
+import SimpleChatRoom from "./components/SimpleChatRoom"; // S3 (使用新的 SimpleChatRoom)
 import SummaryView from "./components/SummaryView";   // S4
 import QuizView from "./components/QuizView";         // S5
 
@@ -28,7 +28,7 @@ const AppMain: React.FC = () => {
       case "S2":
         return <NPCSelector />;
       case "S3":
-        return <ChatRoom />;
+        return <SimpleChatRoom />;
       case "S4":
         return <SummaryView />;
       case "S5":

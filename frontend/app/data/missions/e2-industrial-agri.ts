@@ -6,23 +6,23 @@
 export const e2Npcs = [
   {
     id: "police_officer",
-    name: "警察 佐藤敬一",
+    name: "佐藤敬一",
     role: "日本基層警察",
-    avatar: "👮",
+    avatar: "/assets/images/police.png",
     description: "負責執行總督府命令的日本警察"
   },
   {
     id: "student",
-    name: "學生 小清",
+    name: "小清",
     role: "公學校學生",
-    avatar: "👧",
+    avatar: "/assets/images/student.png",
     description: "1905年臺南市區的公學校學生"
   },
   {
     id: "land_surveyor",
-    name: "土地測量員 山本勘助",
+    name: "山本勘助",
     role: "土地測量員",
-    avatar: "📐",
+    avatar: "/assets/images/Cadastral_surveyor.png",
     description: "負責土地調查的日籍技術官員"
   }
 ];

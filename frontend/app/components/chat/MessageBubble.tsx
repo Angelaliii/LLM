@@ -5,12 +5,14 @@ interface MessageBubbleProps {
   message: Message;
   isStreaming?: boolean;
   personaName?: string;
+  avatarUrl?: string;
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isStreaming = false,
   personaName = "對話角色",
+  avatarUrl,
 }) => {
   const isUser = message.role === "user";
 
@@ -41,7 +43,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 items-end gap-2`}>
+      {/* NPC 頭像 (左側) */}
+      {!isUser && avatarUrl && (
+        <img
+          src={avatarUrl}
+          alt={personaName}
+          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+        />
+      )}
+      
       <div className={`max-w-[70%] ${isUser ? "order-2" : "order-1"}`}>
         {/* 用戶名稱 */}
         <div
@@ -58,7 +69,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div
           className={`relative px-4 py-3 rounded-2xl shadow-sm ${
             isUser
-              ? "bg-blue-500 text-white"
+              ? "bg-primary-500 text-white"
               : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600"
           }`}
         >
@@ -78,13 +89,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           {isStreaming && (
             <div className="inline-flex items-center ml-1">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"></div>
                 <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.1s" }}
                 ></div>
                 <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-primary-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
               </div>

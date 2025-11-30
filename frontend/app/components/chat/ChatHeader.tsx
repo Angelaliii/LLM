@@ -85,7 +85,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           {persona.name}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-          {persona.title} • {persona.period}
+          日治初期
         </p>
       </div>
 

@@ -48,11 +48,11 @@ const MissionIntro: React.FC = () => {
             <div className="grid md:grid-cols-3 gap-8 items-center">
               {/* 左側：角色圖片 */}
               <div className="md:col-span-1 flex justify-center p-4">
-                <div className="relative w-full max-w-xs">
+                <div className="relative w-48 h-48">
                   <img 
-                    src="/assets/images/background.png" 
+                    src="/assets/images/main_character.png" 
                     alt="鈴木先生" 
-                    className="w-full h-auto object-cover rounded-lg border border-gray-200 shadow-md"
+                    className="w-full h-full object-cover rounded-full border-4 border-primary-200 shadow-lg"
                   />
                 </div>
               </div>
@@ -90,11 +90,8 @@ const MissionIntro: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-bold text-dark-900 mb-2">小清</h3>
                   <p className="text-sm font-semibold text-primary-600 mb-3">公學校學生</p>
-                  <p className="text-sm text-dark-700 leading-relaxed mb-2">
-                    你在視察學校時認識的臺灣學生，聰明但對新制度感到困惑。
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    她能幫你理解基層教育與警察管理的實際運作。
+                  <p className="text-sm text-dark-700 leading-relaxed">
+                    你在視察學校時認識的臺灣學生,聰明但對新制度感到困惑。
                   </p>
                 </div>
               </div>
@@ -111,11 +108,8 @@ const MissionIntro: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-bold text-dark-900 mb-2">佐藤 敬一</h3>
                   <p className="text-sm font-semibold text-primary-600 mb-3">日本警察</p>
-                  <p className="text-sm text-dark-700 leading-relaxed mb-2">
-                    你的同事，負責地方治安的執行者。
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    他權力極大，掌握六三法與保甲制度的運作秘密，令你有些敬畏。
+                  <p className="text-sm text-dark-700 leading-relaxed">
+                    你的同事,負責地方治安的執行者。
                   </p>
                 </div>
               </div>
@@ -132,11 +126,8 @@ const MissionIntro: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-bold text-dark-900 mb-2">山本 勘助</h3>
                   <p className="text-sm font-semibold text-primary-600 mb-3">土地測量員</p>
-                  <p className="text-sm text-dark-700 leading-relaxed mb-2">
-                    技術專家，負責土地調查與測量工作。
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    他了解財政來源的關鍵——土地與專賣制度的秘密。
+                  <p className="text-sm text-dark-700 leading-relaxed">
+                    技術專家,負責土地調查與測量工作。
                   </p>
                 </div>
               </div>
@@ -200,7 +191,7 @@ const MissionIntro: React.FC = () => {
               onClick={() => actions.goToStage("S3")}
               className="btn-primary flex items-center gap-3 group px-10 py-4 text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
             >
-              <span>前往臺南</span>
+              <span>開始任務</span>
               <span className="group-hover:translate-x-2 transition-transform text-xl">
                 →
               </span>

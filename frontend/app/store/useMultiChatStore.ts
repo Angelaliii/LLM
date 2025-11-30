@@ -6,18 +6,21 @@ import type {
   Language,
   Message,
   RigorLevel,
+  ConversationMemory,
+  ConversationSummary,
+  KeyPoint,
 } from "../types/chat";
 import { streamChatViaBackend } from "../services/llmClient";
 import { findAnswerByQuestion } from "../data/predefinedQA";
 
 interface MultiChatState {
-  // 多角色對話記錄 - 每個角色都有獨立的消息列表
-  conversationsByPersona: Record<string, Message[]>;
+  // 多角色對話記錄 - 改用完整的記憶結構
+  conversationsByPersona: Record<string, ConversationMemory>;
   currentPersonaId: string;
   
   // 當前任務和階段
   missionId: string | null;
-  missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
+  missionStage: "S0" | "S1" | "S3" | "S4" | "S5";
   selectedNpcId?: string | null;
   
   // 串流狀態
@@ -39,7 +42,9 @@ interface MultiChatState {
     // 多角色對話管理
     switchToPersona: (personaId: string) => void;
     getCurrentMessages: () => Message[];
+    getCurrentMemory: () => ConversationMemory;
     sendMessage: (content: string) => Promise<void>;
+    summarizeConversation: () => Promise<void>;
     
     // 配置變更
     setMode: (mode: ChatMode) => void;
@@ -49,7 +54,7 @@ interface MultiChatState {
     // 任務流程
     selectMission: (missionId: string) => Promise<void>;
     selectNpc: (npcId: string) => void;
-    goToStage: (stage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => void;
+    goToStage: (stage: "S0" | "S1" | "S3" | "S4" | "S5") => void;
     markInvestigationComplete: () => void;
     
     // 串流處理
@@ -91,9 +96,28 @@ export const useMultiChatStore = create<MultiChatState>()(
           // 切換到指定角色的對話
           switchToPersona: (personaId: string) => {
             set((state) => {
-              // 如果該角色沒有對話記錄，創建空陣列
+              // 如果該角色沒有對話記錄，創建空記憶結構
               if (!state.conversationsByPersona[personaId]) {
-                state.conversationsByPersona[personaId] = [];
+                state.conversationsByPersona[personaId] = {
+                  messages: [],
+                  summaries: [],
+                  keyPoints: [],
+                  relationshipMemo: "",
+                  totalMessageCount: 0,
+                };
+              } else {
+                // 驗證現有記憶結構的完整性
+                const memory = state.conversationsByPersona[personaId];
+                if (!Array.isArray(memory.messages)) {
+                  console.warn('⚠️ 偵測到損壞的記憶結構，正在重置...');
+                  state.conversationsByPersona[personaId] = {
+                    messages: [],
+                    summaries: Array.isArray(memory.summaries) ? memory.summaries : [],
+                    keyPoints: Array.isArray(memory.keyPoints) ? memory.keyPoints : [],
+                    relationshipMemo: memory.relationshipMemo || "",
+                    totalMessageCount: 0,
+                  };
+                }
               }
               
               return {
@@ -110,7 +134,20 @@ export const useMultiChatStore = create<MultiChatState>()(
           // 獲取當前角色的對話記錄
           getCurrentMessages: () => {
             const state = get();
-            return state.conversationsByPersona[state.currentPersonaId] || [];
+            const memory = state.conversationsByPersona[state.currentPersonaId];
+            return memory?.messages || [];
+          },
+
+          // 獲取當前角色的完整記憶
+          getCurrentMemory: () => {
+            const state = get();
+            return state.conversationsByPersona[state.currentPersonaId] || {
+              messages: [],
+              summaries: [],
+              keyPoints: [],
+              relationshipMemo: "",
+              totalMessageCount: 0,
+            };
           },
 
           // 發送訊息
@@ -135,16 +172,29 @@ export const useMultiChatStore = create<MultiChatState>()(
                 timestamp: new Date(),
               };
 
-              set((state) => ({
-                conversationsByPersona: {
-                  ...state.conversationsByPersona,
-                  [currentPersonaId]: [
-                    ...(state.conversationsByPersona[currentPersonaId] || []),
-                    userMessage,
-                    assistantMessage,
-                  ],
-                },
-              }));
+              set((state) => {
+                const memory = state.conversationsByPersona[currentPersonaId] || {
+                  messages: [],
+                  summaries: [],
+                  keyPoints: [],
+                  relationshipMemo: "",
+                  totalMessageCount: 0,
+                };
+
+                // 確保 messages 是陣列
+                const existingMessages = Array.isArray(memory.messages) ? memory.messages : [];
+
+                return {
+                  conversationsByPersona: {
+                    ...state.conversationsByPersona,
+                    [currentPersonaId]: {
+                      ...memory,
+                      messages: [...existingMessages, userMessage, assistantMessage],
+                      totalMessageCount: (memory.totalMessageCount || 0) + 2,
+                    },
+                  },
+                };
+              });
               return;
             }
 
@@ -156,21 +206,39 @@ export const useMultiChatStore = create<MultiChatState>()(
               timestamp: new Date(),
             };
 
-            set((state) => ({
-              conversationsByPersona: {
-                ...state.conversationsByPersona,
-                [currentPersonaId]: [
-                  ...(state.conversationsByPersona[currentPersonaId] || []),
-                  userMessage,
-                ],
-              },
-              isLoading: true,
-              error: null,
-            }));
+            set((state) => {
+              const memory = state.conversationsByPersona[currentPersonaId] || {
+                messages: [],
+                summaries: [],
+                keyPoints: [],
+                relationshipMemo: "",
+                totalMessageCount: 0,
+              };
+
+              // 確保 messages 是陣列
+              const existingMessages = Array.isArray(memory.messages) ? memory.messages : [];
+
+              return {
+                conversationsByPersona: {
+                  ...state.conversationsByPersona,
+                  [currentPersonaId]: {
+                    ...memory,
+                    messages: [...existingMessages, userMessage],
+                    totalMessageCount: (memory.totalMessageCount || 0) + 1,
+                  },
+                },
+                isLoading: true,
+                error: null,
+              };
+            });
 
             try {
-              // 獲取當前對話歷史
-              const currentMessages = state.conversationsByPersona[currentPersonaId] || [];
+              // 獲取當前記憶
+              const currentMemory = get().actions.getCurrentMemory();
+              
+              // 📌 只傳最近 5 則訊息給 LLM (避免重複內容)
+              // 前端保留完整記錄，但後端只需要最近的上下文
+              const recentMessages = currentMemory.messages.slice(-5);
               
               // 呼叫後端 API
               await streamChatViaBackend({
@@ -179,10 +247,12 @@ export const useMultiChatStore = create<MultiChatState>()(
                 mode,
                 rigorLevel,
                 language,
-                conversationHistory: currentMessages.map((msg) => ({
+                conversationHistory: recentMessages.map((msg) => ({
                   role: msg.role,
                   content: msg.content,
                 })),
+                summaries: currentMemory.summaries,
+                keyPoints: currentMemory.keyPoints,
                 onStart: () => {
                   get().actions.startStreaming();
                 },
@@ -197,6 +267,13 @@ export const useMultiChatStore = create<MultiChatState>()(
                     timestamp: new Date(),
                   };
                   get().actions.completeStreaming(finalMessage);
+                  
+                  // 檢查是否需要濃縮（每5條對話）
+                  const updatedMemory = get().actions.getCurrentMemory();
+                  if (updatedMemory.messages.length >= 5 && updatedMemory.messages.length % 5 === 0) {
+                    console.log('📝 觸發對話濃縮...');
+                    get().actions.summarizeConversation();
+                  }
                 },
                 onError: (error: string) => {
                   get().actions.setError(error);
@@ -206,6 +283,76 @@ export const useMultiChatStore = create<MultiChatState>()(
               get().actions.setError(error instanceof Error ? error.message : "發生未知錯誤");
             } finally {
               set({ isLoading: false });
+            }
+          },
+
+          // 濃縮對話（每5條觸發）
+          summarizeConversation: async () => {
+            const state = get();
+            const { currentPersonaId } = state;
+            const memory = state.conversationsByPersona[currentPersonaId];
+            
+            if (!memory || memory.messages.length < 5) {
+              return;
+            }
+
+            try {
+              console.log(`🔄 開始濃縮對話... (共 ${memory.messages.length} 條)`);
+              
+              // 取得最近5條對話
+              const recentMessages = memory.messages.slice(-5);
+              
+              // 呼叫後端API進行濃縮
+              const response = await fetch('/api/game/summarize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  messages: recentMessages,
+                  personaId: currentPersonaId,
+                  existingSummaries: memory.summaries,
+                  existingKeyPoints: memory.keyPoints,
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error('濃縮失敗');
+              }
+
+              const data = await response.json();
+              const summary: ConversationSummary = data.summary;
+              const newKeyPoints: KeyPoint[] = data.newKeyPoints || [];
+
+              console.log('✅ 濃縮完成:', summary);
+              console.log('🔑 新發現線索:', newKeyPoints.map(kp => kp.title).join(', '));
+
+              // 更新記憶：保留最近3條完整對話 + 新摘要
+              set((state) => {
+                const memory = state.conversationsByPersona[currentPersonaId];
+                const allKeyPoints = [...memory.keyPoints];
+                
+                // 去重新增關鍵線索
+                newKeyPoints.forEach(newKp => {
+                  if (!allKeyPoints.some(kp => kp.title === newKp.title)) {
+                    allKeyPoints.push(newKp);
+                  }
+                });
+
+                return {
+                  conversationsByPersona: {
+                    ...state.conversationsByPersona,
+                    [currentPersonaId]: {
+                      ...memory,
+                      messages: memory.messages.slice(-3), // 只保留最近3條
+                      summaries: [...memory.summaries, summary],
+                      keyPoints: allKeyPoints,
+                    },
+                  },
+                };
+              });
+
+              console.log(`📦 記憶已更新：保留 3 條對話 + ${memory.summaries.length + 1} 個摘要 + ${allKeyPoints.length} 個關鍵線索`);
+            } catch (error) {
+              console.error('❌ 濃縮對話失敗:', error);
             }
           },
 
@@ -233,17 +380,31 @@ export const useMultiChatStore = create<MultiChatState>()(
           updateStreamingContent: (content: string) => set({ streamingContent: content }),
 
           completeStreaming: (finalMessage: Message) => {
-            set((state) => ({
-              conversationsByPersona: {
-                ...state.conversationsByPersona,
-                [state.currentPersonaId]: [
-                  ...(state.conversationsByPersona[state.currentPersonaId] || []),
-                  finalMessage,
-                ],
-              },
-              isStreaming: false,
-              streamingContent: "",
-            }));
+            set((state) => {
+              const memory = state.conversationsByPersona[state.currentPersonaId] || {
+                messages: [],
+                summaries: [],
+                keyPoints: [],
+                relationshipMemo: "",
+                totalMessageCount: 0,
+              };
+
+              // 確保 messages 是陣列
+              const existingMessages = Array.isArray(memory.messages) ? memory.messages : [];
+
+              return {
+                conversationsByPersona: {
+                  ...state.conversationsByPersona,
+                  [state.currentPersonaId]: {
+                    ...memory,
+                    messages: [...existingMessages, finalMessage],
+                    totalMessageCount: (memory.totalMessageCount || 0) + 1,
+                  },
+                },
+                isStreaming: false,
+                streamingContent: "",
+              };
+            });
           },
 
           // 錯誤處理
@@ -251,7 +412,10 @@ export const useMultiChatStore = create<MultiChatState>()(
 
           retry: async () => {
             const state = get();
-            const messages = state.conversationsByPersona[state.currentPersonaId] || [];
+            const memory = state.conversationsByPersona[state.currentPersonaId];
+            if (!memory) return;
+            
+            const messages = memory.messages;
             const lastUserMessage = messages.filter((m) => m.role === "user").pop();
             
             if (lastUserMessage) {
@@ -263,7 +427,10 @@ export const useMultiChatStore = create<MultiChatState>()(
               set((state) => ({
                 conversationsByPersona: {
                   ...state.conversationsByPersona,
-                  [state.currentPersonaId]: filteredMessages,
+                  [state.currentPersonaId]: {
+                    ...memory,
+                    messages: filteredMessages,
+                  },
                 },
                 error: null,
               }));
@@ -278,7 +445,13 @@ export const useMultiChatStore = create<MultiChatState>()(
             set((state) => ({
               conversationsByPersona: {
                 ...state.conversationsByPersona,
-                [state.currentPersonaId]: [],
+                [state.currentPersonaId]: {
+                  messages: [],
+                  summaries: [],
+                  keyPoints: [],
+                  relationshipMemo: "",
+                  totalMessageCount: 0,
+                },
               },
               error: null,
               streamingContent: "",

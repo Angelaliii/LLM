@@ -51,22 +51,22 @@ const InputArea: React.FC<InputAreaProps> = ({
               void handleSendInput();
             }
           }}
-          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
           placeholder={hasSelectedPersona ? "請輸入你的問題..." : "請先選擇對話角色"}
           disabled={isLoading || !hasSelectedPersona}
         />
         <button
           onClick={() => void handleSendInput()}
           disabled={isLoading || !hasSelectedPersona}
-          className="px-3 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
+          className="px-3 py-2 bg-primary-600 text-white rounded disabled:opacity-50">
           送出
         </button>
       </div>
 
       {/* 載入指示器 */}
       {isLoading && (
-        <div className="mt-3 flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="mt-3 flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400">
+          <div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-sm">{personaName}正在思考...</span>
         </div>
       )}

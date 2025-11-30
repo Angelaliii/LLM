@@ -50,7 +50,7 @@ export const tainanColonialRuleMission: MissionData = {
   period: '日治初期 (1905年)',
   difficulty: '中級',
   estimatedTime: '15-20分鐘',
-  description: '穿越到1905年的臺南，作為總督府基層文官，探索日本如何透過法律、警察體制和財政手段，建立起高壓且財政自足的殖民統治體系。',
+  description: '成為總督府基層文官，探索日本如何透過法律、警察體制和財政手段，建立起高壓且財政自足的殖民統治體系。',
   mainGoal: '理解日本政府如何在短時間內，透過法律與經濟手段，建立起高壓且財政自足的殖民統治體系，並掌握其殖民哲學。',
   
   playerPersona: {

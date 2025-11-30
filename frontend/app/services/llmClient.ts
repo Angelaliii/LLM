@@ -67,6 +67,8 @@ export async function streamChatViaBackend(
         rigorLevel?: string;
         language?: string;
         conversationHistory?: { role: string; content: string }[];
+        summaries?: any[];
+        keyPoints?: any[];
         onStart?: () => void;
         onContent?: (chunk: string) => void;
         onComplete?: (response: string) => void;
@@ -83,6 +85,8 @@ export async function streamChatViaBackend(
   let missionId: string = "e2-industrial-agri";
   let npcId: string | undefined = opts.npcId;
   let handlers: StreamHandlers | undefined = opts.handlers;
+  let summaries: any[] = [];
+  let keyPoints: any[] = [];
 
   if (typeof userInputOrOpts === "string") {
     message = userInputOrOpts;
@@ -90,6 +94,8 @@ export async function streamChatViaBackend(
     message = (userInputOrOpts.message as string) || "";
     missionId = userInputOrOpts.missionId ?? opts.missionId ?? missionId;
     npcId = userInputOrOpts.personaId ?? npcId;
+    summaries = userInputOrOpts.summaries || [];
+    keyPoints = userInputOrOpts.keyPoints || [];
     handlers = handlers || {
       onChunk: userInputOrOpts.onContent,
       onComplete: userInputOrOpts.onComplete,
