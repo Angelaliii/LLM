@@ -5,7 +5,7 @@ export default defineConfig({
   root: "frontend",
   plugins: [react()],
   build: {
-    outDir: "../docs", // Output to docs for GitHub Pages
+    outDir: "dist", // Output to dist for standard builds
     rollupOptions: {
       output: {
         manualChunks: {

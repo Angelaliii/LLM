@@ -2,8 +2,8 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-// 任務階段定義 (S2階段已整合至S3,不再單獨存在)
-export type MissionStage = "S0" | "S1" | "S3" | "S4" | "S5";
+// 任務階段定義 
+export type MissionStage = "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
 
 // 任務狀態接口
 interface MissionState {
@@ -118,24 +118,13 @@ export const useMissionStore = create<MissionState>()(
             });
           },
 
+          // S0 → S1: 選擇任務（正式實作）
           selectMission: (missionId: string) => {
+            // 設定當前任務並進入 S1
             set({
               currentMissionId: missionId,
               currentStage: "S1",
               currentStageIndex: 0,
-              completedStages: [],
-              stageProgress: {},
-              // 重置其他狀態
-              selectedNpcId: null,
-              missionIntro: null,
-              guidingQuestions: [],
-              conversationTurns: 0,
-              conversationSummary: "",
-              lastEvalResult: null,
-              masteredGoalsCount: 0,
-              missionSummary: null,
-              quizScore: null,
-              quizCompleted: false,
             });
           },
 
@@ -283,9 +272,25 @@ export const useMissionStore = create<MissionState>()(
         partialize: (state) => ({
           // 只持久化必要的狀態
           currentMissionId: state.currentMissionId,
+          currentStage: state.currentStage,  // 也保存當前階段
+          selectedNpcId: state.selectedNpcId,  // 保存選中的 NPC
           quizScore: state.quizScore,
           quizCompleted: state.quizCompleted,
         }),
+        onRehydrateStorage: () => (state, error) => {
+          if (error) {
+            console.error('[mission-store] Rehydration failed:', error);
+            return;
+          }
+          if (state) {
+            console.info('[mission-store] Rehydrated state:', state);
+            // 驗證重新載入的狀態是否合理
+            if (state.currentStage === 'S3' && (!state.currentMissionId || !state.selectedNpcId)) {
+              console.warn('[mission-store] Invalid S3 state detected during rehydration, resetting to S0');
+              // 這裡不能直接調用 actions，需要在組件層面處理
+            }
+          }
+        },
       }
     ),
     { name: "MissionStore" }

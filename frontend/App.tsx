@@ -14,6 +14,9 @@ import SalesPage from "./sales/SalesPage";
 
 // 主系統
 import AppMain from "./app/AppMain";
+import AppErrorBoundary from "./app/components/AppErrorBoundary";
+// 臨時檢視用：檔案室組件
+import FileRoom from "./app/components/FileRoom";
 
 function App() {
   useEffect(() => {
@@ -39,10 +42,21 @@ function App() {
           <Route path="/" element={<SalesPage />} />
           
           {/* 主系統 - S0-S5 使用者流程 */}
-          <Route path="/app/*" element={<AppMain />} />
+          <Route path="/app/*" element={
+            <AppErrorBoundary>
+              <AppMain />
+            </AppErrorBoundary>
+          } />
+
+          {/* 測試/開發用：檔案室檢視（FileRoom） */}
+          <Route path="/fileroom" element={<FileRoom />} />
           
           {/* 兼容舊路由 */}
-          <Route path="/chat" element={<AppMain />} />
+          <Route path="/chat" element={
+            <AppErrorBoundary>
+              <AppMain />
+            </AppErrorBoundary>
+          } />
           
           {/* 404 重導向到首頁 */}
           <Route path="*" element={<SalesPage />} />

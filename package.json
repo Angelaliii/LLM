@@ -5,16 +5,20 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "node server.js",
-    "dev:full": "concurrently \"npm run dev:server\" \"npm run dev\"",
+    "dev:frontend": "vite",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:full": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "deploy": "gh-pages -d dist"
+    "deploy": "echo \"No docs deploy configured; use hosting for production or re-enable deploy script.\""
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "framer-motion": "^12.23.25",
     "gsap": "^3.13.0",
+    "lucide-react": "^0.555.0",
     "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

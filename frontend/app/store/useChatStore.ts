@@ -19,6 +19,9 @@ interface ChatState {
   conversationsByPersona: Record<string, Message[]>;
   currentPersonaId: string;
   
+  // 當前對話消息列表
+  messages: Message[];
+  
   isLoading: boolean;
   isStreaming: boolean;
   streamingContent: string;
@@ -84,6 +87,7 @@ interface ChatState {
     selectMission: (missionId: string) => Promise<void>;
     goToStage: (stage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => void;
     selectNpc: (npcId: string) => void;
+    updateConversation: (npcId: string, messages: Message[]) => void;
     setHiddenSummary: (summary: string) => void;
     // Quiz actions
     startQuiz: () => void;
@@ -100,6 +104,7 @@ export const useChatStore = create<ChatState>()(
         currentSession: null,
         conversationsByPersona: {},
         currentPersonaId: "default-emperor",
+        messages: [],
         isLoading: false,
         isStreaming: false,
         streamingContent: "",
@@ -234,8 +239,8 @@ export const useChatStore = create<ChatState>()(
           },
 
           selectMission: async (missionId: string) => {
-            // set mission and move to S3 chat layout
-            set({ missionId, missionStage: "S3", selectedNpcId: null });
+            // set mission only, let useMissionStore handle stage transitions
+            set({ missionId, selectedNpcId: null });
 
             // initialize a fresh session
             get().actions.startNewSession();
@@ -288,12 +293,22 @@ export const useChatStore = create<ChatState>()(
           },
 
           goToStage: (missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => {
+            // Only update chatStore internal stage, let useMissionStore handle main stage
             set({ missionStage });
           },
 
           selectNpc: (npcId: string) => {
-            // select the NPC identity for conversation context but don't clear the mission intro
-            set({ selectedNpcId: npcId, missionStage: "S3", personaId: npcId });
+            // select the NPC identity for conversation context
+            set({ selectedNpcId: npcId, personaId: npcId });
+          },
+
+          updateConversation: (npcId: string, messages: Message[]) => {
+            set((state) => ({
+              conversationsByPersona: {
+                ...state.conversationsByPersona,
+                [npcId]: messages,
+              },
+            }));
           },
 
           setHiddenSummary: (summary: string) => {

@@ -54,6 +54,9 @@ const MissionList: React.FC = () => {
     if (hasOngoingConversation(missionId)) {
       actions.goToStage('S3');
     } else {
+      // Debug log: 使用者選擇任務
+      // eslint-disable-next-line no-console
+      console.info('[MissionList] selectMission called:', missionId);
       // 否則正常進入任務流程（S1）
       actions.selectMission(missionId);
     }

@@ -1,0 +1,39 @@
+/* S2 NPC Selection - Styling */
+
+.s2-npc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.s2-hint-box {
+  background: linear-gradient(135deg, #FDF7ED 0%, #F9F7F2 100%);
+  border-left: 4px solid #C6A15B;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.s2-npc-avatar {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.s2-npc-card:hover .s2-npc-avatar {
+  transform: scale(1.1);
+}
+
+.s2-trait-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #FDF7ED;
+  color: #8B6914;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: 1px solid #E8DCC0;
+  margin: 0.25rem;
+}

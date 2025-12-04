@@ -15,9 +15,12 @@ const MissionIntro: React.FC = () => {
 
   if (!mission) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-primary-50">
         <div className="text-center">
           <p className="text-xl text-gray-600 mb-4">請先選擇任務</p>
+          <p className="text-sm text-gray-500 mb-6">
+            {currentMissionId ? `無法找到任務: ${currentMissionId}` : '未選擇任何任務'}
+          </p>
           <button
             onClick={() => actions.goToStage("S0")}
             className="btn-primary"
@@ -188,7 +191,7 @@ const MissionIntro: React.FC = () => {
           {/* 互動按鈕 */}
           <div className="flex justify-center gap-6">
             <button
-              onClick={() => actions.goToStage("S3")}
+              onClick={() => actions.goToStage("S2")}
               className="btn-primary flex items-center gap-3 group px-10 py-4 text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
             >
               <span>開始任務</span>

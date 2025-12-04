@@ -14,22 +14,30 @@ const sessionCache: Record<string, string> = {};
 async function getOrCreateGameSession(npcId: string, missionId: string = "e2-industrial-agri"): Promise<string> {
   // 如果已有該角色的 session，直接返回
   if (sessionCache[npcId]) {
+    console.log(`📄 Using cached session for ${npcId}: ${sessionCache[npcId]}`);
     return sessionCache[npcId];
   }
 
   // 創建新 session
   try {
+    console.log(`🔄 Creating new game session for NPC: ${npcId}, Mission: ${missionId}`);
     const response = await fetch("/api/game/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ missionId, npcId }),
     });
 
+    console.log(`📡 Session creation response status: ${response.status}`);
+
     if (!response.ok) {
-      throw new Error(`Failed to start game session: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`❌ Session creation failed: ${response.status} - ${errorText}`);
+      throw new Error(`Failed to start game session: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log(`📦 Session creation response data:`, data);
+    
     if (data.success && data.data.sessionId) {
       sessionCache[npcId] = data.data.sessionId;
       console.log(`✅ Created game session for ${npcId}: ${data.data.sessionId}`);
@@ -41,7 +49,6 @@ async function getOrCreateGameSession(npcId: string, missionId: string = "e2-ind
     throw error;
   }
 }
-
 /**
  * 清除指定角色的 session（用於重置對話）
  */
@@ -111,7 +118,9 @@ export async function streamChatViaBackend(
 
   try {
     // 獲取或創建 game session
+    console.log(`🔄 Getting session for NPC: ${npcId}, Mission: ${missionId}`);
     const sessionId = await getOrCreateGameSession(npcId, missionId);
+    console.log(`📋 Using session: ${sessionId} for message: "${message}"`);
 
     if (handlers?.onChunk) {
       handlers.onChunk("");
@@ -127,8 +136,11 @@ export async function streamChatViaBackend(
       }),
     });
 
+    console.log(`📡 Chat API response status: ${response.status}`);
+
     if (!response.ok) {
       const text = await response.text().catch(() => "");
+      console.error(`❌ Chat API error: ${response.status} - ${text}`);
       const errMsg = `遊戲 API 錯誤: ${response.status} ${text}`;
       const err = new Error(errMsg);
       if (handlers?.onError) handlers.onError(err);
