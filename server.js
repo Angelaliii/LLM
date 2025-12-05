@@ -12,52 +12,52 @@ app.use(express.json());
 app.post('/api/ollama/chat', async (req, res) => {
   try {
     console.log('Received request:', JSON.stringify(req.body, null, 2));
-    
-    // 確保請求包含必要的參數
+
+    const OLLAMA_BASE = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const DEFAULT_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:3b';
+
+    // Build request body with sensible defaults
     const requestBody = {
-      model: req.body.model || "llama3.2:3b", // 預設模型
-      messages: req.body.messages || [],
-      stream: req.body.stream || false,
+      model: req.body.model || DEFAULT_MODEL,
+      messages: Array.isArray(req.body.messages) ? req.body.messages : [],
+      stream: !!req.body.stream,
     };
-    
-    // 檢查 messages 是否有效
+
     if (!Array.isArray(requestBody.messages) || requestBody.messages.length === 0) {
       return res.status(400).json({
-        error: 'Invalid request: messages array is required and cannot be empty'
+        error: 'Invalid request: messages array is required and cannot be empty',
       });
     }
-    
+
     console.log('Sending to Ollama:', JSON.stringify(requestBody, null, 2));
-    
-    const response = await fetch('http://localhost:11434/api/chat', {
+
+    const response = await fetch(`${OLLAMA_BASE}/api/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Ollama API error: ${response.status} ${response.statusText}`);
       console.error('Error details:', errorText);
-      return res.status(response.status).json({ 
+      return res.status(response.status).json({
         error: `Ollama API error: ${response.status}`,
         details: response.statusText,
-        ollamaError: errorText
+        ollamaError: errorText,
       });
     }
-    
+
     const data = await response.json();
     console.log('Ollama response:', JSON.stringify(data, null, 2));
-    res.json(data);
-    
-  } catch (error) {
+
+    // Normalize response shape to match backend routes/ollama.ts
+    const reply = data?.message?.content || data?.choices?.[0]?.message?.content || data;
+    res.json({ message: { role: 'assistant', content: reply }, raw: data });
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
     console.error('Proxy error:', error);
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message 
-    });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
@@ -82,13 +82,14 @@ ${conversationSummary}
   }
 }`;
 
-    const response = await fetch('http://localhost:11434/api/chat', {
+    const OLLAMA_BASE = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const response = await fetch(`${OLLAMA_BASE}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "llama3.2:3b",
+        model: process.env.OLLAMA_MODEL || 'llama3.2:3b',
         messages: [
           { role: "system", content: "你是一位教育評估專家，請客觀評估學習進度。" },
           { role: "user", content: evalPrompt }

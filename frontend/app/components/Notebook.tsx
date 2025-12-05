@@ -234,39 +234,44 @@ const ClueCard: React.FC<ClueCardProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`border rounded-lg p-3 cursor-move transition-all ${
-        isSelected
-          ? 'border-primary-300 bg-primary-50 shadow-md'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-      }`}
-      onClick={onSelect}
-      draggable
-      onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
-        e.dataTransfer.setData('text/plain', clue.id);
-        onSelect();
-      }}
+      className={`transition-all ${isSelected ? 'shadow-md' : ''}`}
     >
-      <div className="flex items-start gap-2">
-        <GripVertical size={16} className="text-gray-400 mt-1 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getTypeColor(clue.type)}`}>
-              {getTypeLabel(clue.type)}
-            </span>
-            <span className="text-xs text-gray-500 flex items-center gap-1">
-              <User size={12} />
-              {clue.source}
-            </span>
-          </div>
-          <p className="text-sm text-dark-900 leading-relaxed">
-            {clue.text}
-          </p>
-          <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-            <Calendar size={12} />
-            {clue.timestamp.toLocaleTimeString('zh-TW', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
+      <div
+        className={`border rounded-lg p-3 cursor-move transition-all ${
+          isSelected
+            ? 'border-primary-300 bg-primary-50'
+            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+        }`}
+        onClick={onSelect}
+        draggable
+        onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+          // HTML5 drag start handler (DOM DragEvent)
+          e.dataTransfer.setData('text/plain', clue.id);
+          onSelect();
+        }}
+      >
+        <div className="flex items-start gap-2">
+          <GripVertical size={16} className="text-gray-400 mt-1 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getTypeColor(clue.type)}`}>
+                {getTypeLabel(clue.type)}
+              </span>
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <User size={12} />
+                {clue.source}
+              </span>
+            </div>
+            <p className="text-sm text-dark-900 leading-relaxed">
+              {clue.text}
+            </p>
+            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+              <Calendar size={12} />
+              {clue.timestamp.toLocaleTimeString('zh-TW', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
           </div>
         </div>
       </div>
