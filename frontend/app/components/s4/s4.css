@@ -1,0 +1,97 @@
+/* S4: Archive Repair - Drag & Drop Game */
+
+/* 拖曳線索卡片 */
+.draggable-clue {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  touch-action: none;
+}
+
+.draggable-clue:active {
+  outline: 2px dashed currentColor;
+  outline-offset: 2px;
+}
+
+/* DropZone 動畫 */
+[data-field-id] {
+  cursor: default;
+  position: relative;
+}
+
+/* 拖曳懸停時的高亮效果 */
+[data-field-id]:hover {
+  transition: all 0.2s ease-out;
+}
+
+/* 滾動區域平滑 */
+.space-y-3 {
+  scroll-behavior: smooth;
+}
+
+/* 進度條動畫 */
+.progress-bar {
+  animation: fillProgress 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fillProgress {
+  from {
+    width: 0;
+  }
+}
+
+/* 修復印章動畫 */
+@keyframes stampRotate {
+  0%, 100% {
+    transform: rotate(-12deg) scale(1);
+  }
+  50% {
+    transform: rotate(-15deg) scale(1.05);
+  }
+}
+
+.restoration-stamp {
+  animation: stampRotate 2s ease-in-out infinite;
+}
+
+/* 紙張背景紋理 */
+.paper-texture {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(120, 113, 108, 0.05) 2px,
+      rgba(120, 113, 108, 0.05) 4px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(120, 113, 108, 0.05) 2px,
+      rgba(120, 113, 108, 0.05) 4px
+    );
+}
+
+/* 錯誤振動效果 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .draggable-clue {
+    font-size: 0.9rem;
+  }
+  
+  [data-field-id] {
+    display: inline-block;
+    min-width: 80px;
+  }
+}

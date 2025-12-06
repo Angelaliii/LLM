@@ -1,18 +1,18 @@
-import type { ReadabilityMetrics } from "../types/api";
+import type { ReadabilityMetrics } from "../app/types/api";
 
 // 中文可讀性評估（基於句長、詞彙複雜度等指標）
 export function calculateReadabilityScore(text: string): ReadabilityMetrics {
   // 基本文本分析
   const sentences = text.split(/[。！？；]/).filter((s) => s.trim().length > 0);
   const characters = text.replace(/\s/g, "").length;
-  const words = text.match(/[\u4e00-\u9fa5]+/g) || [];
+  const words: string[] = (text.match(/[\u4e00-\u9fa5]+/g) || []) as string[];
 
   // 計算基本指標
   const averageSentenceLength = characters / sentences.length;
   const averageWordsPerSentence = words.length / sentences.length;
 
   // 複雜詞彙檢測（超過4個字的詞語視為複雜）
-  const complexWords = words.filter((word) => word.length > 4);
+  const complexWords = words.filter((word) => (word || "").length > 4);
   const complexWordRatio = complexWords.length / words.length;
 
   // 被動語態檢測（簡化版）

@@ -18,8 +18,17 @@ interface MissionDisplay {
 }
 
 // 將任務資料轉換為顯示格式
+const getConversationLength = (chatStore: any, personaId?: string | null) => {
+  if (!personaId) return 0;
+  const mem = chatStore.conversationsByPersona?.[personaId];
+  if (!mem) return 0;
+  if (Array.isArray(mem)) return mem.length;
+  if (Array.isArray((mem as any).messages)) return (mem as any).messages.length;
+  return 0;
+};
+
 const getMissionStatus = (missionId: string, currentMissionId: string | null, selectedNpcId: string | null, chatStore: any): "未開始" | "進行中" | "已完成" => {
-  if (currentMissionId === missionId && selectedNpcId && chatStore.conversationsByPersona[selectedNpcId]?.length > 0) {
+  if (currentMissionId === missionId && selectedNpcId && getConversationLength(chatStore, selectedNpcId) > 0) {
     return "進行中";
   }
   return "未開始";
@@ -44,9 +53,7 @@ const MissionList: React.FC = () => {
 
   // 檢查是否有進行中的對話
   const hasOngoingConversation = (missionId: string) => {
-    // 檢查該任務是否有對話記錄
-    return currentMissionId === missionId && selectedNpcId && 
-           chatStore.conversationsByPersona[selectedNpcId]?.length > 0;
+    return currentMissionId === missionId && selectedNpcId && getConversationLength(chatStore, selectedNpcId) > 0;
   };
 
   const handleMissionSelect = (missionId: string) => {
@@ -54,6 +61,9 @@ const MissionList: React.FC = () => {
     if (hasOngoingConversation(missionId)) {
       actions.goToStage('S3');
     } else {
+      // Debug log: 使用者選擇任務
+      // eslint-disable-next-line no-console
+      console.info('[MissionList] selectMission called:', missionId);
       // 否則正常進入任務流程（S1）
       actions.selectMission(missionId);
     }

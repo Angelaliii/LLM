@@ -62,7 +62,7 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <CTAButton
                 size="lg"
-                to="/app/missions"
+                to="/app"
                 trackingLabel={copy.hero.cta.primary}
                 trackingLocation="hero"
                 ariaLabel={`${copy.hero.cta.primary} - 開始免費體驗歷史對話系統`}
