@@ -71,26 +71,18 @@ const MISSION_GAPS: Record<string, InformationGap[]> = {
   'E2': [
     {
       id: 'gap_1',
-      label: '抗爭核心訴求',
-      description: '運動的主要目標和訴求內容',
+      label: '法律制度',
+      description: '日本在臺灣建立的特殊法律體系',
       status: 'locked',
-      correctAnswer: '設立臺灣議會',
+      correctAnswer: '六三法',
       unlockedClues: []
     },
     {
       id: 'gap_2',
-      label: '官方取締理由',
-      description: '當局認定違法的具體法條和理由',
+      label: '執行機構',
+      description: '負責推行政策的基層',
       status: 'locked',
-      correctAnswer: '違反治安警察法',
-      unlockedClues: []
-    },
-    {
-      id: 'gap_3',
-      label: '非武裝手段',
-      description: '採用的合法抗爭方式和策略',
-      status: 'locked',
-      correctAnswer: '請願書遞交',
+      correctAnswer: '警察',
       unlockedClues: []
     }
   ],
@@ -137,10 +129,9 @@ export const useNotebookStore = create<NotebookState>()(
               gapsRecord[gap.id] = { ...gap };
             });
 
+            // 只更新 informationGaps，保留已收集的線索
             set({ 
-              informationGaps: gapsRecord,
-              collectedClues: {},
-              selectedClueId: null
+              informationGaps: gapsRecord
             });
             
             console.log(`📚 [Notebook] Initialized ${gaps.length} information gaps for mission: ${missionId}`);

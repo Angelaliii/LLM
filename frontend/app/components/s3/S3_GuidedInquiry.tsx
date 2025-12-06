@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
+import { matchKeywords } from '../../config/keywords';
 import { streamChatViaBackend } from '../../services/llmClient';
 import { Send, BookOpen, AlertCircle, Loader } from 'lucide-react';
 import MessageBubble from './subcomponents/MessageBubble';
@@ -10,6 +11,7 @@ import Notebook from '../Notebook';
 import PromptChips from '../PromptChips';
 import { useNotebookStore } from '../../store/useNotebookStore';
 import './s3.css';
+import StageNavigation from '../ui/StageNavigation';
 
 interface Message {
   id: string;
@@ -20,8 +22,8 @@ interface Message {
 
 export default function S3_GuidedInquiry() {
   const { selectedNpcId, conversationsByPersona, actions } = useChatStore();
-  const { currentMissionId, actions: missionActions } = useMissionStore();
-  const { actions: notebookActions } = useNotebookStore();
+  const { currentMissionId, currentStageIndex, actions: missionActions } = useMissionStore();
+  const { collectedClues, informationGaps, actions: notebookActions } = useNotebookStore();
   const mission = currentMissionId ? getMissionById(currentMissionId) : null;
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -75,9 +77,10 @@ export default function S3_GuidedInquiry() {
   useEffect(() => {
     if (!selectedNpcId || !mission) return;
 
-    // 初始化筆記本
-    if (currentMissionId) {
+    // 初始化筆記本（僅在未初始化時執行）
+    if (currentMissionId && Object.keys(informationGaps).length === 0) {
       notebookActions.initializeGaps(currentMissionId);
+      console.log('📚 [S3] Initializing notebook for first time');
     }
 
     const npc = npcMap[selectedNpcId];
@@ -239,53 +242,42 @@ export default function S3_GuidedInquiry() {
 
   // 檢測對話中的線索並自動添加到筆記本
   const detectAndAddClues = (npcMessage: string, npcName: string, userQuestion: string) => {
-    const clues = [];
-    
-    // 基於關鍵字檢測不同類型的線索
-    if (npcMessage.includes('請願書') || npcMessage.includes('議會')) {
-      clues.push({
-        text: '提及設立臺灣議會的請願運動',
-        type: 'fact' as const,
-        source: npcName,
-        relatedGapId: 'gap_1'
-      });
+    const { categories, matches } = matchKeywords(npcMessage || '');
+    const clues: Array<any> = [];
+
+    // 根據匹配到的類別生成線索
+    if (categories.includes('law')) {
+      clues.push({ text: '六三法', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
     }
-    
-    if (npcMessage.includes('治安警察法') || npcMessage.includes('違法')) {
-      clues.push({
-        text: '當局以違反治安警察法為由取締',
-        type: 'conflict' as const,
-        source: npcName,
-        relatedGapId: 'gap_2'
-      });
+
+    if (categories.includes('government')) {
+      clues.push({ text: '警察制度', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
     }
-    
-    if (npcMessage.includes('合法') || npcMessage.includes('請願')) {
-      clues.push({
-        text: '強調採用合法請願的方式',
-        type: 'fact' as const,
-        source: npcName,
-        relatedGapId: 'gap_3'
-      });
+
+    // 檢查已收集的線索，避免重複添加
+    const existingClueTexts = new Set(
+      Object.values(collectedClues).map(clue => clue.text)
+    );
+
+    // 過濾掉已存在的線索
+    const newClues = clues.filter(clue => !existingClueTexts.has(clue.text));
+
+    if (newClues.length > 0) {
+      newClues.forEach(clueData => notebookActions.addClue(clueData));
+      console.log(`✨ [S3] Added ${newClues.length} new clues from ${npcName}`);
+    } else {
+      console.log(`ℹ️ [S3] No new clues to add (duplicates filtered)`);
     }
-    
-    // 情感類線索
-    if (npcMessage.includes('害怕') || npcMessage.includes('擔心') || npcMessage.includes('恐懼')) {
-      clues.push({
-        text: `${npcName}表達了對事件的恐懼和擔憂`,
-        type: 'empathy' as const,
-        source: npcName
-      });
-    }
-    
-    // 添加檢測到的線索
-    clues.forEach(clueData => {
-      notebookActions.addClue(clueData);
-    });
-    
-    // 如果檢測到重要線索，顯示通知
-    if (clues.length > 0) {
-      console.log(`✨ [S3] Detected ${clues.length} new clues from ${npcName}`);
+
+    // 同步寫入 mission store 的 stageProgress（如果有匹配到關鍵字）
+    if (matches.length > 0 && mission && typeof currentStageIndex === 'number') {
+      const stageId = mission.stages?.[currentStageIndex]?.id || mission.stages?.[0]?.id || 'stage_1_intro';
+      try {
+        missionActions.updateStageProgress(stageId, matches);
+        console.log(`📈 [S3] Updated mission stage progress for ${stageId}:`, matches);
+      } catch (e) {
+        console.warn('[S3] Failed to update stage progress', e);
+      }
     }
   };
 
@@ -318,8 +310,9 @@ export default function S3_GuidedInquiry() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-primary-50 flex flex-col">
+      <StageNavigation currentStage="S3" />
       {/* 頂部資訊欄 */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
         <div className="container-max px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {npcData.avatar && (
@@ -383,7 +376,7 @@ export default function S3_GuidedInquiry() {
       </div>
 
       {/* 輸入區域 */}
-      <div className="border-t border-gray-200 bg-white/80 backdrop-blur-sm sticky bottom-0 z-40">
+      <div className="border-t border-gray-200 bg-white/80 backdrop-blur-sm sticky bottom-0 z-30">
         <div className="container-max px-6 py-6">
           <div className="max-w-3xl mx-auto">
             {/* 智能追問引導 */}

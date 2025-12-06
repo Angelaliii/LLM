@@ -9,14 +9,14 @@ export const e2Npcs = [
     name: "警察 佐藤敬一",
     role: "日本基層警察",
     persona: "直接、具有權威感，堅信日本統治的進步性",
-    knowledgeScope: ["六三法", "總督專制", "警察政治", "保甲制度"],
+    knowledgeScope: ["六三法", "警察制度", "保甲制度"],
   },
   {
     id: "student",
     name: "學生 小清",
     role: "公學校學生",
     persona: "天真、好奇，對權威有敬畏",
-    knowledgeScope: ["公學校教育", "警察干預", "陋習取締", "保甲制度"],
+    knowledgeScope: ["公學校教育", "警察制度", "陋習取締", "保甲制度"],
   },
   {
     id: "land_surveyor",
@@ -34,7 +34,7 @@ export const e2Chunks = [
     topic: "臺南：六法下的權力與土地",
     period: "日治初期 (1905年)",
     text: "1905年的臺南，日本殖民統治已經進入第十年。作為總督府的基層文官，你親眼目睹了殖民體制如何透過法律、警察和土地制度，牢牢掌控這片土地。",
-    keywords: ["六三法", "警察政治", "土地調查", "專賣制度"],
+    keywords: ["六三法", "警察制度", "土地調查", "專賣制度"],
     relatedKnowledgeIds: ["JP002", "JP004", "JP008", "JP009"],
   },
 ];

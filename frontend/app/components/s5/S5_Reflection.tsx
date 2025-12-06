@@ -4,6 +4,7 @@ import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { CheckCircle2, RotateCcw, LogOut } from 'lucide-react';
 import './s5.css';
+import StageNavigation from '../ui/StageNavigation';
 
 export default function S5_Reflection() {
   const { actions } = useChatStore();
@@ -15,11 +16,13 @@ export default function S5_Reflection() {
   };
 
   const handleExit = () => {
-    window.location.href = '/app';
+    actions.goToStage("S0");
+    missionActions.goToStage("S0");
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-cyan-50 flex items-center justify-center p-6 relative overflow-hidden">
+      <StageNavigation currentStage="S5" />
       {/* 背景裝飾 */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl" />
@@ -72,10 +75,10 @@ export default function S5_Reflection() {
           className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg border border-white/40"
         >
           <p className="text-lg text-gray-700 leading-relaxed mb-4">
-            通過重組這些歷史線索，你瞭解了<strong>1923年治警事件</strong>的關鍵角色與背景。
+            透過重組這些歷史線索，你了解了<strong>日治初期的法律體系與土地管理</strong>的關鍵內容。
           </p>
           <p className="text-lg text-gray-700 leading-relaxed">
-            <strong>蔣渭水</strong>不屈的抗爭精神，在當時威權統治的高壓下，依然堅持為台灣人的權益而努力。
+            <strong>六三法</strong>與<strong>警察制度</strong>成為日本在臺灣實施統治的重要工具，對當時臺灣社會造成了深遠的影響。
           </p>
         </motion.div>
 

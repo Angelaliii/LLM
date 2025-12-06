@@ -8,7 +8,8 @@ export const fadeInRotateX = {
 };
 
 // Restore loader path transition
-export const restoreLoaderPathTransition: Transition = { duration: 0.8, ease: 'linear' };
+// Faster loader path transition for snappier progress feedback
+export const restoreLoaderPathTransition: Transition = { duration: 0.35, ease: 'linear' };
 
 // Backdrop animation for redacted block (looping subtle opacity)
 export const redactedBackdropAnim = {

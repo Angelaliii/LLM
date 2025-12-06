@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/useChatStore';
+import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
 import { 
   ArrowRight, 
@@ -15,6 +16,7 @@ import { fadeInRotateX, redactedBackdropAnim, dustParticleTransition } from './a
 import RestoreLoader from './subcomponents/RestoreLoader';
 import RedactedBlock from './subcomponents/RedactedBlock';
 import DustParticles from './subcomponents/DustParticles';
+import StageNavigation from '../ui/StageNavigation';
 
 interface RedactedField {
   id: string;
@@ -35,8 +37,8 @@ interface S1MissionData {
 // --- FALLBACK MISSION DATA ---
 const FALLBACK_MISSION: S1MissionData = {
   id: "E2",
-  title: "六法下的權利與土地：歷史修復任務",
-  description: "本案聚焦於六法體系對土地與民權的影響，部分檔案因年代久遠而出現多處缺漏。",
+  title: "日本統治下的權利與土地：歷史修復任務",
+  description: "本案聚焦於獨特的法律體系對土地與民權的影響，部分檔案因年代久遠而出現多處缺漏。",
   period: "日治初期 (1905年)",
   contentTemplate: [
     "檔案編號：LAW-1905-SIXCODES",
@@ -44,19 +46,20 @@ const FALLBACK_MISSION: S1MissionData = {
     { type: 'redacted', id: 'field_1' },
     "等法律工具，對臺灣進行深入的制度改造。其中，",
     { type: 'redacted', id: 'field_2' },
-    "成為推行土地調查與權力控制的關鍵群體，同時也對",
-    { type: 'redacted', id: 'field_3' },
-    "造成了深遠的影響。"
+    "成為推行土地調查與權力控制的關鍵群體",
+    // { type: 'redacted', id: 'field_3' },
+    // "造成了深遠的影響。"
   ],
   redactedFields: [
-    { id: 'field_1', label: '法律制度', hint: '日本在臺灣建立的特殊法律體系（六三法）', status: 'missing' },
-    { id: 'field_2', label: '執行機構', hint: '負責推行政策的基層政府機關與警察體制', status: 'missing' },
-    { id: 'field_3', label: '影響對象', hint: '受到政策直接影響的人群或區域（農民、地主、林野）', status: 'missing' }
+    { id: 'field_1', label: '法律制度', hint: '日本在臺灣建立的特殊法律體系', status: 'missing' },
+    { id: 'field_2', label: '執行機構', hint: '負責推行政策的基層', status: 'missing' },
+    // { id: 'field_3', label: '影響對象', hint: '受到政策直接影響的人群或區域', status: 'missing' }
   ]
 };
 
 export default function S1_FileDecryption() {
   const { missionId, actions } = useChatStore();
+  const missionActions = useMissionStore(state => state.actions);
   const mission = missionId ? getMissionById(missionId) : null;
   
   const [isScanning, setIsScanning] = useState(true);
@@ -86,16 +89,29 @@ export default function S1_FileDecryption() {
   const activeField = missionData.redactedFields?.find(f => f.id === hoveredFieldId);
 
   const handleStartInvestigation = () => {
+    // Ensure mission store knows about the mission, then switch both stores to S2
+    try {
+      if (missionId && missionActions && typeof missionActions.initializeMission === 'function') {
+        missionActions.initializeMission(missionId);
+      }
+    } catch (e) {
+      // ignore initialization errors
+    }
+
     actions.goToStage("S2");
+    if (missionActions && typeof missionActions.goToStage === 'function') {
+      missionActions.goToStage("S2");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative">
+      <StageNavigation currentStage="S1" />
       
       <div className="absolute inset-0 bg-stone-100 opacity-50 mix-blend-multiply pointer-events-none paper-pattern" />
       <DustParticles />
 
-      <header className="fixed top-0 w-full h-20 bg-[#FDFBF7]/80 backdrop-blur-md z-50 flex items-center justify-between px-8 border-b border-stone-200/60">
+      <header className="fixed top-0 w-full h-20 bg-[#FDFBF7]/80 backdrop-blur-md z-30 flex items-center justify-between px-8 border-b border-stone-200/60">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/10">
             <BookOpen size={20} className="text-white" />
