@@ -17,7 +17,11 @@ const PersonaSwitcher: React.FC = () => {
 
   // 計算每個角色的未讀消息數
   const getMessageCount = (personaId: string) => {
-    return conversationsByPersona[personaId]?.length || 0;
+    const mem = conversationsByPersona[personaId];
+    if (!mem) return 0;
+    if (Array.isArray(mem)) return mem.length;
+    if (mem && Array.isArray((mem as any).messages)) return (mem as any).messages.length;
+    return 0;
   };
 
   const handlePersonaSwitch = (personaId: string) => {

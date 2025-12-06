@@ -327,8 +327,14 @@ export const useMultiChatStore = create<MultiChatState>()(
 
               // 更新記憶：保留最近3條完整對話 + 新摘要
               set((state) => {
-                const memory = state.conversationsByPersona[currentPersonaId];
-                const allKeyPoints = [...memory.keyPoints];
+                const memory = state.conversationsByPersona[currentPersonaId] || {
+                  messages: [],
+                  summaries: [],
+                  keyPoints: [],
+                  relationshipMemo: "",
+                  totalMessageCount: 0,
+                };
+                const allKeyPoints = Array.isArray(memory.keyPoints) ? [...memory.keyPoints] : [];
                 
                 // 去重新增關鍵線索
                 newKeyPoints.forEach(newKp => {
@@ -337,20 +343,23 @@ export const useMultiChatStore = create<MultiChatState>()(
                   }
                 });
 
+                const newMemory = {
+                  ...memory,
+                  messages: Array.isArray(memory.messages) ? memory.messages.slice(-3) : [], // 只保留最近3條
+                  summaries: [...(memory.summaries || []), summary],
+                  keyPoints: allKeyPoints,
+                };
+
+                // 日誌（在更新內部輸出最新計數）
+                console.log(`📦 記憶已更新：保留 3 條對話 + ${(newMemory.summaries.length || 0)} 個摘要 + ${allKeyPoints.length} 個關鍵線索`);
+
                 return {
                   conversationsByPersona: {
                     ...state.conversationsByPersona,
-                    [currentPersonaId]: {
-                      ...memory,
-                      messages: memory.messages.slice(-3), // 只保留最近3條
-                      summaries: [...memory.summaries, summary],
-                      keyPoints: allKeyPoints,
-                    },
+                    [currentPersonaId]: newMemory,
                   },
                 };
               });
-
-              console.log(`📦 記憶已更新：保留 3 條對話 + ${memory.summaries.length + 1} 個摘要 + ${allKeyPoints.length} 個關鍵線索`);
             } catch (error) {
               console.error('❌ 濃縮對話失敗:', error);
             }
@@ -461,9 +470,12 @@ export const useMultiChatStore = create<MultiChatState>()(
 
           clearAllConversations: () => {
             // 清除所有 game sessions
-            const { clearAllGameSessions } = require("../services/llmClient");
-            clearAllGameSessions();
-            
+            import("../services/llmClient").then((mod) => {
+              if (mod && typeof mod.clearAllGameSessions === "function") {
+                try { mod.clearAllGameSessions(); } catch (e) { console.warn('clearAllGameSessions failed', e); }
+              }
+            }).catch(() => {});
+
             set({
               conversationsByPersona: {},
               error: null,
@@ -473,10 +485,13 @@ export const useMultiChatStore = create<MultiChatState>()(
           },
 
           reset: () => {
-            // 清除所有 game sessions
-            const { clearAllGameSessions } = require("../services/llmClient");
-            clearAllGameSessions();
-            
+            // 清除所有 game sessions（非同步載入 mod）
+            import("../services/llmClient").then((mod) => {
+              if (mod && typeof mod.clearAllGameSessions === "function") {
+                try { mod.clearAllGameSessions(); } catch (e) { console.warn('clearAllGameSessions failed', e); }
+              }
+            }).catch(() => {});
+
             set({
               conversationsByPersona: {},
               currentPersonaId: "",

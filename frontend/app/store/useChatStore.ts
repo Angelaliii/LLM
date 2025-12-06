@@ -238,6 +238,15 @@ export const useChatStore = create<ChatState>()(
             get().actions.startNewSession();
           },
 
+          // compatibility helper for older code expecting multi-persona API
+          switchToPersona: (personaId: string) => {
+            set({ personaId, selectedNpcId: personaId });
+          },
+
+          getCurrentMessages: () => {
+            return get().messages;
+          },
+
           selectMission: async (missionId: string) => {
             // set mission only, let useMissionStore handle stage transitions
             set({ missionId, selectedNpcId: null });
@@ -278,7 +287,7 @@ export const useChatStore = create<ChatState>()(
               });
             } catch (err) {
               // fallback to local chunk if backend fails
-              const chunk = e2Chunks.find((c) => c.missionId === missionId && c.type === "core_fact") || e2Chunks[0];
+              const chunk = e2Chunks.find((c) => c.missionId === missionId && (c as any).type === "core_fact") || e2Chunks[0];
               const introText = chunk?.text || "歡迎進入任務。";
               const introMessage: Message = {
                 id: crypto.randomUUID(),
