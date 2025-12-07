@@ -267,10 +267,20 @@ const ClueCard: React.FC<ClueCardProps> = ({
             </p>
             <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
               <Calendar size={12} />
-              {clue.timestamp.toLocaleTimeString('zh-TW', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              {
+                (() => {
+                  try {
+                    const raw = (clue as any).timestamp;
+                    const ts = raw instanceof Date ? raw : new Date(raw);
+                    if (ts && typeof ts.toLocaleTimeString === 'function' && !isNaN(ts.getTime())) {
+                      return ts.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                    }
+                  } catch (e) {
+                    // fallthrough to fallback
+                  }
+                  return new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                })()
+              }
             </div>
           </div>
         </div>
