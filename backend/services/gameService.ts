@@ -9,6 +9,7 @@ import {
 import { getMissionById, getNPCInfo } from './missionLoader';
 import * as fs from 'fs';
 import * as path from 'path';
+import { KEYWORDS } from '../config/keywords';
 
 // NPC ID 映射
 const NPC_MAPPING: Record<string, { file: string; name: string; role: string }> = {
@@ -528,12 +529,17 @@ function checkKeyPointAchieved(
   assistantResponse: string,
   conversationHistory: Array<{ role: string; content: string }>
 ): { id: string; title: string; description: string } | null {
+  // 使用集中管理的 KEYWORDS 並補充任務特有詞彙
   const keyPoints = [
     {
       id: 'kp1',
       title: '警察的角色',
       description: '了解殖民警察在台灣社會中扮演的多重角色',
-      keywords: ['警察', '權力', '控制', '巡查', '維持秩序']
+      keywords: [
+        // 包含警察與官方相關詞 + 補充詞
+        ...(KEYWORDS.government || []),
+        '權力', '控制', '巡查', '維持秩序'
+      ]
     },
     {
       id: 'kp2',
@@ -551,13 +557,19 @@ function checkKeyPointAchieved(
       id: 'kp4',
       title: '土地調查',
       description: '了解土地調查如何改變土地制度',
-      keywords: ['土地調查', '地籍', '田賦', '測量', '土地權']
+      keywords: [
+        ...(KEYWORDS.economy || []),
+        '地籍', '測量', '土地權'
+      ]
     },
     {
       id: 'kp5',
       title: '專賣制度',
       description: '探索專賣制度對經濟的影響',
-      keywords: ['專賣', '鴉片', '食鹽', '樟腦', '菸草']
+      keywords: [
+        ...(KEYWORDS.economy || []),
+        '食鹽', '菸草'
+      ]
     }
   ];
 
@@ -591,13 +603,23 @@ function checkKeyPointAchieved(
  * 檢查是否解鎖下一階段 (簡化版)
  */
 function checkStageUnlock(userMessage: string, conversationTurns: number): string | null {
-  const keywords = {
-    'stage_1_intro': ['六三法', '總督專制', '法律第六十三號'],
-    'stage_2_power': ['警察政治', '保甲制度', '連坐'],
-    'stage_3_finance': ['土地調查', '專賣制度', '田賦']
+  // 組合階段檢查關鍵詞，使用後端 KEYWORDS 並補充任務關鍵詞
+  const stageKeywords: Record<string, string[]> = {
+    'stage_1_intro': [
+      ...(KEYWORDS.law || []),
+      '總督專制'
+    ],
+    'stage_2_power': [
+      ...(KEYWORDS.government || []),
+      '保甲', '保甲制度', '連坐', '警察政治'
+    ],
+    'stage_3_finance': [
+      ...(KEYWORDS.economy || []),
+      '田賦', '財政'
+    ]
   };
 
-  for (const [stageId, words] of Object.entries(keywords)) {
+  for (const [stageId, words] of Object.entries(stageKeywords)) {
     const matchCount = words.filter(word => userMessage.includes(word)).length;
     if (matchCount >= 2) {
       return stageId;
@@ -745,7 +767,7 @@ ${existingKeyPoints.length > 0 ? existingKeyPoints.map((kp: any) => `- ${kp.titl
     }));
 
     console.log(`✅ 濃縮完成：${summary.playerIntent}`);
-    console.log(`🔑 新線索 (${newKeyPoints.length}):`, newKeyPoints.map(kp => kp.title).join(', '));
+    console.log(`🔑 新線索 (${newKeyPoints.length}):`, newKeyPoints.map((kp: any) => kp.title).join(', '));
 
     return { summary, newKeyPoints };
   } catch (error: any) {

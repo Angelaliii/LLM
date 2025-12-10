@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Zap, Heart, MessageCircle } from 'lucide-react';
+import { matchKeywords, KEYWORDS } from '../config/keywords';
 
 // 追問層次定義
 export type InquiryLevel = 'fact' | 'conflict' | 'empathy';
@@ -37,21 +38,42 @@ export default function PromptChips({
   // 根據對話上下文生成動態追問
   useEffect(() => {
     if (!lastNpcMessage && conversationHistory.length === 0) {
-      // 初始狀態：提供開場引導
       setPrompts(generateInitialPrompts(npcName, missionId));
       return;
     }
 
-    // 根據最近的對話生成追問
-    const contextualPrompts = generateContextualPrompts(
-      lastNpcMessage,
-      lastUserMessage,
-      conversationHistory,
-      npcName,
-      missionId
-    );
-    
-    setPrompts(contextualPrompts);
+    // 使用集中關鍵字設定進行匹配
+    const { categories } = matchKeywords(lastNpcMessage || '');
+
+    const contextualPrompts: PromptChip[] = [];
+
+    // 根據匹配到的類別生成對應追問（保持事實/衝突/同理三類）
+    if (categories.includes('law')) {
+      contextualPrompts.push({ id: 'fact_law', text: '具體是哪條法律條文？當時是如何規定的？', level: 'fact', context: 'legal_details' });
+      contextualPrompts.push({ id: 'conflict_law', text: '政府或當局如何解釋這些法律？有沒有爭議？', level: 'conflict', context: 'legal_conflict' });
+    }
+
+    if (categories.includes('petition')) {
+      contextualPrompts.push({ id: 'fact_method', text: '請願書的具體內容是什麼？是誰起草的？', level: 'fact', context: 'petition_details' });
+      contextualPrompts.push({ id: 'conflict_petition', text: '是否有人反對或打壓此請願？反對的理由是什麼？', level: 'conflict', context: 'petition_conflict' });
+    }
+
+    if (categories.includes('government') || categories.includes('public')) {
+      contextualPrompts.push({ id: 'conflict_official', text: '那官方是如何看待你們的行動的？他們給出了什麼理由？', level: 'conflict', context: 'official_perspective' });
+    }
+
+    if (categories.includes('emotion')) {
+      contextualPrompts.push({ id: 'empathy_fear', text: '這樣做的時候，你會不會擔心連累到家人？', level: 'empathy', context: 'personal_fear' });
+      contextualPrompts.push({ id: 'empathy_hope', text: '即使面臨這些困難，你仍然相信改變是可能的嗎？', level: 'empathy', context: 'hope_belief' });
+    }
+
+    // 如果沒有特定類別，根據 conversationHistory 做 fallback
+    if (contextualPrompts.length === 0) {
+      const fallback = generateContextualPromptsFallback(lastNpcMessage, lastUserMessage);
+      setPrompts(fallback);
+    } else {
+      setPrompts(contextualPrompts.slice(0, 3));
+    }
   }, [lastNpcMessage, lastUserMessage, conversationHistory, npcName, missionId]);
 
   const getLevelConfig = (level: InquiryLevel) => {
@@ -106,25 +128,25 @@ export default function PromptChips({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="space-y-2"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
         >
           {prompts.map((prompt, index) => {
             const config = getLevelConfig(prompt.level);
             const Icon = config.icon;
-            
+
             return (
               <motion.button
                 key={prompt.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.06 }}
                 onClick={() => handleChipClick(prompt)}
                 disabled={disabled}
-                className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${config.color} ${
+                className={`text-left p-3 rounded-lg border transition-all duration-200 h-full flex flex-col justify-between ${config.color} ${
                   disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                 }`}
               >
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-2">
                   <Icon size={16} />
                   <span className="text-xs font-medium uppercase tracking-wide">
                     {config.label}
@@ -168,102 +190,13 @@ function generateInitialPrompts(npcName: string, missionId: string): PromptChip[
   return basePrompts;
 }
 
-// 根據對話上下文生成追問
-function generateContextualPrompts(
-  lastNpcMessage: string,
-  lastUserMessage: string,
-  conversationHistory: Array<{ role: string; content: string }>,
-  npcName: string,
-  missionId: string
-): PromptChip[] {
-  const contextKeywords = extractKeywords(lastNpcMessage);
-  const conversationContext = analyzeConversationContext(conversationHistory);
-  
-  const prompts: PromptChip[] = [];
-
-  // 事實層追問（基於關鍵字）
-  if (contextKeywords.includes('法') || contextKeywords.includes('違法')) {
-    prompts.push({
-      id: 'fact_law',
-      text: '具體是哪條法律條文？當時是如何規定的？',
-      level: 'fact',
-      context: 'legal_details'
-    });
-  }
-  
-  if (contextKeywords.includes('請願') || contextKeywords.includes('抗議')) {
-    prompts.push({
-      id: 'fact_method',
-      text: '請願書的具體內容是什麼？是誰起草的？',
-      level: 'fact',
-      context: 'petition_details'
-    });
-  }
-
-  // 衝突層追問（對立觀點）
-  if (contextKeywords.includes('政府') || contextKeywords.includes('官方')) {
-    prompts.push({
-      id: 'conflict_official',
-      text: '那麼官方是如何看待你們的行動的？他們給出了什麼理由？',
-      level: 'conflict',
-      context: 'official_perspective'
-    });
-  }
-
-  if (contextKeywords.includes('民眾') || contextKeywords.includes('百姓')) {
-    prompts.push({
-      id: 'conflict_public',
-      text: '不是所有人都支持這個運動吧？反對的聲音是什麼？',
-      level: 'conflict',
-      context: 'opposition_voices'
-    });
-  }
-
-  // 同理層追問（個人感受）
-  if (contextKeywords.includes('危險') || contextKeywords.includes('害怕')) {
-    prompts.push({
-      id: 'empathy_fear',
-      text: '這樣做的時候，你會不會擔心連累到家人？',
-      level: 'empathy',
-      context: 'personal_fear'
-    });
-  }
-
-  if (contextKeywords.includes('希望') || contextKeywords.includes('未來')) {
-    prompts.push({
-      id: 'empathy_hope',
-      text: '即使面臨這些困難，你仍然相信改變是可能的嗎？',
-      level: 'empathy',
-      context: 'hope_belief'
-    });
-  }
-
-  // 如果沒有特定關鍵字匹配，提供通用追問
-  if (prompts.length === 0) {
-    prompts.push(
-      {
-        id: 'generic_fact',
-        text: '能再詳細說明一下具體的經過嗎？',
-        level: 'fact',
-        context: 'generic_details'
-      },
-      {
-        id: 'generic_conflict',
-        text: '當時有不同的意見和爭論嗎？',
-        level: 'conflict',
-        context: 'generic_disagreement'
-      },
-      {
-        id: 'generic_empathy',
-        text: '這對你個人來說意味著什麼？',
-        level: 'empathy',
-        context: 'personal_meaning'
-      }
-    );
-  }
-
-  // 限制最多3個追問
-  return prompts.slice(0, 3);
+// fallback 的舊邏輯保留為簡單函式
+function generateContextualPromptsFallback(lastNpcMessage: string, lastUserMessage: string): PromptChip[] {
+  return [
+    { id: 'generic_fact', text: '能再詳細說明一下具體的經過嗎？', level: 'fact', context: 'generic_details' },
+    { id: 'generic_conflict', text: '當時有不同的意見和爭論嗎？', level: 'conflict', context: 'generic_disagreement' },
+    { id: 'generic_empathy', text: '這對你個人來說意味著什麼？', level: 'empathy', context: 'personal_meaning' }
+  ];
 }
 
 // 提取關鍵字
@@ -283,16 +216,4 @@ function extractKeywords(message: string): string[] {
 }
 
 // 分析對話上下文
-function analyzeConversationContext(history: Array<{ role: string; content: string }>) {
-  const recentMessages = history.slice(-6); // 最近3輪對話
-  const topics: string[] = [];
-  
-  recentMessages.forEach(msg => {
-    if (msg.content.includes('請願')) topics.push('petition');
-    if (msg.content.includes('法律')) topics.push('legal');
-    if (msg.content.includes('政府')) topics.push('government');
-    if (msg.content.includes('感受')) topics.push('emotion');
-  });
-
-  return topics;
-}
+// （舊的分析函式已移除，使用集中關鍵字設定）

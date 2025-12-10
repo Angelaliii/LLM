@@ -8,6 +8,7 @@ import { CheckCircle2, XCircle, HelpCircle, Database, ArrowRight } from 'lucide-
 import DraggableClue from './subcomponents/DraggableClue';
 import DropZone from './subcomponents/DropZone';
 import './s4.css';
+import StageNavigation from '../ui/StageNavigation';
 
 // S4 任務配置
 interface ArchiveField {
@@ -188,11 +189,12 @@ export default function S4_ArchiveRepair() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative flex flex-col">
+      <StageNavigation currentStage="S4" />
       {/* 背景裝飾 */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-30 pointer-events-none" />
 
       {/* 頂部導航 */}
-      <header className="h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-8 z-50">
+      <header className="h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-8 z-30">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-stone-800 rounded-lg flex items-center justify-center text-amber-50 shadow-lg">
             <Database size={20} />
@@ -249,43 +251,33 @@ export default function S4_ArchiveRepair() {
 
             {/* 檔案 Header */}
             <div className="border-b-2 border-stone-800 pb-4 mb-8 flex justify-between items-end relative z-10">
-              <h2 className="text-3xl font-serif font-bold text-stone-900">1923年：治警事件報告</h2>
+              <h2 className="text-3xl font-serif font-bold text-stone-900">日治初期：權利與土地報告</h2>
               <div className="text-xs font-mono text-stone-500">CONFIDENTIAL // REPAIR_MODE</div>
             </div>
 
             {/* 檔案內容 */}
             <div className="font-serif text-xl leading-[2.5] text-stone-700 relative z-10">
               <div>
-                報告編號：JP-1923-SECURE
+                檔案編號：LAW-1905-SIXCODES
                 <br />
-                在大正十二年（1923年），台灣總督府為了壓制異議，引用了
+                在日治初期，日本總督府透過
                 <DropZone
                   fieldId="field_1"
                   status={fieldStates.field_1.status}
                   config={fields[0]}
                   highlight={isDragging && fieldStates.field_1.status === 'empty'}
                 />
-                藉此對抗當時蓬勃發展的台灣議會設置請願運動。
+                等法律工具，對臺灣進行深入的制度改造。
                 <br />
                 <br />
-                事件爆發後，全島陷入肅殺氛圍，多名知識份子遭到逮捕。其中，身為核心人物的
+                其中，
                 <DropZone
                   fieldId="field_2"
                   status={fieldStates.field_2.status}
                   config={fields[1]}
                   highlight={isDragging && fieldStates.field_2.status === 'empty'}
                 />
-                在獄中展現了不屈的意志，寫下了著名的獄中日記。
-                <br />
-                <br />
-                當時的總督
-                <DropZone
-                  fieldId="field_3"
-                  status={fieldStates.field_3.status}
-                  config={fields[2]}
-                  highlight={isDragging && fieldStates.field_3.status === 'empty'}
-                />
-                雖然號稱推行同化政策，實則採取了高壓統治手段。
+                成為推行土地調查與權力控制的關鍵群體，對當時臺灣社會的基層結構造成了深遠的影響。
               </div>
             </div>
 

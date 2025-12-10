@@ -6,6 +6,7 @@ import { getMissionById } from '../../data/missions';
 import { ArrowRight, Info } from 'lucide-react';
 import NpcCard from './subcomponents/NpcCard';
 import './s2.css';
+import StageNavigation from '../ui/StageNavigation';
 
 interface NpcData {
   id: string;
@@ -48,34 +49,29 @@ export default function S2_NpcSelection() {
         description: '負責執行總督府命令的日本警察，權力極大，令人敬畏。',
         traits: ['嚴肅', '官僚', '法規熟稔'],
         color: 'from-slate-700 to-slate-900'
-      },
-      'student': {
-        id: 'student',
-        name: '小清',
-        role: '公學校學生',
-        avatar: '/assets/images/student.png',
-        description: '1905年臺南市區的公學校學生，聰明但對新制度感到困惑。',
-        traits: ['誠實', '易受驚', '校園傳聞'],
-        color: 'from-emerald-600 to-emerald-800'
-      },
-      'land_surveyor': {
-        id: 'land_surveyor',
-        name: '山本勘助',
-        role: '土地測量員',
-        avatar: '/assets/images/Cadastral_surveyor.png',
-        description: '負責土地調查的日籍技術官員，掌握殖民地財政的關鍵。',
-        traits: ['技術專家', '精確', '沈默寡言'],
-        color: 'from-amber-700 to-amber-900'
       }
     };
 
     // 根據當前階段的 availableNPCs 篩選
+    // 只顯示佐藤敬一：移除其他 NPC（如小清、山本勘助）
+    // 如果當前 stage 指定了可用 NPC 且包含 police_officer，則以該為主；否則回退為 police_officer
+    let filteredNpcs: NpcData[] = [];
     if (stage && stage.availableNPCs) {
-      const filteredNpcs = stage.availableNPCs
+      filteredNpcs = stage.availableNPCs
         .map((npcId: string) => npcMap[npcId])
-        .filter((npc: NpcData | undefined) => npc !== undefined);
-      setAvailableNpcs(filteredNpcs);
+        .filter((npc: NpcData | undefined) => npc !== undefined) as NpcData[];
     }
+
+    if (!filteredNpcs || filteredNpcs.length === 0) {
+      // 保證至少有佐藤出現
+      filteredNpcs = [npcMap['police_officer']];
+    } else {
+      // 只保留警察（以防 stage 列表包含其他 NPC）
+      filteredNpcs = filteredNpcs.filter(n => n.id === 'police_officer');
+      if (filteredNpcs.length === 0) filteredNpcs = [npcMap['police_officer']];
+    }
+
+    setAvailableNpcs(filteredNpcs);
   }, [mission]);
 
   const handleSelectNpc = (npcId: string) => {
@@ -115,6 +111,7 @@ export default function S2_NpcSelection() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-primary-50 py-12">
+      <StageNavigation currentStage="S2" />
       <div className="container-max">
         <div className="max-w-6xl mx-auto">
           {/* 頂部標題區 */}
@@ -181,7 +178,19 @@ export default function S2_NpcSelection() {
             </motion.button>
 
             <button
-              onClick={() => actions.goToStage("S1")}
+              onClick={() => {
+                // 同步更新 chatStore 與 missionStore 的階段
+                try {
+                  actions.goToStage("S1");
+                } catch (e) {
+                  // ignore
+                }
+                try {
+                  missionActions.goToStage("S1");
+                } catch (e) {
+                  // ignore
+                }
+              }}
               className="px-8 py-4 bg-white hover:bg-gray-50 text-dark-700 border border-gray-300 rounded-lg transition-all duration-300 font-semibold hover:shadow-md"
             >
               返回
