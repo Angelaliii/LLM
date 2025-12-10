@@ -227,9 +227,9 @@ export default function S1_FileDecryption() {
                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 flex gap-3">
                        <div className="text-amber-600 shrink-0 mt-0.5 text-lg">✨</div>
                        <div>
-                           <p className="text-amber-900 font-bold text-sm">發現 3 處記憶斷層</p>
+                           <p className="text-amber-900 font-bold text-sm">發現 2 處記憶斷層</p>
                            <p className="text-amber-700/70 text-xs mt-1 leading-relaxed">
-                               檔案因年代久遠而模糊不清。系統建議透過「人物訪談」來重建當時的場景細節。
+                               檔案因年代久遠而模糊不清，請透過人物訪談來重建當時的場景細節。
                            </p>
                        </div>
                    </div>

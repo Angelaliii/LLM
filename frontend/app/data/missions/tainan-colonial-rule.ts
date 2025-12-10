@@ -1,5 +1,5 @@
 /**
- * 任務：臺南：六法下的權力與土地
+ * 任務：日本統治下的權利與土地：歷史修復任務
  * 基於 backend/data/story/jp_story_01_early_rule.json
  * 時代：日治初期 (1905年)
  */
@@ -46,7 +46,7 @@ export interface MissionData {
 
 export const tainanColonialRuleMission: MissionData = {
   id: 'E2',
-  title: '臺南：六法下的權力與土地',
+  title: '日本統治下的權利與土地：歷史修復任務',
   period: '日治初期 (1905年)',
   difficulty: '中級',
   estimatedTime: '15-20分鐘',
