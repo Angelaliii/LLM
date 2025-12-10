@@ -180,7 +180,7 @@ export default function S1_FileDecryption() {
               <div className="font-serif text-xl leading-relaxed text-stone-700 space-y-2 relative">
                 <div className="absolute left-[-20px] top-0 bottom-0 w-[1px] bg-red-500/10 hidden md:block" />
                 
-                <p>
+                <div>
                   {missionData.contentTemplate?.map((part: any, index: number) => {
                     if (typeof part === 'string') {
                       const isDocId = part.trim().startsWith('檔案編號：');
@@ -224,7 +224,7 @@ export default function S1_FileDecryption() {
                     }
                     return null;
                   })}
-                </p>
+                </div>
               </div>
 
               <div className="mt-20 flex justify-end opacity-60">

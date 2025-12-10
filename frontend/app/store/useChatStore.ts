@@ -544,6 +544,8 @@ export const useChatStore = create<ChatState>()(
           mode: state.mode,
           rigorLevel: state.rigorLevel,
           language: state.language,
+          conversationsByPersona: state.conversationsByPersona, // 🔑 保存每個角色的對話記錄
+          currentPersonaId: state.currentPersonaId,
         }),
       }
     ),

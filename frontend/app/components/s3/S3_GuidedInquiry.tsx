@@ -102,10 +102,10 @@ export default function S3_GuidedInquiry() {
     const npc = npcMap[selectedNpcId];
     setNpcData(npc);
 
-    // 檢查是否已有現存對話
+    // 從 store 讀取該 NPC 的對話記錄
     const existingConversation = conversationsByPersona?.[selectedNpcId];
     if (existingConversation && existingConversation.length > 0) {
-      // 轉換 Message 類型：assistant -> npc, timestamp Date -> string
+      // 轉換 Message 類型：assistant -> npc, timestamp Date -> string,並載入該 NPC 的對話
       const convertedMessages = existingConversation.map(msg => ({
         ...msg,
         role: msg.role === 'assistant' ? 'npc' as const : msg.role as 'user' | 'npc' | 'system',
@@ -113,6 +113,8 @@ export default function S3_GuidedInquiry() {
       }));
       setMessages(convertedMessages);
     } else {
+      // 該 NPC 沒有對話記錄,清空並初始化
+      setMessages([]);
       // 顯示 header badge 樣式的載入中狀態（不放入訊息流）
       setIsInitializingBackground(true);
 
@@ -164,7 +166,11 @@ export default function S3_GuidedInquiry() {
             };
 
             // 將 NPC 回覆加入訊息流
-            setMessages(prev => [...prev, newMessage]);
+            const initialMessages = [newMessage];
+            setMessages(initialMessages);
+            
+            // 🔑 關鍵：將初始對話也存入 store
+            actions.updateConversation(selectedNpcId, initialMessages as any);
 
             // 關閉初始化 badge
             setIsInitializingBackground(false);
@@ -180,7 +186,12 @@ export default function S3_GuidedInquiry() {
             };
 
             // 將錯誤訊息加入訊息流，並關閉初始化 badge
-            setMessages(prev => [...prev, errorMsg]);
+            const errorMessages = [errorMsg];
+            setMessages(errorMessages);
+            
+            // 錯誤訊息也要保存
+            actions.updateConversation(selectedNpcId, errorMessages as any);
+            
             setIsInitializingBackground(false);
             setIsLoading(false);
           }
@@ -214,7 +225,9 @@ export default function S3_GuidedInquiry() {
       timestamp: new Date().toLocaleTimeString('zh-TW')
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // 更新本地訊息
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue('');
     setIsLoading(true);
 
@@ -231,14 +244,16 @@ export default function S3_GuidedInquiry() {
               content: response,
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, npcMessage]);
+            
+            // 更新本地訊息
+            const finalMessages = [...newMessages, npcMessage];
+            setMessages(finalMessages);
             
             // 檢測並添加線索
             detectAndAddClues(response, npcData?.name || 'NPC', inputValue);
             
-            // 更新 store 中的對話歷史
-            const updatedConversation = [...messages, userMessage, npcMessage];
-            actions.updateConversation(selectedNpcId, updatedConversation as any);
+            // 🔑 關鍵：將完整對話記錄存入 store,按 NPC ID 分別保存
+            actions.updateConversation(selectedNpcId, finalMessages as any);
             
             setIsLoading(false);
           },
@@ -250,7 +265,12 @@ export default function S3_GuidedInquiry() {
               content: '無法取得回覆。請重試。',
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, errorMsg]);
+            const errorMessages = [...newMessages, errorMsg];
+            setMessages(errorMessages);
+            
+            // 也要保存錯誤訊息到 store
+            actions.updateConversation(selectedNpcId, errorMessages as any);
+            
             setIsLoading(false);
           }
         }

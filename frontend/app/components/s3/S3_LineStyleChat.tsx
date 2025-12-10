@@ -82,7 +82,7 @@ export default function S3_LineStyleChat() {
     }
   }, [currentMissionId, mission, actions, missionActions]);
 
-  // 初始化 NPC 對話
+  // 初始化 NPC 對話 - 切換 NPC 時保存當前對話並載入新對話
   useEffect(() => {
     if (!selectedNpcId || !mission) return;
 
@@ -93,8 +93,10 @@ export default function S3_LineStyleChat() {
     const npc = npcMap[selectedNpcId];
     setNpcData(npc);
 
+    // 從 store 讀取該 NPC 的對話記錄
     const existingConversation = conversationsByPersona?.[selectedNpcId];
     if (existingConversation && existingConversation.length > 0) {
+      // 轉換格式並載入該 NPC 的對話
       const convertedMessages = existingConversation.map(msg => ({
         ...msg,
         role: msg.role === 'assistant' ? 'npc' as const : msg.role as 'user' | 'npc' | 'system',
@@ -102,6 +104,8 @@ export default function S3_LineStyleChat() {
       }));
       setMessages(convertedMessages);
     } else {
+      // 該 NPC 沒有對話記錄,清空並初始化
+      setMessages([]);
       setIsInitializingBackground(true);
       initializeConversation(npc, mission);
     }
@@ -129,7 +133,13 @@ export default function S3_LineStyleChat() {
               content: response,
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, newMessage]);
+            
+            const initialMessages = [newMessage];
+            setMessages(initialMessages);
+            
+            // 🔑 關鍵：將初始對話也存入 store
+            actions.updateConversation(selectedNpcId, initialMessages as any);
+            
             setIsInitializingBackground(false);
             setIsLoading(false);
           },
@@ -141,7 +151,13 @@ export default function S3_LineStyleChat() {
               content: '無法連接 NPC 知識庫。請檢查後端服務。',
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, errorMsg]);
+            
+            const errorMessages = [errorMsg];
+            setMessages(errorMessages);
+            
+            // 錯誤訊息也要保存
+            actions.updateConversation(selectedNpcId, errorMessages as any);
+            
             setIsInitializingBackground(false);
             setIsLoading(false);
           }
@@ -171,7 +187,9 @@ export default function S3_LineStyleChat() {
       timestamp: new Date().toLocaleTimeString('zh-TW')
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // 更新本地訊息
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue('');
     setIsLoading(true);
 
@@ -187,12 +205,15 @@ export default function S3_LineStyleChat() {
               content: response,
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, npcMessage]);
+            
+            // 更新本地訊息
+            const finalMessages = [...newMessages, npcMessage];
+            setMessages(finalMessages);
             
             detectAndAddClues(response, npcData?.name || 'NPC', inputValue);
             
-            const updatedConversation = [...messages, userMessage, npcMessage];
-            actions.updateConversation(selectedNpcId, updatedConversation as any);
+            // 🔑 關鍵：將完整對話記錄存入 store,按 NPC ID 分別保存
+            actions.updateConversation(selectedNpcId, finalMessages as any);
             
             setIsLoading(false);
           },
@@ -204,7 +225,12 @@ export default function S3_LineStyleChat() {
               content: '無法取得回覆。請重試。',
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
-            setMessages(prev => [...prev, errorMsg]);
+            const errorMessages = [...newMessages, errorMsg];
+            setMessages(errorMessages);
+            
+            // 也要保存錯誤訊息到 store
+            actions.updateConversation(selectedNpcId, errorMessages as any);
+            
             setIsLoading(false);
           }
         }
