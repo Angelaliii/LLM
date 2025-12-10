@@ -4,7 +4,7 @@ import { useMissionStore } from "./store/useMissionStore";
 import MissionList from "./components/MissionList";  // S0
 import S1_FileDecryption from "./components/s1/S1_FileDecryption"; // S1  
 import S2_NpcSelection from "./components/s2/S2_NpcSelection"; // S2
-import S3_GuidedInquiry from "./components/s3/S3_GuidedInquiry"; // S3
+import S3Component from "./components/new_S3"; // S3 (LINE-style chat)
 import S4_ArchiveRepair from "./components/s4/S4_ArchiveRepair"; // S4
 import S5_Reflection from "./components/s5/S5_Reflection";   // S5
 
@@ -53,7 +53,7 @@ const AppMain: React.FC = () => {
         case "S2":
           return <S2_NpcSelection />;
         case "S3":
-          return <S3_GuidedInquiry />;
+          return <S3Component />;
         case "S4":
           return <S4_ArchiveRepair />;
         case "S5":

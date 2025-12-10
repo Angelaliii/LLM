@@ -105,7 +105,7 @@ export default function S1_FileDecryption() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative">
+    <div className="h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative">
       <StageNavigation currentStage="S1" />
       
       <div className="absolute inset-0 bg-stone-100 opacity-50 mix-blend-multiply pointer-events-none paper-pattern" />
@@ -132,14 +132,15 @@ export default function S1_FileDecryption() {
         </div>
       </header>
 
-      <main className="pt-32 pb-16 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
+      <main className="pt-32 pb-16 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10 overflow-hidden h-full">
         
         <div className="lg:col-span-8 perspective-1000">
           <motion.div 
             initial={fadeInRotateX.initial}
             animate={fadeInRotateX.animate}
             transition={fadeInRotateX.transition}
-            className="bg-white rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-stone-100 overflow-hidden relative min-h-[600px]"
+            className="bg-white rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-stone-100 overflow-hidden relative"
+            style={{ maxHeight: 'calc(100vh - 160px)', overflow: 'auto' }}
           >
             <div className="h-2 bg-gradient-to-r from-stone-200 via-amber-100 to-stone-200" />
             
@@ -170,10 +171,10 @@ export default function S1_FileDecryption() {
                       <History size={14} /> 原始紀錄歸檔：{missionData.period || '日治時期'}
                     </p>
                 </div>
-                <div className="text-right hidden md:block">
-                     <div className="text-xs font-mono text-stone-400 mb-1">DOC_ID</div>
-                     <div className="text-lg font-serif font-bold text-stone-700">#1905-{missionData.id || 'SEC'}</div>
-                </div>
+                 <div className="text-right hidden md:block">
+                   <div className="text-xs font-mono text-stone-400 mb-1">DOC_ID</div>
+                   <div className="text-lg font-serif font-bold text-stone-700 whitespace-nowrap">#1905-{missionData.id || 'SEC'}</div>
+                 </div>
               </div>
 
               <div className="font-serif text-xl leading-relaxed text-stone-700 space-y-2 relative">
@@ -182,12 +183,29 @@ export default function S1_FileDecryption() {
                 <p>
                   {missionData.contentTemplate?.map((part: any, index: number) => {
                     if (typeof part === 'string') {
+                      const isDocId = part.trim().startsWith('檔案編號：');
+                      // If it's the doc id line, render as its own block to force a newline after it
+                      if (isDocId) {
+                        return (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, filter: 'blur(4px)' }}
+                            animate={!isScanning ? { opacity: 1, filter: 'blur(0px)' } : {}}
+                            transition={{ duration: 0.9, delay: index * 0.05 }}
+                            className="block mb-4 text-sm text-stone-600 font-mono"
+                          >
+                            {part}
+                          </motion.div>
+                        );
+                      }
+
                       return (
                         <motion.span 
                           key={index}
                           initial={{ opacity: 0, filter: 'blur(4px)' }}
                           animate={!isScanning ? { opacity: 1, filter: 'blur(0px)' } : {}}
-                          transition={{ duration: 1.5, delay: index * 0.1 }}
+                          transition={{ duration: 1.5, delay: index * 0.08 }}
+                          className="inline-block mr-2 whitespace-pre-wrap"
                         >
                           {part}
                         </motion.span>
@@ -195,12 +213,13 @@ export default function S1_FileDecryption() {
                     } else if (part.type === 'redacted') {
                       const field = missionData.redactedFields?.find((f: any) => f.id === part.id);
                       return (
-                        <RedactedBlock 
-                          key={index} 
-                          field={field} 
-                          isHovered={hoveredFieldId === field?.id}
-                          onHover={setHoveredFieldId}
-                        />
+                        <span key={index} className="inline-block align-baseline mr-2">
+                          <RedactedBlock 
+                            field={field} 
+                            isHovered={hoveredFieldId === field?.id}
+                            onHover={setHoveredFieldId}
+                          />
+                        </span>
                       );
                     }
                     return null;

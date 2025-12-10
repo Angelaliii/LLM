@@ -12,6 +12,7 @@ import PromptChips from '../PromptChips';
 import { useNotebookStore } from '../../store/useNotebookStore';
 import './s3.css';
 import StageNavigation from '../ui/StageNavigation';
+import MissionSuccessModal from '../ui/MissionSuccessModal';
 
 interface Message {
   id: string;
@@ -23,14 +24,29 @@ interface Message {
 export default function S3_GuidedInquiry() {
   const { selectedNpcId, conversationsByPersona, actions } = useChatStore();
   const { currentMissionId, currentStageIndex, actions: missionActions } = useMissionStore();
-  const { collectedClues, informationGaps, actions: notebookActions } = useNotebookStore();
+  const { collectedClues, informationGaps, gapProgress, actions: notebookActions } = useNotebookStore();
   const mission = currentMissionId ? getMissionById(currentMissionId) : null;
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializingBackground, setIsInitializingBackground] = useState(false);
   const [npcData, setNpcData] = useState<any>(null);
+  const [showMissionSuccess, setShowMissionSuccess] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 當所有 gap 都達到 required 時顯示任務完成 modal（只要顯示一次）
+  useEffect(() => {
+    if (!gapProgress) return;
+    const entries = Object.values(gapProgress);
+    if (entries.length === 0) return;
+    const allCompleted = entries.every(p => (p.current || 0) >= (p.required || 1));
+    if (allCompleted) {
+      // 小延遲讓使用者先看到最新畫面再跳出 modal
+      const t = setTimeout(() => setShowMissionSuccess(true), 400);
+      return () => clearTimeout(t);
+    }
+  }, [gapProgress]);
 
   // 防禦性檢查：如果缺少必要狀態，立即重定向到 S0
   useEffect(() => {
@@ -97,16 +113,8 @@ export default function S3_GuidedInquiry() {
       }));
       setMessages(convertedMessages);
     } else {
-      // 建立初始訊息
-      const initMessages: Message[] = [
-        {
-          id: `msg_0`,
-          role: 'system',
-          content: `已連接至 ${npc?.name} 的知識庫。正在載入背景資料...`,
-          timestamp: new Date().toLocaleTimeString('zh-TW')
-        }
-      ];
-      setMessages(initMessages);
+      // 顯示 header badge 樣式的載入中狀態（不放入訊息流）
+      setIsInitializingBackground(true);
 
       // 非同步調用後端 API 獲取初始訊息
       initializeConversation(npc, mission);
@@ -154,7 +162,12 @@ export default function S3_GuidedInquiry() {
               content: response,
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
+
+            // 將 NPC 回覆加入訊息流
             setMessages(prev => [...prev, newMessage]);
+
+            // 關閉初始化 badge
+            setIsInitializingBackground(false);
             setIsLoading(false);
           },
           onError: (error) => {
@@ -165,7 +178,10 @@ export default function S3_GuidedInquiry() {
               content: '無法連接 NPC 知識庫。請檢查後端服務。',
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
+
+            // 將錯誤訊息加入訊息流，並關閉初始化 badge
             setMessages(prev => [...prev, errorMsg]);
+            setIsInitializingBackground(false);
             setIsLoading(false);
           }
         }
@@ -176,9 +192,14 @@ export default function S3_GuidedInquiry() {
     }
   };
 
-  // 自動滾動到最新訊息
+  // 自動滾動到最新訊息（確保在 DOM 更新後執行）
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 使用 requestAnimationFrame 確保在下一次繪製時執行，避免因為狀態未完全更新導致捲動失敗
+    const raf = requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, [messages]);
 
   // 發送訊息
@@ -309,56 +330,62 @@ export default function S3_GuidedInquiry() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-primary-50 flex flex-col">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-amber-50 via-white to-primary-50 flex flex-col">
       <StageNavigation currentStage="S3" />
       {/* 頂部資訊欄 */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
-        <div className="container-max px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-gray-200 bg-white/90 backdrop-blur-md z-30 shadow-sm mt-4">
+        <div className="container-max px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {npcData.avatar && (
               <img
                 src={npcData.avatar}
                 alt={npcData.name}
-                className="w-10 h-10 rounded-full border-2 border-primary-400"
+                className="w-12 h-12 rounded-full border-2 border-primary-400 shadow-md"
               />
             )}
             <div>
-              <h2 className="font-bold text-dark-900">{npcData.name}</h2>
-              <p className="text-xs text-dark-600">{npcData.role}</p>
+              <h2 className="font-bold text-lg text-dark-900">{npcData.name}</h2>
+              <p className="text-sm text-dark-600">{npcData.role}</p>
+              {isInitializingBackground && (
+                <div className="inline-flex items-center gap-2 mt-2 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+                  <Loader className="animate-spin text-gray-600" size={14} />
+                  <span>載入背景資料…</span>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <button
               onClick={() => {
                 actions.goToStage("S2");
                 missionActions.goToStage("S2");
               }}
-              className="px-4 py-2 text-sm font-semibold text-dark-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-5 py-2.5 text-sm font-semibold text-dark-700 hover:bg-gray-100 rounded-lg transition-all border border-gray-200 shadow-sm hover:shadow"
             >
               更換調查對象
             </button>
-            <button
-              onClick={() => {
-                actions.goToStage("S4");
-                missionActions.goToStage("S4");
-              }}
-              className="px-4 py-2 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors"
-            >
-              完成調查
-            </button>
+            {/* 開發用清除按鈕已移除；請使用命令列工具執行資料清除 */}
           </div>
         </div>
       </header>
 
-      {/* 訊息列表 */}
-      <div className="flex-1 overflow-y-auto container-max px-6 py-8">
-        <div className="max-w-3xl mx-auto space-y-6">
+      {/* 訊息列表：加入 min-h-0 使 flex 子元素可正確收縮並啟用內部滾動 */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto space-y-4">
           <AnimatePresence>
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} npcName={npcData.name} />
             ))}
           </AnimatePresence>
+
+          {isInitializingBackground && messages.length === 0 && (
+            <div className="py-6 space-y-4">
+              <div className="skeleton-bubble w-3/4 h-16 rounded-xl" />
+              <div className="skeleton-bubble w-1/2 h-16 rounded-xl ml-auto" />
+              <div className="skeleton-bubble w-2/3 h-16 rounded-xl" />
+            </div>
+          )}
 
           {isLoading && (
             <motion.div
@@ -376,9 +403,9 @@ export default function S3_GuidedInquiry() {
       </div>
 
       {/* 輸入區域 */}
-      <div className="border-t border-gray-200 bg-white/80 backdrop-blur-sm sticky bottom-0 z-30">
-        <div className="container-max px-6 py-6">
-          <div className="max-w-3xl mx-auto">
+      <div className="border-t border-gray-200 bg-white/90 backdrop-blur-md sticky bottom-0 z-30 shadow-lg">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-4xl mx-auto">
             {/* 智能追問引導 */}
             <PromptChips
               lastNpcMessage={messages[messages.length - 1]?.role === 'npc' ? messages[messages.length - 1]?.content : ''}
@@ -390,8 +417,8 @@ export default function S3_GuidedInquiry() {
               disabled={isLoading}
             />
             
-            <div className="flex gap-4">
-              <div className="flex-1 flex gap-2">
+            <div className="flex gap-3">
+              <div className="flex-1 flex gap-3">
                 <input
                   type="text"
                   value={inputValue}
@@ -404,18 +431,18 @@ export default function S3_GuidedInquiry() {
                   }}
                   disabled={isLoading}
                   placeholder="輸入你的問題..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100"
+                  className="flex-1 px-5 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 disabled:bg-gray-100 shadow-sm transition-all"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all ${
+                  className={`px-7 py-3.5 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-sm ${
                     inputValue.trim() && !isLoading
-                      ? 'bg-primary-500 text-white hover:bg-primary-600 cursor-pointer'
+                      ? 'bg-primary-500 text-white hover:bg-primary-600 hover:shadow-md cursor-pointer active:scale-95'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                 >
-                  <Send size={16} />
+                  <Send size={18} />
                   發送
                 </button>
               </div>
@@ -425,6 +452,19 @@ export default function S3_GuidedInquiry() {
       </div>
 
       {/* 筆記本組件 */}
+      {showMissionSuccess && (
+        <MissionSuccessModal
+          npcName={npcData?.name || 'NPC'}
+          onClose={() => setShowMissionSuccess(false)}
+          onContinue={() => {
+            setShowMissionSuccess(false);
+            // 同步導航到 S4
+            actions.goToStage('S4');
+            missionActions.goToStage('S4');
+          }}
+        />
+      )}
+
       <Notebook />
     </div>
   );

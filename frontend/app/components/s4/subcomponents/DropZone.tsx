@@ -31,6 +31,17 @@ export default function DropZone({
   const handleDrop = (e: React.DragEvent<HTMLSpanElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // 讀取 dataTransfer 的 clueId，並觸發全域事件讓父元件處理
+    try {
+      const clueId = e.dataTransfer.getData('clueId');
+      if (clueId) {
+        const detail = { fieldId, clueId };
+        window.dispatchEvent(new CustomEvent('s4-drop', { detail }));
+      }
+    } catch (err) {
+      // noop
+    }
   };
 
   return (
@@ -39,7 +50,7 @@ export default function DropZone({
       data-field-id={fieldId}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg font-bold transition-all border-2 ${
+      className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg font-bold transition-all border-2 min-w-[160px] flex-shrink-0 whitespace-nowrap ${
         status === 'empty'
           ? `border-dashed border-amber-400 bg-amber-50/30 ${
               highlight ? 'ring-2 ring-amber-500 shadow-lg scale-105' : 'hover:bg-amber-100/50'

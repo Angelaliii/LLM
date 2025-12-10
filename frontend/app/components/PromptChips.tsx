@@ -120,7 +120,7 @@ export default function PromptChips({
     <div className="mb-4">
       <div className="flex items-center gap-2 mb-3">
         <MessageCircle size={16} className="text-gray-500" />
-        <span className="text-sm text-gray-600 font-medium">智能追問建議</span>
+        <span className="text-sm text-gray-600 font-medium">追問建議</span>
       </div>
       
       <AnimatePresence>
@@ -128,36 +128,23 @@ export default function PromptChips({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          className="flex flex-wrap gap-2"
         >
-          {prompts.map((prompt, index) => {
-            const config = getLevelConfig(prompt.level);
-            const Icon = config.icon;
-
-            return (
-              <motion.button
-                key={prompt.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.06 }}
-                onClick={() => handleChipClick(prompt)}
-                disabled={disabled}
-                className={`text-left p-3 rounded-lg border transition-all duration-200 h-full flex flex-col justify-between ${config.color} ${
-                  disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon size={16} />
-                  <span className="text-xs font-medium uppercase tracking-wide">
-                    {config.label}
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed">
-                  {prompt.text}
-                </p>
-              </motion.button>
-            );
-          })}
+          {prompts.map((prompt, index) => (
+            <motion.button
+              key={prompt.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => handleChipClick(prompt)}
+              disabled={disabled}
+              className={`px-4 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-primary-50 hover:border-primary-300 transition-all duration-200 text-sm text-gray-700 hover:text-primary-700 shadow-sm hover:shadow ${
+                disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+            >
+              {prompt.text}
+            </motion.button>
+          ))}
         </motion.div>
       </AnimatePresence>
     </div>

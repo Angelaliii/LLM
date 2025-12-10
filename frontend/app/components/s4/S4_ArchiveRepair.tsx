@@ -90,19 +90,26 @@ export default function S4_ArchiveRepair() {
     }));
   });
 
-  const [fieldStates, setFieldStates] = useState<Record<string, { status: 'empty' | 'filled'; filledBy?: string }>>({
-    field_1: { status: 'empty' },
-    field_2: { status: 'empty' },
-    field_3: { status: 'empty' },
-  });
+  // 初始化欄位狀態，根據實際的 fields 動態建立 key
+  const makeInitialFieldStates = (flds: ArchiveField[]) => {
+    return flds.reduce((acc, f) => {
+      acc[f.id] = { status: 'empty' };
+      return acc;
+    }, {} as Record<string, { status: 'empty' | 'filled'; filledBy?: string }>);
+  };
+
+  const [fieldStates, setFieldStates] = useState<Record<string, { status: 'empty' | 'filled'; filledBy?: string }>>(() =>
+    makeInitialFieldStates(fields)
+  );
 
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [autoProgressed, setAutoProgressed] = useState(false);
 
-  // 計算進度
-  const filledCount = Object.values(fieldStates).filter(s => s.status === 'filled').length;
-  const totalCount = fields.length;
-  const progress = Math.round((filledCount / totalCount) * 100);
+  // 計算進度（以 fields 為準，確保欄位數與狀態同步）
+  const filledCount = fields.filter(f => fieldStates[f.id]?.status === 'filled').length;
+  const totalCount = fields.length || 1;
+  const progress = Math.round((filledCount / Math.max(totalCount, 1)) * 100);
 
   // 處理拖曳結束
   const handleDragEnd = (event: any, clue: ClueCard, fieldId: string) => {
@@ -133,6 +140,25 @@ export default function S4_ArchiveRepair() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
+  // 全域 drop 事件監聽（由 DropZone 發送），以處理 HTML5 dataTransfer 降落情況
+  useEffect(() => {
+    const onDropEvent = (e: Event) => {
+      const ev = e as CustomEvent<{ fieldId: string; clueId: string }>;
+      const { fieldId, clueId } = ev.detail || {};
+      if (!fieldId || !clueId) return;
+
+      const clue = clues.find(c => c.id === clueId);
+      if (!clue) return;
+
+      // 將 isDragging 狀態復原並處理結果
+      setIsDragging(false);
+      handleDragEnd(null, clue, fieldId);
+    };
+
+    window.addEventListener('s4-drop', onDropEvent as EventListener);
+    return () => window.removeEventListener('s4-drop', onDropEvent as EventListener);
+  }, [clues, fieldStates]);
+
   const triggerErrorEffect = (fieldId: string) => {
     const el = document.getElementById(`dropzone-${fieldId}`);
     if (el) {
@@ -149,20 +175,40 @@ export default function S4_ArchiveRepair() {
   };
 
   const handleReset = () => {
-    setFieldStates({
-      field_1: { status: 'empty' },
-      field_2: { status: 'empty' },
-      field_3: { status: 'empty' },
-    });
+    setFieldStates(makeInitialFieldStates(fields));
     setFeedback(null);
   };
 
   const handleComplete = () => {
     if (progress === 100) {
+      // 保留原行為（立即跳轉），但通常我們會自動觸發一次，故此函式仍保留。
       actions.goToStage("S5");
       missionActions.goToStage("S5");
     }
   };
+
+  // 當進度達成 100%，自動播放蓋章動畫並在短延遲後進入 S5
+  useEffect(() => {
+    if (progress === 100 && !autoProgressed) {
+      setAutoProgressed(true);
+      // 等動畫顯示一小段時間後自動跳轉（例如 1200ms）
+      const t = setTimeout(() => {
+        // 進入 S5（測驗）
+        try {
+          actions.goToStage("S5");
+        } catch (e) {
+          // ignore
+        }
+        try {
+          missionActions.goToStage("S5");
+        } catch (e) {
+          // ignore
+        }
+      }, 1200);
+
+      return () => clearTimeout(t);
+    }
+  }, [progress, autoProgressed, actions, missionActions]);
 
   if (!mission) {
     console.warn('[S4] Mission not found. currentMissionId:', currentMissionId);

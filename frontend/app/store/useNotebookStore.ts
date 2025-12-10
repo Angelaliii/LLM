@@ -20,6 +20,7 @@ export interface InformationGap {
   status: 'locked' | 'unlocked' | 'filled';
   correctAnswer?: string;
   unlockedClues: string[]; // 已解鎖的線索ID
+  requiredCount?: number; // 需要收集多少條線索算完成進度
 }
 
 // 筆記本狀態
@@ -32,6 +33,8 @@ interface NotebookState {
   
   // 筆記本是否打開
   isOpen: boolean;
+  // 每個 gap 的進度（current / required）
+  gapProgress: Record<string, { current: number; required: number }>;
   
   // 當前選中的線索（用於拖拉）
   selectedClueId: string | null;
@@ -117,6 +120,7 @@ export const useNotebookStore = create<NotebookState>()(
       (set, get) => ({
         informationGaps: {},
         collectedClues: {},
+        gapProgress: {},
         isOpen: false,
         selectedClueId: null,
 
@@ -126,12 +130,19 @@ export const useNotebookStore = create<NotebookState>()(
             const gapsRecord: Record<string, InformationGap> = {};
             
             gaps.forEach(gap => {
-              gapsRecord[gap.id] = { ...gap };
+              gapsRecord[gap.id] = { ...gap, requiredCount: gap.requiredCount || 1 };
             });
 
             // 只更新 informationGaps，保留已收集的線索
+            // 初始化 gapProgress
+            const initialProgress: Record<string, { current: number; required: number }> = {};
+            Object.values(gapsRecord).forEach(g => {
+              initialProgress[g.id] = { current: 0, required: g.requiredCount || 1 };
+            });
+
             set({ 
-              informationGaps: gapsRecord
+              informationGaps: gapsRecord,
+              gapProgress: initialProgress
             });
             
             console.log(`📚 [Notebook] Initialized ${gaps.length} information gaps for mission: ${missionId}`);
@@ -145,17 +156,47 @@ export const useNotebookStore = create<NotebookState>()(
               unlocked: true
             };
 
-            set((state) => ({
-              collectedClues: {
+            // 使用單一 set 更新 collectedClues、可能的 gap 解鎖，以及 gapProgress
+            set((state) => {
+              const newCollected = {
                 ...state.collectedClues,
                 [clue.id]: clue
-              }
-            }));
+              };
 
-            // 自動檢查是否解鎖相關資訊缺口
-            if (clue.relatedGapId) {
-              get().actions.unlockGap(clue.relatedGapId, clue.id);
-            }
+              // 複製並準備更新 informationGaps（如果 clue 指定 relatedGapId，則自動將 gap 解鎖）
+              const infoGaps = { ...state.informationGaps };
+              if (clue.relatedGapId && infoGaps[clue.relatedGapId]) {
+                const g = infoGaps[clue.relatedGapId];
+                const unlockedSet = new Set([...(g.unlockedClues || []), clue.id]);
+                infoGaps[clue.relatedGapId] = {
+                  ...g,
+                  status: g.status === 'locked' ? 'unlocked' : g.status,
+                  unlockedClues: Array.from(unlockedSet)
+                };
+                console.log(`🔓 [Notebook] Auto-unlocked gap ${clue.relatedGapId} via clue ${clue.id}`);
+              }
+
+              // 計算新的 gapProgress
+              const newProgress: Record<string, { current: number; required: number }> = {};
+              Object.values(infoGaps).forEach(g => {
+                const required = g.requiredCount || 1;
+                let current = 0;
+                if (g.status === 'filled') {
+                  current = required;
+                } else if (g.status === 'unlocked') {
+                  current = Math.min((g.unlockedClues || []).length, required);
+                } else {
+                  current = 0;
+                }
+                newProgress[g.id] = { current, required };
+              });
+
+              return {
+                collectedClues: newCollected,
+                informationGaps: infoGaps,
+                gapProgress: newProgress
+              };
+            });
 
             console.log(`✨ [Notebook] Added new clue: ${clue.text} (source: ${clue.source})`);
             return clue.id;
@@ -195,6 +236,12 @@ export const useNotebookStore = create<NotebookState>()(
                 }
               }));
             }
+
+            // 更新進度：若已解鎖，current = unlockedClues.length；若已填滿則為 required
+            const { gapProgress } = get();
+            const required = gap.requiredCount || 1;
+            const current = gap.status === 'filled' ? required : (gap.unlockedClues || []).length;
+            set({ gapProgress: { ...gapProgress, [gapId]: { current: Math.min(current, required), required } } });
           },
 
           fillGap: (gapId: string, answer: string) => {
@@ -214,6 +261,10 @@ export const useNotebookStore = create<NotebookState>()(
                   status: 'filled',
                   correctAnswer: answer
                 }
+              },
+              gapProgress: {
+                ...state.gapProgress,
+                [gapId]: { current: (gap.requiredCount || 1), required: (gap.requiredCount || 1) }
               }
             }));
 
@@ -266,6 +317,7 @@ export const useNotebookStore = create<NotebookState>()(
         partialize: (state) => ({
           informationGaps: state.informationGaps,
           collectedClues: state.collectedClues,
+          gapProgress: state.gapProgress,
         }),
       }
     ),
