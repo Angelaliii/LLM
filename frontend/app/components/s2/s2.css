@@ -2,9 +2,9 @@
 
 .s2-npc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
 }
 
 .s2-hint-box {
@@ -36,4 +36,126 @@
   border-radius: 9999px;
   border: 1px solid #E8DCC0;
   margin: 0.25rem;
+}
+
+/* Container and root to constrain width and remove horizontal scroll */
+.s2-root {
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 20px;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.s2-container {
+  width: 100%;
+}
+
+/* Title / subtitle adjustments to be more compact */
+.s2-title {
+  font-size: 28px;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.s2-subtitle {
+  font-size: 14px;
+  color: #334155;
+  margin: 0 auto 8px;
+  max-width: 100%;
+}
+
+/* Panel */
+.s2-panel {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #f3e6cc;
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(16,24,40,0.04);
+}
+
+/* Hint box background kept but tightened */
+.s2-hint-box {
+  background: linear-gradient(135deg, #FDF7ED 0%, #F9F7F2 100%);
+  border-left: 4px solid #C6A15B;
+  border-radius: 0.5rem;
+  padding: 12px;
+  margin: 0;
+}
+
+/* Hero image area inside NPC card */
+.s2-root .npc-hero {
+  height: 160px;
+}
+
+/* Buttons */
+.s2-btn-primary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #0ea5a6;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(14,165,166,0.08);
+}
+.s2-btn-primary.disabled,
+.s2-btn-primary[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.s2-btn-secondary {
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #e6e7ea;
+  font-weight: 600;
+}
+
+/* Trait badges inside root smaller */
+.s2-root .s2-trait-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+/* Ensure images don't force overflow */
+.s2-root img { max-width: 100%; height: auto; display: block; }
+
+/* Reduce spacing for compact layout */
+.s2-root .mb-12 { margin-bottom: 12px !important; }
+.s2-root .mb-16 { margin-bottom: 16px !important; }
+.s2-root .px-4 { padding-left: 8px !important; padding-right: 8px !important; }
+
+/* Vintage photo filter + procedural noise overlay for card images */
+.card-img {
+  filter: sepia(0.4) contrast(1.1) grayscale(0.2);
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-photo-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-photo-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }

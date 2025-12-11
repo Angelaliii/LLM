@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
@@ -104,7 +104,7 @@ export default function S4_ArchiveRepair() {
 
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [autoProgressed, setAutoProgressed] = useState(false);
+  const autoProgressedRef = useRef(false); // 使用 ref 避免 re-render 干擾
 
   // 計算進度（以 fields 為準，確保欄位數與狀態同步）
   const filledCount = fields.filter(f => fieldStates[f.id]?.status === 'filled').length;
@@ -181,34 +181,87 @@ export default function S4_ArchiveRepair() {
 
   const handleComplete = () => {
     if (progress === 100) {
-      // 保留原行為（立即跳轉），但通常我們會自動觸發一次，故此函式仍保留。
-      actions.goToStage("S5");
-      missionActions.goToStage("S5");
+      // 嘗試以多種方式確保階段跳轉被觸發，並輸出日誌以便排查
+      console.info('[S4] handleComplete triggered - progress=100, attempting to goToStage S5');
+      try {
+        actions.goToStage("S5");
+        console.info('[S4] called chatStore.actions.goToStage("S5")');
+      } catch (e) {
+        console.warn('[S4] chatStore.actions.goToStage failed', e);
+      }
+
+      try {
+        missionActions.goToStage("S5");
+        console.info('[S4] called missionStore.actions.goToStage("S5")');
+      } catch (e) {
+        console.warn('[S4] missionStore.actions.goToStage failed', e);
+      }
+
+      // Fallback: call the stores directly via getState() to avoid possible closure issues
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const ms = require('../../store/useMissionStore').useMissionStore;
+        const cs = require('../../store/useChatStore').useChatStore;
+        try {
+          cs.getState().actions.goToStage('S5');
+          console.info('[S4] fallback: chatStore.getState().actions.goToStage("S5") called');
+        } catch (e) {
+          console.warn('[S4] fallback chatStore getState call failed', e);
+        }
+        try {
+          ms.getState().actions.goToStage('S5');
+          console.info('[S4] fallback: missionStore.getState().actions.goToStage("S5") called');
+        } catch (e) {
+          console.warn('[S4] fallback missionStore getState call failed', e);
+        }
+      } catch (e) {
+        // ignore module resolution errors in some environments
+      }
     }
   };
 
   // 當進度達成 100%，自動播放蓋章動畫並在短延遲後進入 S5
   useEffect(() => {
-    if (progress === 100 && !autoProgressed) {
-      setAutoProgressed(true);
-      // 等動畫顯示一小段時間後自動跳轉（例如 1200ms）
+    console.info('[S4] useEffect triggered - progress:', progress, 'autoProgressedRef.current:', autoProgressedRef.current);
+    
+    if (progress === 100 && !autoProgressedRef.current) {
+      console.info('[S4] ✅ Setting up auto-transition timer (3000ms)');
+      autoProgressedRef.current = true;
+      
+      // 等動畫顯示一段時間後自動跳轉（3秒讓用戶欣賞完成動畫）
       const t = setTimeout(() => {
-        // 進入 S5（測驗）
+        // 進入 S5（測驗） - 增加日誌與 fallback 呼叫
+        console.info('[S4] ⏰ auto-transition timeout reached, attempting to goToStage S5');
         try {
           actions.goToStage("S5");
+          console.info('[S4] ✅ called chatStore.actions.goToStage("S5")');
         } catch (e) {
-          // ignore
+          console.warn('[S4] ❌ chatStore.actions.goToStage failed', e);
         }
         try {
           missionActions.goToStage("S5");
+          console.info('[S4] ✅ called missionStore.actions.goToStage("S5")');
         } catch (e) {
-          // ignore
+          console.warn('[S4] ❌ missionStore.actions.goToStage failed', e);
         }
-      }, 1200);
 
-      return () => clearTimeout(t);
+        // fallback direct store calls
+        try {
+          const ms = require('../../store/useMissionStore').useMissionStore;
+          const cs = require('../../store/useChatStore').useChatStore;
+          try { cs.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: chatStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
+          try { ms.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: missionStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
+        } catch (e) {
+          // ignore require errors
+        }
+      }, 3000);
+
+      return () => {
+        console.info('[S4] Clearing auto-transition timer');
+        clearTimeout(t);
+      };
     }
-  }, [progress, autoProgressed, actions, missionActions]);
+  }, [progress, actions, missionActions]);
 
   if (!mission) {
     console.warn('[S4] Mission not found. currentMissionId:', currentMissionId);

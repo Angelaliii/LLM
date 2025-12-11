@@ -6,7 +6,7 @@ import S1_FileDecryption from "./components/s1/S1_FileDecryption"; // S1
 import S2_NpcSelection from "./components/s2/S2_NpcSelection"; // S2
 import S3Component from "./components/new_S3"; // S3 (LINE-style chat)
 import S4_ArchiveRepair from "./components/s4/S4_ArchiveRepair"; // S4
-import S5_Reflection from "./components/s5/S5_Reflection";   // S5
+import S5_ViewpointVerification from "./components/s5/S5_ViewpointVerification";   // S5 (替換舊版)
 
 const AppMain: React.FC = () => {
   const { currentStage, currentMissionId, actions } = useMissionStore();
@@ -57,7 +57,7 @@ const AppMain: React.FC = () => {
         case "S4":
           return <S4_ArchiveRepair />;
         case "S5":
-          return <S5_Reflection />;
+          return <S5_ViewpointVerification />;
         default:
           return <MissionList />;
       }

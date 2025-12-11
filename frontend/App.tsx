@@ -42,7 +42,7 @@ function App() {
           <Route path="/" element={<SalesPage />} />
           
           {/* 主系統 - S0-S5 使用者流程 */}
-          <Route path="/app/*" element={
+          <Route path="/game/*" element={
             <AppErrorBoundary>
               <AppMain />
             </AppErrorBoundary>
@@ -52,6 +52,11 @@ function App() {
           <Route path="/fileroom" element={<FileRoom />} />
           
           {/* 兼容舊路由 */}
+          <Route path="/app/*" element={
+            <AppErrorBoundary>
+              <AppMain />
+            </AppErrorBoundary>
+          } />
           <Route path="/chat" element={
             <AppErrorBoundary>
               <AppMain />

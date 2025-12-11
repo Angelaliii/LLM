@@ -74,7 +74,7 @@ const PricingPlans: React.FC = () => {
                 <CTAButton
                   variant={index === 1 ? "primary" : "secondary"}
                   className="w-full"
-                  to="/chat/"
+                  to="/game"
                   openInNewTab
                   trackingLabel={plan.cta}
                   trackingLocation="pricing"

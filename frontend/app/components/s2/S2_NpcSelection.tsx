@@ -104,15 +104,15 @@ export default function S2_NpcSelection() {
 
   if (!mission || !currentStage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-primary-50">
+      <div className="s2-root flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-primary-50">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">無法載入對話</p>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="s2-title">無法載入對話</p>
+          <p className="s2-subtitle">
             {currentMissionId ? `無法找到任務: ${currentMissionId}` : '未選擇任何任務'}
           </p>
           <button
             onClick={() => missionActions.goToStage("S0")}
-            className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="s2-btn-secondary"
           >
             返回任務列表
           </button>
@@ -122,92 +122,77 @@ export default function S2_NpcSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-primary-50 py-12">
+    <div className="s2-root bg-gradient-to-br from-amber-50 via-white to-primary-50 py-8">
       <StageNavigation currentStage="S2" />
-      <div className="container-max">
-        <div className="max-w-6xl mx-auto">
-          {/* 頂部標題區 */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-16"
-          >
-            <h1 className="text-5xl font-bold text-dark-900 mb-6 tracking-tight">
-              選擇調查對象
-            </h1>
-            <p className="text-xl text-dark-700 max-w-3xl mx-auto leading-relaxed">
-              {currentStage.question}
-            </p>
-            <div className="mt-6 flex items-center justify-center gap-2 text-amber-600 text-sm font-semibold">
-              <Info size={16} />
-              <span>每位 NPC 掌握不同的關鍵資訊</span>
-            </div>
-          </motion.div>
-
-          {/* NPC 卡片網格 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 max-w-7xl mx-auto px-4">
-            <AnimatePresence>
-              {availableNpcs.map((npc, index) => (
-                <NpcCard
-                  key={npc.id}
-                  npc={npc}
-                  isSelected={selectedNpcId === npc.id}
-                  onClick={() => handleSelectNpc(npc.id)}
-                  index={index}
-                />
-              ))}
-            </AnimatePresence>
+      <div className="s2-container">
+        {/* 頂部標題區 */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="s2-title">
+            選擇調查對象
+          </h1>
+          <p className="s2-subtitle">
+            {currentStage.question}
+          </p>
+          <div className="mt-4 flex items-center justify-center gap-2 text-amber-600 text-sm font-semibold">
+            <Info size={16} />
+            <span>每位 NPC 掌握不同的關鍵資訊</span>
           </div>
+        </motion.div>
 
-          {/* 提示區域 */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-lg border border-amber-100 p-8 mb-12 shadow-sm"
+        {/* NPC 卡片網格 */}
+        <div className="s2-npc-grid">
+          <AnimatePresence>
+            {availableNpcs.map((npc, index) => (
+              <NpcCard
+                key={npc.id}
+                npc={npc}
+                isSelected={selectedNpcId === npc.id}
+                onClick={() => handleSelectNpc(npc.id)}
+                index={index}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* 提示區域 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="s2-hint-box s2-panel mb-6"
+        >
+          <h2 className="text-lg font-bold text-dark-900 mb-2">💡 任務提示</h2>
+          <p className="text-dark-700 leading-relaxed text-sm">
+            {currentStage.hint || '根據你的調查需求，選擇最合適的 NPC 進行訪談。每位 NPC 都能提供獨特的視角和資訊。'}
+          </p>
+        </motion.div>
+
+        {/* 操作按鈕 */}
+        <div className="flex gap-4 justify-center">
+          <motion.button
+            onClick={handleProceed}
+            disabled={!selectedNpcId}
+            whileHover={selectedNpcId ? { scale: 1.03 } : {}}
+            whileTap={selectedNpcId ? { scale: 0.98 } : {}}
+            className={`s2-btn-primary ${selectedNpcId ? '' : 'disabled'}`}
           >
-            <h2 className="text-xl font-bold text-dark-900 mb-4">💡 任務提示</h2>
-            <p className="text-dark-700 leading-relaxed">
-              {currentStage.hint || '根據你的調查需求，選擇最合適的 NPC 進行訪談。每位 NPC 都能提供獨特的視角和資訊。'}
-            </p>
-          </motion.div>
+            <span>開始訪談</span>
+            <ArrowRight size={18} />
+          </motion.button>
 
-          {/* 操作按鈕 */}
-          <div className="flex gap-6 justify-center">
-            <motion.button
-              onClick={handleProceed}
-              disabled={!selectedNpcId}
-              whileHover={selectedNpcId ? { scale: 1.05 } : {}}
-              whileTap={selectedNpcId ? { scale: 0.95 } : {}}
-              className={`px-12 py-4 rounded-lg font-bold text-lg flex items-center gap-3 transition-all duration-300 shadow-lg ${
-                selectedNpcId
-                  ? 'bg-primary-500 hover:bg-primary-600 text-white hover:shadow-xl cursor-pointer'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              <span>開始訪談</span>
-              <ArrowRight size={20} />
-            </motion.button>
-
-            <button
-              onClick={() => {
-                // 同步更新 chatStore 與 missionStore 的階段
-                try {
-                  actions.goToStage("S1");
-                } catch (e) {
-                  // ignore
-                }
-                try {
-                  missionActions.goToStage("S1");
-                } catch (e) {
-                  // ignore
-                }
-              }}
-              className="px-8 py-4 bg-white hover:bg-gray-50 text-dark-700 border border-gray-300 rounded-lg transition-all duration-300 font-semibold hover:shadow-md"
-            >
-              返回
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              try { actions.goToStage("S1"); } catch (e) {}
+              try { missionActions.goToStage("S1"); } catch (e) {}
+            }}
+            className="s2-btn-secondary"
+          >
+            返回
+          </button>
         </div>
       </div>
     </div>

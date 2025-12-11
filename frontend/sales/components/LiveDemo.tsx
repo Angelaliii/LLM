@@ -142,7 +142,7 @@ const LiveDemo: React.FC = () => {
               </p>
               <CTAButton
                 size="lg"
-                to="/chat/"
+                to="/game"
                 openInNewTab
                 trackingLabel="開始完整體驗"
                 trackingLocation="demo-cta"

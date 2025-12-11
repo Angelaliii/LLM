@@ -5,7 +5,7 @@ import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
 import { matchKeywords } from '../../config/keywords';
 import { streamChatViaBackend } from '../../services/llmClient';
-import { Send, Loader, ChevronRight } from 'lucide-react';
+import { Send, Loader, ChevronRight, CheckCircle2 } from 'lucide-react';
 import MessageBubble from './subcomponents/MessageBubble';
 import Notebook from '../Notebook';
 import PromptChips from '../PromptChips';
@@ -40,6 +40,7 @@ export default function S3_LineStyleChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializingBackground, setIsInitializingBackground] = useState(false);
   const [npcData, setNpcData] = useState<NpcData | null>(null);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // NPC 資料對應表
@@ -240,6 +241,17 @@ export default function S3_LineStyleChat() {
       setIsLoading(false);
     }
   };
+
+  // 監控調查進度,當所有缺口都解鎖時顯示完成對話框
+  useEffect(() => {
+    const allGapsUnlocked = Object.values(informationGaps).every(gap => gap.unlocked === true);
+    const hasGaps = Object.keys(informationGaps).length > 0;
+    
+    if (allGapsUnlocked && hasGaps && !showCompletionDialog) {
+      console.log('[S3] All investigation gaps unlocked, showing completion dialog');
+      setShowCompletionDialog(true);
+    }
+  }, [informationGaps, showCompletionDialog]);
 
   const detectAndAddClues = (npcMessage: string, npcName: string, userQuestion: string) => {
     const { categories, matches } = matchKeywords(npcMessage || '');
@@ -453,6 +465,63 @@ export default function S3_LineStyleChat() {
           )}
         </div>
       </div>
+
+      {/* 完成對話框 */}
+      <AnimatePresence>
+        {showCompletionDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowCompletionDialog(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border-2 border-primary-200"
+            >
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
+                  <CheckCircle2 className="text-primary-600" size={32} />
+                </div>
+                <h3 className="text-2xl font-bold text-dark-900 mb-2">調查階段完成!</h3>
+                <p className="text-dark-600 leading-relaxed">
+                  你已經收集到所有重要線索。現在可以前往下一階段整理這些資料,或是繼續深入調查。
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    console.log('[S3] User chose to proceed to S4');
+                    actions.goToStage("S4");
+                    missionActions.goToStage("S4");
+                    setShowCompletionDialog(false);
+                  }}
+                  className="w-full px-6 py-3.5 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-all hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <ChevronRight size={20} />
+                  前往整理資料
+                </button>
+                
+                <button
+                  onClick={() => {
+                    console.log('[S3] User chose to continue investigating');
+                    setShowCompletionDialog(false);
+                  }}
+                  className="w-full px-6 py-3.5 bg-white text-dark-700 rounded-xl font-semibold border-2 border-gray-300 hover:bg-gray-50 transition-all active:scale-95"
+                >
+                  繼續調查
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 筆記本組件 */}
       <Notebook />

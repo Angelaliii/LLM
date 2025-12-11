@@ -18,6 +18,8 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    // 修復 SPA 路由重新整理問題：所有路由都返回 index.html
+    middlewareMode: false,
     proxy: {
       "/api": {
         target: "http://localhost:4000",
@@ -25,5 +27,10 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  // 預覽模式也需要 SPA fallback
+  preview: {
+    port: 3000,
+    host: true,
   },
 });
