@@ -3,6 +3,7 @@ export interface NPCLanguageConfig {
   tone: string;
   maxResponseLength: number;
   forbiddenPhrases: string[];
+  preferredTemperature?: number;  // 建議範圍 0.3–0.8，若越界則夾值
 }
 
 export interface NPCKnowledgeConfig {
@@ -23,6 +24,38 @@ export interface RedirectRule {
   redirectPhrase: string;
 }
 
+/**
+ * PersonaCache 設定介面
+ */
+export interface PersonaCacheConfig {
+  strategy?: 'lazy' | 'preload';
+  ttlMs?: number;
+  preload?: boolean;
+  watchFs?: boolean;
+}
+
+/**
+ * 品質回退（Quality Fallback）設定介面
+ */
+export interface QualityFallbackConfig {
+  enabled?: boolean;                 // 預設 true
+  lowTemp?: number;                  // 預設 0.3（範圍 0.2～0.4）
+  maxLowTempRetries?: number;        // 預設 1（可設 0～3）
+  useRewrite?: boolean;              // 預設 true
+  maxRewritePasses?: number;         // 預設 1
+}
+
+/**
+ * Persona 路由配置介面（用於 GET /api/persona/:npcId）
+ */
+export interface PersonaRouteConfig {
+  enabled?: boolean;           // 預設：非 production 環境啟用
+  requireToken?: boolean;      // 預設 true
+  token?: string;              // 預設從環境變數 PERSONA_API_TOKEN 讀取
+  allowRawContent?: boolean;   // 是否返回完整 persona 內容；預設 true（內部環境）
+  defaultSource?: 'cache' | 'file'; // 預設 'cache'
+}
+
 export interface NPCGameConfig {
   id: string;
   name: string;
@@ -33,6 +66,8 @@ export interface NPCGameConfig {
   knowledge: NPCKnowledgeConfig;
   redirectRules: Record<string, RedirectRule>;
   conversationRules: NPCConversationRules;
+  personaCache?: PersonaCacheConfig;
+  qualityFallback?: QualityFallbackConfig;
 }
 
 /**
@@ -49,6 +84,7 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     language: {
       tone: 'naive',
       maxResponseLength: 150,
+      preferredTemperature: 0.6,  // 學生回應較穩定但保有童真
       forbiddenPhrases: [
         '我們今天要討論', '讓我們來看看', '從歷史角度', '根據史料', '讓我為你解釋',
         '這是一個很好的問題', '讓我來告訴你', '首先', '其次', '最後',
@@ -110,6 +146,14 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       mustStayInCharacter: true,
       avoidTeachingTone: true,
       responseStyle: 'short'
+    },
+    
+    qualityFallback: {
+      enabled: true,
+      lowTemp: 0.3,
+      maxLowTempRetries: 1,
+      useRewrite: true,
+      maxRewritePasses: 1
     }
   },
 
@@ -123,6 +167,7 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     language: {
       tone: 'authoritative',
       maxResponseLength: 180,
+      preferredTemperature: 0.5,  // 警察回應嚴謹、威嚴、一致性高
       forbiddenPhrases: [
         '讓我來教你', '我們今天要討論', '讓我們來看看', '從歷史角度', '根據史料',
         '讓我為你解釋', '這是一個很好的問題', '讓我來告訴你', '首先', '其次', '最後',
@@ -179,6 +224,14 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       mustStayInCharacter: true,
       avoidTeachingTone: true,
       responseStyle: 'concise'
+    },
+    
+    qualityFallback: {
+      enabled: true,
+      lowTemp: 0.3,
+      maxLowTempRetries: 1,
+      useRewrite: true,
+      maxRewritePasses: 1
     }
   },
 
@@ -192,6 +245,7 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     language: {
       tone: 'professional',
       maxResponseLength: 200,
+      preferredTemperature: 0.7,  // 測量員較專業但會變化，適度探索
       forbiddenPhrases: [
         '讓我們探討', '從社會學角度', '這需要深入分析', '讓我為你上一課', '我們今天來學習',
         '這是歷史的重要轉折', '讓我來教你', '讓我們來看看', '從歷史角度', '根據史料',
@@ -248,6 +302,14 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
       mustStayInCharacter: true,
       avoidTeachingTone: true,
       responseStyle: 'concise'
+    },
+    
+    qualityFallback: {
+      enabled: true,
+      lowTemp: 0.3,
+      maxLowTempRetries: 1,
+      useRewrite: true,
+      maxRewritePasses: 1
     }
   }
 };
@@ -318,4 +380,38 @@ export function isTopicInKnowledgeScope(
  */
 export function getNPCConfig(npcId: string): NPCGameConfig | null {
   return NPC_GAME_CONFIGS[npcId] || null;
+}
+
+/**
+ * 獲取 NPC 的首選溫度並夾值到合理範圍
+ * @param npcId NPC 識別碼
+ * @param fallback 預設溫度值（預設 0.7）
+ * @returns 夾值後的溫度（範圍 0.1 ~ 1.0）
+ */
+export function getNpcTemperature(npcId: string, fallback: number = 0.7): number {
+  const config = getNPCConfig(npcId);
+  const t = config?.language?.preferredTemperature ?? fallback;
+  const clamped = Math.min(1.0, Math.max(0.1, t));
+  
+  if (clamped !== t) {
+    console.warn({ npcId, original: t, clamped }, 'npc_temperature_clamped');
+  }
+  
+  return clamped;
+}
+
+/**
+ * 獲取 Persona 路由配置
+ * @returns PersonaRouteConfig 配置物件
+ */
+export function getPersonaRouteConfig(): PersonaRouteConfig {
+  const isProd = process.env.NODE_ENV === 'production';
+  
+  return {
+    enabled: process.env.PERSONA_ROUTE_ENABLED === 'true' || !isProd,
+    requireToken: process.env.PERSONA_ROUTE_REQUIRE_TOKEN !== 'false',  // 預設需要 token
+    token: process.env.PERSONA_API_TOKEN || 'dev-token-12345',
+    allowRawContent: process.env.PERSONA_ROUTE_ALLOW_RAW !== 'false',  // 預設允許
+    defaultSource: (process.env.PERSONA_ROUTE_DEFAULT_SOURCE as 'cache' | 'file') || 'cache'
+  };
 }
