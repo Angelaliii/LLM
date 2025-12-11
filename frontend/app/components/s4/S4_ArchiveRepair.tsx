@@ -199,23 +199,32 @@ export default function S4_ArchiveRepair() {
 
       // Fallback: call the stores directly via getState() to avoid possible closure issues
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const ms = require('../../store/useMissionStore').useMissionStore;
-        const cs = require('../../store/useChatStore').useChatStore;
-        try {
-          cs.getState().actions.goToStage('S5');
-          console.info('[S4] fallback: chatStore.getState().actions.goToStage("S5") called');
-        } catch (e) {
-          console.warn('[S4] fallback chatStore getState call failed', e);
-        }
-        try {
-          ms.getState().actions.goToStage('S5');
-          console.info('[S4] fallback: missionStore.getState().actions.goToStage("S5") called');
-        } catch (e) {
-          console.warn('[S4] fallback missionStore getState call failed', e);
-        }
+        // Use dynamic import instead of require to be compatible with browser TS builds
+        (async () => {
+          try {
+            const msMod = await import('../../store/useMissionStore');
+            const csMod = await import('../../store/useChatStore');
+            const cs = csMod.useChatStore;
+            const ms = msMod.useMissionStore;
+            try {
+              cs.getState().actions.goToStage('S5');
+              console.info('[S4] fallback: chatStore.getState().actions.goToStage("S5") called');
+            } catch (e) {
+              console.warn('[S4] fallback chatStore getState call failed', e);
+            }
+            try {
+              ms.getState().actions.goToStage('S5');
+              console.info('[S4] fallback: missionStore.getState().actions.goToStage("S5") called');
+            } catch (e) {
+              console.warn('[S4] fallback missionStore getState call failed', e);
+            }
+          } catch (e) {
+            // ignore dynamic import errors in some environments
+            console.warn('[S4] dynamic import fallback failed', e);
+          }
+        })();
       } catch (e) {
-        // ignore module resolution errors in some environments
+        // ignore outer errors
       }
     }
   };
@@ -247,12 +256,20 @@ export default function S4_ArchiveRepair() {
 
         // fallback direct store calls
         try {
-          const ms = require('../../store/useMissionStore').useMissionStore;
-          const cs = require('../../store/useChatStore').useChatStore;
-          try { cs.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: chatStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
-          try { ms.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: missionStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
+          (async () => {
+            try {
+              const msMod = await import('../../store/useMissionStore');
+              const csMod = await import('../../store/useChatStore');
+              const cs = csMod.useChatStore;
+              const ms = msMod.useMissionStore;
+              try { cs.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: chatStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
+              try { ms.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: missionStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
+            } catch (e) {
+              // ignore dynamic import errors
+            }
+          })();
         } catch (e) {
-          // ignore require errors
+          // ignore outer errors
         }
       }, 3000);
 
