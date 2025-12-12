@@ -22,19 +22,48 @@ interface KnowledgeEntry {
 // 記憶體中的知識庫
 let knowledgeBase: KnowledgeEntry[] = [];
 
+// 定義檔案路徑
+const KNOWLEDGE_SOURCE_PATH = path.join(__dirname, '../data/knowledge/knowledge_base.json');
+const CACHE_PATH = path.join(__dirname, '../data/knowledge/knowledge_vectors_cache.json');
+
 /**
- * 初始化向量資料庫 (記憶體版本)
+ * 初始化向量資料庫 (記憶體版本 + 快取機制)
  */
 export async function initializeVectorDB(): Promise<void> {
   try {
-    const knowledgePath = path.join(__dirname, '../data/knowledge/knowledge_base.json');
-    
-    if (!fs.existsSync(knowledgePath)) {
-      throw new Error(`Knowledge base file not found: ${knowledgePath}`);
+    // ---------------------------------------------------------
+    // 1. 優先嘗試讀取快取 (Cache Hit)
+    // ---------------------------------------------------------
+    if (fs.existsSync(CACHE_PATH)) {
+      console.log('📂 Found vector cache, loading from disk...');
+      try {
+        const cachedData = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
+        
+        // 簡單驗證一下快取資料格式對不對
+        if (Array.isArray(cachedData) && cachedData.length > 0) {
+            knowledgeBase = cachedData;
+            console.log(`✅ Loaded ${knowledgeBase.length} entries from cache.`);
+            console.log('🚀 Fast startup completed!');
+            return; // 直接結束，不用再呼叫 API
+        } else {
+            console.warn('⚠️ Cache file found but empty or invalid. Regenerating...');
+        }
+      } catch (err) {
+        console.error('⚠️ Failed to parse cache file. Regenerating...', err);
+      }
     }
 
-    // 載入知識庫
-    const rawData = fs.readFileSync(knowledgePath, 'utf-8');
+    // ---------------------------------------------------------
+    // 2. 如果沒快取 (Cache Miss)，執行原本的生成邏輯
+    // ---------------------------------------------------------
+    console.log('🔄 No valid cache found. Generating new embeddings from source...');
+    
+    if (!fs.existsSync(KNOWLEDGE_SOURCE_PATH)) {
+      throw new Error(`Knowledge base file not found: ${KNOWLEDGE_SOURCE_PATH}`);
+    }
+
+    // 載入原始資料
+    const rawData = fs.readFileSync(KNOWLEDGE_SOURCE_PATH, 'utf-8');
     const data = JSON.parse(rawData);
     
     // 支援兩種格式: 直接陣列或有 knowledge 屬性的物件
@@ -44,10 +73,10 @@ export async function initializeVectorDB(): Promise<void> {
       throw new Error('Invalid knowledge base format');
     }
 
-    console.log(`📚 Loading ${knowledgeArray.length} knowledge entries...`);
+    console.log(`📚 Processing ${knowledgeArray.length} entries...`);
 
-    // 批次生成嵌入向量 (減小批次大小避免超時)
-    const batchSize = 3;
+    // 批次生成嵌入向量
+    const batchSize = 3; // 保持原本的小批次以防 Rate Limit
     knowledgeBase = [];
 
     for (let i = 0; i < knowledgeArray.length; i += batchSize) {
@@ -62,7 +91,9 @@ export async function initializeVectorDB(): Promise<void> {
               return null;
             }
             
+            // 呼叫 API 生成 Embedding (最花時間的部分)
             const embedding = await generateEmbedding(content);
+            
             return {
               id: item.id || `kb_${i + idx}`,
               content,
@@ -81,20 +112,31 @@ export async function initializeVectorDB(): Promise<void> {
       knowledgeBase.push(...validEntries);
       
       const progress = Math.min(i + batchSize, knowledgeArray.length);
-      console.log(`  ✓ Progress: ${progress}/${knowledgeArray.length} (${Math.round(progress / knowledgeArray.length * 100)}%) - ${entries.filter(e => e !== null).length} entries loaded`);
+      console.log(`  ✓ Progress: ${progress}/${knowledgeArray.length} (${Math.round(progress / knowledgeArray.length * 100)}%)`);
+    }
+
+    // ---------------------------------------------------------
+    // 3. 生成完畢，馬上存檔建立快取！
+    // ---------------------------------------------------------
+    try {
+        // 確保目錄存在
+        const dir = path.dirname(CACHE_PATH);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        fs.writeFileSync(CACHE_PATH, JSON.stringify(knowledgeBase, null, 2));
+        console.log(`💾 Vectors successfully cached to ${CACHE_PATH}`);
+    } catch (writeErr) {
+        console.error('⚠️ Failed to save cache file (skipping):', writeErr);
     }
 
     console.log(`✅ Vector database initialized with ${knowledgeBase.length} entries`);
+
   } catch (error: any) {
     console.error('❌ Failed to initialize vector database:', error.message);
     throw error;
   }
-}
-
-export interface SearchOptions {
-  npcRole?: string;
-  topK?: number;
-  minSimilarity?: number;
 }
 
 /**

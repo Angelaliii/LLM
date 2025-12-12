@@ -53,9 +53,10 @@ const stages: Stage[] = [
 
 interface StageNavigationProps {
   currentStage?: string;
+  showFloatingMenu?: boolean; // 是否顯示右下浮動選單
 }
 
-export default function StageNavigation({ currentStage }: StageNavigationProps) {
+export default function StageNavigation({ currentStage, showFloatingMenu = false }: StageNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { actions } = useMissionStore();
 
@@ -69,6 +70,11 @@ export default function StageNavigation({ currentStage }: StageNavigationProps) 
     console.log('[StageNavigation] Toggle menu:', !isOpen);
     setIsOpen(!isOpen);
   };
+
+  // 如果不顯示浮動選單，直接返回 null
+  if (!showFloatingMenu) {
+    return null;
+  }
 
   return (
     <>

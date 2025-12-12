@@ -237,6 +237,14 @@ router.get('/session/:sessionId', (req: Request, res: Response) => {
 });
 
 /**
+ * @deprecated POST /api/game/prompts 端點已廢棄
+ * 改用 LLM 搭便車模式：suggestions 現在直接包含在 /api/game/chat 的回應中
+ * 
+ * 舊架構：前端調用 /prompts 端點 → promptService.ts 返回預定義提示
+ * 新架構：LLM 在生成回應時，自動在 <suggestions> 標籤中生成追問建議
+ */
+
+/**
  * POST /api/game/summarize - 濃縮對話記憶
  */
 router.post('/summarize', async (req: Request, res: Response) => {

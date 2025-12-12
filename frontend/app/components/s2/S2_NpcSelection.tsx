@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
-import { ArrowRight, Info } from 'lucide-react';
+import { ArrowRight, Info, ArrowLeft } from 'lucide-react';
 import NpcCard from './subcomponents/NpcCard';
 import './s2.css';
 import StageNavigation from '../ui/StageNavigation';
@@ -88,6 +88,11 @@ export default function S2_NpcSelection() {
 
   const handleSelectNpc = (npcId: string) => {
     setSelectedNpcId(npcId);
+    
+    // 立即跳轉到 S3（不需要點「開始訪談」按鈕）
+    actions.selectNpc(npcId);
+    missionActions.selectNpc(npcId);
+    missionActions.goToStage("S3");
   };
 
   const handleProceed = () => {
@@ -98,7 +103,6 @@ export default function S2_NpcSelection() {
     missionActions.selectNpc(selectedNpcId);
     
     // 轉移到 S3（對話階段）
-    actions.goToStage("S3");
     missionActions.goToStage("S3");
   };
 
@@ -124,6 +128,17 @@ export default function S2_NpcSelection() {
   return (
     <div className="s2-root bg-gradient-to-br from-amber-50 via-white to-primary-50 py-8">
       <StageNavigation currentStage="S2" />
+      
+      {/* 返回按鈕（左上角） */}
+      <button
+        onClick={() => actions.goBack()}
+        className="fixed top-24 left-8 z-20 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
+        aria-label="返回上一頁"
+      >
+        <ArrowLeft size={18} />
+        <span className="text-sm font-medium hidden sm:inline">返回</span>
+      </button>
+      
       <div className="s2-container">
         {/* 頂部標題區 */}
         <motion.div
@@ -171,28 +186,11 @@ export default function S2_NpcSelection() {
           </p>
         </motion.div>
 
-        {/* 操作按鈕 */}
-        <div className="flex gap-4 justify-center">
-          <motion.button
-            onClick={handleProceed}
-            disabled={!selectedNpcId}
-            whileHover={selectedNpcId ? { scale: 1.03 } : {}}
-            whileTap={selectedNpcId ? { scale: 0.98 } : {}}
-            className={`s2-btn-primary ${selectedNpcId ? '' : 'disabled'}`}
-          >
-            <span>開始訪談</span>
-            <ArrowRight size={18} />
-          </motion.button>
-
-          <button
-            onClick={() => {
-              try { actions.goToStage("S1"); } catch (e) {}
-              try { missionActions.goToStage("S1"); } catch (e) {}
-            }}
-            className="s2-btn-secondary"
-          >
-            返回
-          </button>
+        {/* 提示：選擇 NPC 後會立即開始訪談 */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-stone-500 italic">
+            💡 點擊任一 NPC 卡片即可立即開始訪談
+          </p>
         </div>
       </div>
     </div>

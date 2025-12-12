@@ -4,7 +4,7 @@ import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { useNotebookStore } from '../../store/useNotebookStore';
 import { getMissionById } from '../../data/missions';
-import { CheckCircle2, XCircle, HelpCircle, Database, ArrowRight } from 'lucide-react';
+import { CheckCircle2, XCircle, HelpCircle, Database, ArrowRight, ArrowLeft } from 'lucide-react';
 import DraggableClue from './subcomponents/DraggableClue';
 import DropZone from './subcomponents/DropZone';
 import './s4.css';
@@ -102,6 +102,12 @@ export default function S4_ArchiveRepair() {
     makeInitialFieldStates(fields)
   );
 
+  // Safe accessor for field state to avoid reading undefined when `fields` updates
+  const getFieldState = (id?: string) => {
+    if (!id) return { status: 'empty' } as { status: 'empty' };
+    return fieldStates[id] ?? { status: 'empty' } as { status: 'empty' | 'filled' };
+  };
+
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const autoProgressedRef = useRef(false); // 使用 ref 避免 re-render 干擾
@@ -181,50 +187,13 @@ export default function S4_ArchiveRepair() {
 
   const handleComplete = () => {
     if (progress === 100) {
-      // 嘗試以多種方式確保階段跳轉被觸發，並輸出日誌以便排查
-      console.info('[S4] handleComplete triggered - progress=100, attempting to goToStage S5');
-      try {
-        actions.goToStage("S5");
-        console.info('[S4] called chatStore.actions.goToStage("S5")');
-      } catch (e) {
-        console.warn('[S4] chatStore.actions.goToStage failed', e);
-      }
-
+      // 只調用 missionActions，它會自動同步到 ChatStore
+      console.info('[S4] handleComplete triggered - progress=100, goToStage S5');
       try {
         missionActions.goToStage("S5");
-        console.info('[S4] called missionStore.actions.goToStage("S5")');
+        console.info('[S4] ✅ called missionStore.actions.goToStage("S5")');
       } catch (e) {
-        console.warn('[S4] missionStore.actions.goToStage failed', e);
-      }
-
-      // Fallback: call the stores directly via getState() to avoid possible closure issues
-      try {
-        // Use dynamic import instead of require to be compatible with browser TS builds
-        (async () => {
-          try {
-            const msMod = await import('../../store/useMissionStore');
-            const csMod = await import('../../store/useChatStore');
-            const cs = csMod.useChatStore;
-            const ms = msMod.useMissionStore;
-            try {
-              cs.getState().actions.goToStage('S5');
-              console.info('[S4] fallback: chatStore.getState().actions.goToStage("S5") called');
-            } catch (e) {
-              console.warn('[S4] fallback chatStore getState call failed', e);
-            }
-            try {
-              ms.getState().actions.goToStage('S5');
-              console.info('[S4] fallback: missionStore.getState().actions.goToStage("S5") called');
-            } catch (e) {
-              console.warn('[S4] fallback missionStore getState call failed', e);
-            }
-          } catch (e) {
-            // ignore dynamic import errors in some environments
-            console.warn('[S4] dynamic import fallback failed', e);
-          }
-        })();
-      } catch (e) {
-        // ignore outer errors
+        console.warn('[S4] ❌ missionStore.actions.goToStage failed', e);
       }
     }
   };
@@ -234,44 +203,20 @@ export default function S4_ArchiveRepair() {
     console.info('[S4] useEffect triggered - progress:', progress, 'autoProgressedRef.current:', autoProgressedRef.current);
     
     if (progress === 100 && !autoProgressedRef.current) {
-      console.info('[S4] ✅ Setting up auto-transition timer (3000ms)');
+      console.info('[S4] ✅ Setting up auto-transition timer (800ms)');
       autoProgressedRef.current = true;
       
-      // 等動畫顯示一段時間後自動跳轉（3秒讓用戶欣賞完成動畫）
+      // 等動畫顯示一段時間後自動跳轉（800ms 讓用戶看到完成動畫）
       const t = setTimeout(() => {
-        // 進入 S5（測驗） - 增加日誌與 fallback 呼叫
-        console.info('[S4] ⏰ auto-transition timeout reached, attempting to goToStage S5');
-        try {
-          actions.goToStage("S5");
-          console.info('[S4] ✅ called chatStore.actions.goToStage("S5")');
-        } catch (e) {
-          console.warn('[S4] ❌ chatStore.actions.goToStage failed', e);
-        }
+        // 進入 S5（測驗）- 只調用 missionActions，它會自動同步到 ChatStore
+        console.info('[S4] ⏰ auto-transition timeout reached, goToStage S5');
         try {
           missionActions.goToStage("S5");
           console.info('[S4] ✅ called missionStore.actions.goToStage("S5")');
         } catch (e) {
           console.warn('[S4] ❌ missionStore.actions.goToStage failed', e);
         }
-
-        // fallback direct store calls
-        try {
-          (async () => {
-            try {
-              const msMod = await import('../../store/useMissionStore');
-              const csMod = await import('../../store/useChatStore');
-              const cs = csMod.useChatStore;
-              const ms = msMod.useMissionStore;
-              try { cs.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: chatStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
-              try { ms.getState().actions.goToStage('S5'); console.info('[S4] ✅ fallback: missionStore.getState().actions.goToStage S5'); } catch(e){/*ignore*/}
-            } catch (e) {
-              // ignore dynamic import errors
-            }
-          })();
-        } catch (e) {
-          // ignore outer errors
-        }
-      }, 3000);
+      }, 800);
 
       return () => {
         console.info('[S4] Clearing auto-transition timer');
@@ -308,6 +253,16 @@ export default function S4_ArchiveRepair() {
       <StageNavigation currentStage="S4" />
       {/* 背景裝飾 */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-30 pointer-events-none" />
+
+      {/* 返回按鈕（左上角） */}
+      <button
+        onClick={() => actions.goBack()}
+        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
+        aria-label="返回上一頁"
+      >
+        <ArrowLeft size={18} />
+        <span className="text-sm font-medium hidden sm:inline">返回</span>
+      </button>
 
       {/* 頂部導航 */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-8 z-30">
@@ -378,20 +333,20 @@ export default function S4_ArchiveRepair() {
                 <br />
                 在日治初期，日本總督府透過
                 <DropZone
-                  fieldId="field_1"
-                  status={fieldStates.field_1.status}
+                  fieldId={fields[0]?.id ?? 'field_1'}
+                  status={getFieldState(fields[0]?.id).status}
                   config={fields[0]}
-                  highlight={isDragging && fieldStates.field_1.status === 'empty'}
+                  highlight={isDragging && getFieldState(fields[0]?.id).status === 'empty'}
                 />
                 等法律工具，對臺灣進行深入的制度改造。
                 <br />
                 <br />
                 其中，
                 <DropZone
-                  fieldId="field_2"
-                  status={fieldStates.field_2.status}
+                  fieldId={fields[1]?.id ?? 'field_2'}
+                  status={getFieldState(fields[1]?.id).status}
                   config={fields[1]}
-                  highlight={isDragging && fieldStates.field_2.status === 'empty'}
+                  highlight={isDragging && getFieldState(fields[1]?.id).status === 'empty'}
                 />
                 成為推行土地調查與權力控制的關鍵群體，對當時臺灣社會的基層結構造成了深遠的影響。
               </div>

@@ -46,6 +46,9 @@ interface ChatState {
   missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
   selectedNpcId?: string | null;
   hiddenSummary?: string | null;
+  
+  // 導航堆疊（用於返回上一頁）
+  navigationStack: Array<"S0" | "S1" | "S2" | "S3" | "S4" | "S5">;
 
 
   // 操作方法
@@ -86,6 +89,7 @@ interface ChatState {
     // 任務流程相關 actions
     selectMission: (missionId: string) => Promise<void>;
     goToStage: (stage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => void;
+    goBack: () => void;
     selectNpc: (npcId: string) => void;
     updateConversation: (npcId: string, messages: Message[]) => void;
     setHiddenSummary: (summary: string) => void;
@@ -127,6 +131,7 @@ export const useChatStore = create<ChatState>()(
         missionStage: "S0",
         selectedNpcId: null,
         hiddenSummary: null,
+        navigationStack: [],
 
         actions: {
           sendMessage: async (content: string) => {
@@ -301,9 +306,57 @@ export const useChatStore = create<ChatState>()(
             }
           },
 
-          goToStage: (missionStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => {
-            // Only update chatStore internal stage, let useMissionStore handle main stage
-            set({ missionStage });
+          goToStage: (targetStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5") => {
+            const { missionStage: currentStage, navigationStack } = get();
+            
+            // 避免重複導航到同一階段
+            if (currentStage === targetStage) {
+              console.log(`[Navigation] goToStage: Already at ${targetStage}, ignoring`);
+              return;
+            }
+            
+            // Push CURRENT stage to stack before navigating (to remember where we came from)
+            const newStack = [...navigationStack, currentStage];
+            set({ 
+              missionStage: targetStage,
+              navigationStack: newStack
+            });
+            console.log(`[Navigation] goToStage: ${currentStage} → ${targetStage}, stack:`, newStack);
+          },
+
+          goBack: () => {
+            const { navigationStack, missionStage: currentStage } = get();
+            
+            if (navigationStack.length === 0) {
+              // No history in stack - use logical fallback based on current stage
+              const fallbackMap: Record<string, "S0" | "S1" | "S2" | "S3" | "S4" | "S5"> = {
+                "S0": "S0", // Already at start
+                "S1": "S0", // File decryption → Mission select
+                "S2": "S1", // NPC select → File decryption
+                "S3": "S2", // Chat → NPC select
+                "S4": "S3", // Archive repair → Chat
+                "S5": "S4", // Quiz → Archive repair
+              };
+              const fallbackStage = fallbackMap[currentStage] || "S0";
+              console.log(`[Navigation] goBack: No stack history, using logical fallback ${currentStage} → ${fallbackStage}`);
+              
+              // 使用 fallback 時也要清空堆疊，避免狀態不一致
+              set({ 
+                missionStage: fallbackStage,
+                navigationStack: [] 
+              });
+              return;
+            }
+            
+            // Pop and navigate to the last stage in stack
+            const newStack = [...navigationStack];
+            const previousStage = newStack.pop() || "S0";
+            
+            set({ 
+              missionStage: previousStage,
+              navigationStack: newStack
+            });
+            console.log(`[Navigation] goBack to: ${previousStage}, remaining stack:`, newStack);
           },
 
           selectNpc: (npcId: string) => {

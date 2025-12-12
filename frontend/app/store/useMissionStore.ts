@@ -1,6 +1,7 @@
 // 任務狀態管理 - 對應使用者流程 S0-S5 (S2已整合至S3)
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { useChatStore } from "./useChatStore";
 
 // 任務階段定義 
 export type MissionStage = "S0" | "S1" | "S2" | "S3" | "S4" | "S5";
@@ -126,6 +127,18 @@ export const useMissionStore = create<MissionState>()(
               currentStage: "S1",
               currentStageIndex: 0,
             });
+            
+            // 同步更新 ChatStore
+            try {
+              const chatStore = useChatStore.getState();
+              chatStore.actions.goToStage("S1");
+              // 也設置 missionId
+              if (chatStore.missionId !== missionId) {
+                useChatStore.setState({ missionId });
+              }
+            } catch (e) {
+              console.warn('[MissionStore] Failed to sync with ChatStore:', e);
+            }
           },
 
           startStage: (stageId: string) => {
@@ -264,6 +277,14 @@ export const useMissionStore = create<MissionState>()(
 
           goToStage: (stage: MissionStage) => {
             set({ currentStage: stage });
+            
+            // 同步更新 ChatStore
+            try {
+              const chatStore = useChatStore.getState();
+              chatStore.actions.goToStage(stage);
+            } catch (e) {
+              console.warn('[MissionStore.goToStage] Failed to sync with ChatStore:', e);
+            }
           },
         },
       }),

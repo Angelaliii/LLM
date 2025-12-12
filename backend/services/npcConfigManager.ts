@@ -125,19 +125,19 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     redirectRules: {
       '六三法': {
         targetNPC: 'police_officer',
-        redirectPhrase: '『六三法』是什麼?我只知道老師說要聽總督大人的話。你可以去問**警察佐藤**。'
+        redirectPhrase: '『六三法』是什麼?我只知道老師說要聽總督大人的話。你可以去問佐藤。'
       },
       '土地調查': {
         targetNPC: 'land_surveyor',
-        redirectPhrase: '測量土地是大人們的事,你應該去問**土地測量員山本**。'
+        redirectPhrase: '測量土地是大人們的事,你應該去問山本。'
       },
       '法律': {
         targetNPC: 'police_officer',
-        redirectPhrase: '法律的事我不懂,你去問**警察佐藤**吧。'
+        redirectPhrase: '法律的事我不懂,你去問佐藤吧。'
       },
       '財政': {
         targetNPC: 'land_surveyor',
-        redirectPhrase: '錢的事情我不清楚,大人說這是**山本先生**負責的。'
+        redirectPhrase: '錢的事情我不清楚,大人說這是山本負責的。'
       }
     },
     
@@ -207,15 +207,15 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     redirectRules: {
       '土地調查': {
         targetNPC: 'land_surveyor',
-        redirectPhrase: '土地丈量和財稅問題是文官的事,你應該去問**土地測量員山本**。'
+        redirectPhrase: '土地丈量和財稅問題是文官的事,你應該去問山本。'
       },
       '學校生活': {
         targetNPC: 'student',
-        redirectPhrase: '學校的事我不管,你去問**學生小清**。'
+        redirectPhrase: '學校的事我不管,你去問小清。'
       },
       '田賦': {
         targetNPC: 'land_surveyor',
-        redirectPhrase: '稅收是**山本**他們在處理,不是我的職責。'
+        redirectPhrase: '稅收是山本他們在處理,不是我的職責。'
       }
     },
     
@@ -285,15 +285,15 @@ export const NPC_GAME_CONFIGS: Record<string, NPCGameConfig> = {
     redirectRules: {
       '警察': {
         targetNPC: 'police_officer',
-        redirectPhrase: '治安和法律執行是警察的事,你應該去問**警察佐藤**。'
+        redirectPhrase: '治安和法律執行是警察的事,你應該去問佐藤。'
       },
       '保甲': {
         targetNPC: 'police_officer',
-        redirectPhrase: '保甲制度是**佐藤巡查**在管,不是我的業務。'
+        redirectPhrase: '保甲制度是佐藤巡查在管,不是我的業務。'
       },
       '學校': {
         targetNPC: 'student',
-        redirectPhrase: '我只關心土地數據,要了解當地生活細節,你去問**學生小清**。'
+        redirectPhrase: '我只關心土地數據,要了解當地生活細節,你去問小清。'
       }
     },
     

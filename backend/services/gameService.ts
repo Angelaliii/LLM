@@ -315,15 +315,29 @@ ${ragKnowledge}
 
 [OUTPUT_SCHEMA]
 ========================================
-回應要求：
-1. 格式：對話文字（dialogue），禁止使用動作描述或旁白
-2. 視角：以「${npcInfo.name}」的第一人稱回應
-3. 知識來源：${
+## 輸出格式規範（必須嚴格遵守）
+
+⚠️ **重要**：你的**每一次**回應都**必須**包含完整的三個區塊。
+**絕對不可省略任何區塊**，順序為：<thinking> → <reply> → <suggestions>
+
+### 1. <thinking> 區塊（內部推理，不會顯示給玩家）
+**每次回應都必須包含此區塊**，在此進行思考：
+- 玩家的意圖是什麼？
+- 是否觸及我的知識邊界？需要轉介其他 NPC 嗎？
+- 我應該置入哪些歷史線索？
+- 如何從我的角色視角來回應？
+
+### 2. <reply> 區塊（實際回應內容）
+格式要求：
+- 對話文字（dialogue），禁止使用動作描述或旁白
+- 以「${npcInfo.name}」的第一人稱回應
+- 知識來源：${
   npcConfig.knowledge.knowledgeSource === 'daily_life' ? '你的日常生活觀察' :
   npcConfig.knowledge.knowledgeSource === 'work_observation' ? '你的工作經驗' :
   npcConfig.knowledge.knowledgeSource === 'official_duty' ? '你的執勤職責' : '你的親身經驗'
 }
-4. 語言：口語化台語夾雜日語詞彙（如「巡查」「總督」）
+- 語言：口語化台語夾雜日語詞彙（如「巡查」「總督」）
+- 長度：約 ${npcConfig.language.maxResponseLength} 字以內
 
 轉述原則：
 ✅ 正確：用自己的話、從角色視角描述
@@ -334,6 +348,43 @@ ${ragKnowledge}
    範例：「根據史料記載...」
    範例：「總督府實施XX政策旨在...」
    範例：「此制度反映了殖民統治的本質...」
+
+### 3. <suggestions> 區塊（追問引導，JSON 格式）
+**每次回應都必須包含此區塊**，絕對不可省略！
+
+⚠️ **關鍵要求**：
+- 根據你**剛才**在 <reply> 說過的**具體內容**生成追問
+- 每次的 suggestions 都應該**不同**，緊貼當下對話內容
+- 不要重複使用之前的建議，要根據新的回應重新生成
+
+格式：JSON Array，**必須**包含三種認知層次（順序不限）：
+
+[
+  {"text": "事實細節問題", "type": "fact"},
+  {"text": "衝突矛盾問題", "type": "conflict"},
+  {"text": "感受同理問題", "type": "empathy"}
+]
+
+- **fact**: 詢問具體事實、細節、過程（例：「保甲制度具體怎麼運作？」）
+- **conflict**: 詢問對立觀點、矛盾、爭議（例：「大家不會互相討厭嗎？」）
+- **empathy**: 詢問個人感受、情緒、處境（例：「你會覺得被監視很可怕嗎？」）
+
+## 完整輸出範例
+<thinking>
+玩家問我關於保甲制度。我要強調「連坐責任」的恐懼感。
+</thinking>
+
+<reply>
+我們這條街很安靜的。因為甲長說十戶人家是「一甲」，如果有人做壞事，我們全部都要受罰！所以大家都會互相盯著看，怕被鄰居連累呢。
+</reply>
+
+<suggestions>
+[
+  {"text": "保甲制度具體是怎麼運作的？", "type": "fact"},
+  {"text": "這樣大家不會互相討厭嗎？", "type": "conflict"},
+  {"text": "你會不會覺得隨時被監視很可怕？", "type": "empathy"}
+]
+</suggestions>
 
 不懂就說不知道，然後引導去找其他 NPC。
 ========================================
@@ -364,6 +415,10 @@ export interface GameChatResponse {
       qualityReport?: { hasIssues: boolean; issues: string[]; score: number };
     };
   }>;
+  suggestions?: Array<{
+    text: string;
+    type: 'fact' | 'conflict' | 'empathy';
+  }>;
   stageUnlocked: string | null;
   gameCompleted: boolean;
   hint?: string;
@@ -376,6 +431,41 @@ export interface GameChatResponse {
 }
 
 /**
+ * 清理內部標籤並提取追問建議
+ * 移除 <thinking> 區塊和 <reply> 標籤
+ * 提取 <suggestions> 內容並解析為 JSON
+ */
+function cleanAndExtractTags(text: string): { 
+  cleanedText: string; 
+  suggestions: Array<{ text: string; type: 'fact' | 'conflict' | 'empathy' }> | null 
+} {
+  if (!text) return { cleanedText: '', suggestions: null };
+  
+  // 提取 suggestions
+  let suggestions = null;
+  const suggestionsMatch = text.match(/<suggestions>([\s\S]*?)<\/suggestions>/i);
+  if (suggestionsMatch) {
+    try {
+      const suggestionsText = suggestionsMatch[1].trim();
+      suggestions = JSON.parse(suggestionsText);
+      console.log('✅ Extracted suggestions:', suggestions);
+    } catch (e) {
+      console.warn('⚠️ Failed to parse suggestions JSON:', e);
+    }
+  }
+  
+  // 清理文本
+  const cleanedText = text
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') // 移除 thinking 區塊
+    .replace(/<suggestions>[\s\S]*?<\/suggestions>/gi, '') // 移除 suggestions 區塊
+    .replace(/<reply>/gi, '') // 移除 reply 開始標籤
+    .replace(/<\/reply>/gi, '') // 移除 reply 結束標籤
+    .trim();
+  
+  return { cleanedText, suggestions };
+}
+
+/**
  * 處理遊戲對話 - 使用 Mistral API (強化版)
  * 
  * 處理流程:
@@ -383,6 +473,7 @@ export interface GameChatResponse {
  * 2. 建構 System Prompt (載入 PERSONA + RAG + mission)
  * 3. 生成兩個不同 temperature 的回答
  * 4. 檢查回答品質
+ * 5. 提取 LLM 生成的追問建議 (搭便車模式)
  */
 export async function handleGameChat(request: GameChatRequest): Promise<GameChatResponse> {
   const { npcId, message, conversationHistory = [], sessionId, summaries = [], keyPoints = [] } = request;
@@ -415,21 +506,34 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     console.log(`📋 System prompt built (${systemPrompt.length} chars)`);
 
     // 建構對話訊息
+    const reminderSuffix = '\n\n⚠️ 記住：你的回應必須包含 <thinking>、<reply> 和 <suggestions> 三個區塊。缺少任何區塊都是無效的。';
+    
     const messages: MistralChatMessage[] = [
       { role: 'system', content: systemPrompt },
       ...filteredHistory.map(msg => ({
         role: msg.role as 'user' | 'assistant',
         content: msg.content
       })),
-      { role: 'user', content: message }
+      { 
+        role: 'user', 
+        content: message + reminderSuffix
+      }
     ];
 
     // 🔧 3. 生成主要回應（使用 NPC 配置的溫度）
     const tempPrimary = getNpcTemperature(npcId, 0.7);
     console.log(`🤖 Generating primary response with temperature ${tempPrimary}...`);
+    
+    // maxTokens 計算：
+    // - <thinking>: 約 150 tokens
+    // - <reply>: maxResponseLength (字符數) * 2 (中文 token 轉換)
+    // - <suggestions>: 約 200 tokens
+    // - 加上安全緩衝 +300
+    const estimatedMaxTokens = 150 + (npcConfig.language.maxResponseLength * 2) + 200 + 300;
+    
     let primaryResponse = await chatWithMistral(messages, { 
       temperature: tempPrimary,
-      maxTokens: npcConfig.language.maxResponseLength 
+      maxTokens: estimatedMaxTokens
     });
 
     // 🔧 4. 檢查回答品質並執行回退策略（整合 parser 與品質檢查）
@@ -460,7 +564,7 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
           
           const lowTempResponse = await chatWithMistral(messages, {
             temperature: tempLow,
-            maxTokens: npcConfig.language.maxResponseLength
+            maxTokens: estimatedMaxTokens
           });
           
           const lowTempParser = parseAndValidate(lowTempResponse, npcId);
@@ -507,7 +611,7 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
             { role: 'user', content: rewritePrompt }
           ], {
             temperature: rewriteTemp,
-            maxTokens: npcConfig.language.maxResponseLength
+            maxTokens: estimatedMaxTokens
           });
           
           const rewrittenParser = parseAndValidate(rewritten, npcId);
@@ -535,7 +639,7 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     const tempSecondary = Math.min(1.0, tempPrimary + 0.2);
     const responseB = await chatWithMistral(messages, { 
       temperature: tempSecondary,
-      maxTokens: npcConfig.language.maxResponseLength 
+      maxTokens: estimatedMaxTokens
     });
     const qualityCheckB = checkResponseQuality(responseB, npcId);
 
@@ -559,7 +663,17 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       topK: 2
     });
 
+    // 🔧 5. 清理標籤並提取追問建議（搭便車模式）
+    const { cleanedText: cleanPrimaryResponse, suggestions: suggestionsA } = cleanAndExtractTags(primaryResponse);
+    const { cleanedText: cleanResponseB, suggestions: suggestionsB } = cleanAndExtractTags(responseB);
+
+    // 優先使用第一個回應的 suggestions，如果沒有則使用第二個
+    const finalSuggestions = suggestionsA || suggestionsB || undefined;
+
     console.log(`✅ Chat processed successfully`);
+    if (finalSuggestions) {
+      console.log(`🎯 LLM generated ${finalSuggestions.length} suggestions (piggyback mode)`);
+    }
     if (keyPointAchieved) {
       console.log(`🌟 New achievement: ${keyPointAchieved.title}`);
     }
@@ -573,7 +687,7 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       responses: [
         { 
           id: 'response_a', 
-          content: primaryResponse, 
+          content: cleanPrimaryResponse, 
           temperature: tempPrimary,
           qualityScore: qualityCheck.score,
           metadata: fallbackAttempts.length > 0 ? {
@@ -583,11 +697,12 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
         },
         { 
           id: 'response_b', 
-          content: responseB, 
+          content: cleanResponseB, 
           temperature: tempSecondary,
           qualityScore: qualityCheckB.score 
         }
       ],
+      suggestions: finalSuggestions,
       stageUnlocked,
       gameCompleted: false,
       hint: filteredHistory.length >= 3 ? generateHint(message) : undefined,

@@ -26,6 +26,14 @@ export interface MistralChatOptions {
 
 /**
  * 使用 Mistral API 進行聊天
+ * 
+ * 注意：NPC persona 要求輸出三個區塊：<thinking> + <reply> + <suggestions>
+ * - <thinking>: 約 50-150 tokens（內部推理過程）
+ * - <reply>: 約 200-500 tokens（實際回應內容，中文字符數 * 2）
+ * - <suggestions>: 約 100-200 tokens（3個追問建議的 JSON）
+ * 
+ * 總計約需 350-850 tokens，為安全起見預設使用 2000 tokens
+ * 這樣可確保 LLM 有足夠空間完整輸出所有必需區塊
  */
 export async function chatWithMistral(
   messages: MistralChatMessage[],
@@ -38,7 +46,7 @@ export async function chatWithMistral(
   const {
     model = 'mistral-small-latest',
     temperature = 0.7,
-    maxTokens = 1000,
+    maxTokens = 2000,  // 提高預設值以容納 <thinking> + <reply> + <suggestions>
     stream = false
   } = options;
 
@@ -64,6 +72,8 @@ export async function chatWithMistral(
 
 /**
  * 使用 Mistral API 進行串流聊天
+ * 
+ * 同樣需要足夠的 maxTokens 來容納完整的三區塊輸出
  */
 export async function* streamChatWithMistral(
   messages: MistralChatMessage[],
@@ -76,7 +86,7 @@ export async function* streamChatWithMistral(
   const {
     model = 'mistral-small-latest',
     temperature = 0.7,
-    maxTokens = 1000
+    maxTokens = 2000  // 同樣提高以容納完整輸出
   } = options;
 
   try {

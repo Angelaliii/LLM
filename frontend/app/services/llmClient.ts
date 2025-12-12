@@ -2,6 +2,7 @@
 type StreamHandlers = {
   onChunk?: (chunk: string) => void;
   onComplete?: (response: string) => void;
+  onSuggestions?: (suggestions: Array<{ text: string; type: 'fact' | 'conflict' | 'empathy' }>) => void;
   onError?: (error: Error) => void;
 };
 
@@ -164,6 +165,10 @@ export async function streamChatViaBackend(
       }
     }
 
+    // 提取 suggestions (LLM 搭便車生成)
+    const suggestions = data.data?.suggestions || [];
+    console.log(`🎯 Received ${suggestions.length} suggestions from LLM for NPC: ${npcId}`);
+
     // 使用第一個回答 (temperature 0.7 的版本)
     const assistantContent = data.data?.responses?.[0]?.content || "無法獲取回答";
 
@@ -180,8 +185,17 @@ export async function streamChatViaBackend(
       await new Promise(resolve => setTimeout(resolve, 20));
     }
 
+    // 先完成回覆顯示
     if (handlers?.onComplete) {
       handlers.onComplete(assistantContent);
+    }
+
+    // 🎯 等回覆完全顯示後，再顯示追問建議
+    // 添加短暫延遲，讓用戶先閱讀回覆
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    if (handlers?.onSuggestions) {
+      handlers.onSuggestions(suggestions);
     }
   } catch (err) {
     console.error("❌ streamChatViaBackend error:", err);

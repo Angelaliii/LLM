@@ -5,7 +5,7 @@ import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
 import { matchKeywords } from '../../config/keywords';
 import { streamChatViaBackend } from '../../services/llmClient';
-import { Send, Loader, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Send, Loader, ChevronRight, CheckCircle2, ArrowLeft } from 'lucide-react';
 import MessageBubble from './subcomponents/MessageBubble';
 import Notebook from '../Notebook';
 import PromptChips from '../PromptChips';
@@ -18,6 +18,11 @@ interface Message {
   role: 'user' | 'npc' | 'system';
   content: string;
   timestamp: string;
+}
+
+interface PromptSuggestion {
+  text: string;
+  type: 'fact' | 'conflict' | 'empathy';
 }
 
 interface NpcData {
@@ -41,6 +46,8 @@ export default function S3_LineStyleChat() {
   const [isInitializingBackground, setIsInitializingBackground] = useState(false);
   const [npcData, setNpcData] = useState<NpcData | null>(null);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [pendingShowCompletionOnNpcFinish, setPendingShowCompletionOnNpcFinish] = useState(false);
+  const [currentSuggestions, setCurrentSuggestions] = useState<PromptSuggestion[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // NPC 資料對應表
@@ -94,6 +101,10 @@ export default function S3_LineStyleChat() {
     const npc = npcMap[selectedNpcId];
     setNpcData(npc);
 
+    // 🔄 切換 NPC 時清空舊的 suggestions
+    setCurrentSuggestions([]);
+    console.log(`🔄 Switched to NPC: ${selectedNpcId}, cleared suggestions`);
+
     // 從 store 讀取該 NPC 的對話記錄
     const existingConversation = conversationsByPersona?.[selectedNpcId];
     if (existingConversation && existingConversation.length > 0) {
@@ -143,6 +154,11 @@ export default function S3_LineStyleChat() {
             
             setIsInitializingBackground(false);
             setIsLoading(false);
+            // 如果之前已達成所有 gap，則在 NPC 回覆完成後立刻顯示 banner
+            if (pendingShowCompletionOnNpcFinish) {
+              setShowCompletionDialog(true);
+              setPendingShowCompletionOnNpcFinish(false);
+            }
           },
           onError: (error) => {
             console.error('Failed to initialize conversation:', error);
@@ -199,6 +215,11 @@ export default function S3_LineStyleChat() {
         npcId: selectedNpcId,
         missionId: currentMissionId,
         handlers: {
+          onSuggestions: (suggestions) => {
+            // 🎯 每次回應都更新 suggestions，不同 NPC 不會共用
+            console.log(`✅ Updated suggestions for ${selectedNpcId}:`, suggestions);
+            setCurrentSuggestions(suggestions);
+          },
           onComplete: (response) => {
             const npcMessage: Message = {
               id: `msg_npc_${Date.now()}`,
@@ -217,6 +238,11 @@ export default function S3_LineStyleChat() {
             actions.updateConversation(selectedNpcId, finalMessages as any);
             
             setIsLoading(false);
+            // 如果之前已達成所有 gap，則在 NPC 回覆完成後立刻顯示 banner
+            if (pendingShowCompletionOnNpcFinish) {
+              setShowCompletionDialog(true);
+              setPendingShowCompletionOnNpcFinish(false);
+            }
           },
           onError: (error) => {
             console.error('Chat error:', error);
@@ -244,12 +270,15 @@ export default function S3_LineStyleChat() {
 
   // 監控調查進度,當所有缺口都解鎖時顯示完成對話框
   useEffect(() => {
-    const allGapsUnlocked = Object.values(informationGaps).every(gap => gap.unlocked === true);
+    // `InformationGap` uses a `status` field ('locked' | 'unlocked' | 'filled').
+    // Treat both 'unlocked' and 'filled' as unlocked for completion checks.
+    const allGapsUnlocked = Object.values(informationGaps).every(gap => gap.status === 'unlocked' || gap.status === 'filled');
     const hasGaps = Object.keys(informationGaps).length > 0;
-    
+
     if (allGapsUnlocked && hasGaps && !showCompletionDialog) {
-      console.log('[S3] All investigation gaps unlocked, showing completion dialog');
-      setShowCompletionDialog(true);
+      console.log('[S3] All investigation gaps unlocked, will show banner after next NPC reply');
+      // Don't show immediately — wait until NPC finishes speaking, then show
+      setPendingShowCompletionOnNpcFinish(true);
     }
   }, [informationGaps, showCompletionDialog]);
 
@@ -316,6 +345,17 @@ export default function S3_LineStyleChat() {
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-br from-amber-50 via-white to-primary-50 flex flex-col">
       <StageNavigation currentStage="S3" />
+      {showCompletionDialog && <div className="h-20" />}
+      
+      {/* 返回按鈕（左上角） */}
+      <button
+        onClick={() => actions.goBack()}
+        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
+        aria-label="返回上一頁"
+      >
+        <ArrowLeft size={18} />
+        <span className="text-sm font-medium hidden sm:inline">返回</span>
+      </button>
       
       {/* LINE 風格雙欄佈局 */}
       <div className="flex-1 flex overflow-hidden mt-4">
@@ -415,11 +455,7 @@ export default function S3_LineStyleChat() {
               <div className="border-t border-gray-200 bg-white shadow-lg p-4">
                 <div className="max-w-4xl mx-auto">
                   <PromptChips
-                    lastNpcMessage={messages[messages.length - 1]?.role === 'npc' ? messages[messages.length - 1]?.content : ''}
-                    lastUserMessage={messages[messages.length - 2]?.role === 'user' ? messages[messages.length - 2]?.content : ''}
-                    conversationHistory={messages.map(m => ({ role: m.role, content: m.content }))}
-                    npcName={npcData.name}
-                    missionId={currentMissionId || 'E2'}
+                    suggestions={currentSuggestions}
                     onChipClick={handlePromptChipClick}
                     disabled={isLoading}
                   />
@@ -466,62 +502,50 @@ export default function S3_LineStyleChat() {
         </div>
       </div>
 
-      {/* 完成對話框 */}
-      <AnimatePresence>
-        {showCompletionDialog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowCompletionDialog(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border-2 border-primary-200"
-            >
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
-                  <CheckCircle2 className="text-primary-600" size={32} />
-                </div>
-                <h3 className="text-2xl font-bold text-dark-900 mb-2">調查階段完成!</h3>
-                <p className="text-dark-600 leading-relaxed">
-                  你已經收集到所有重要線索。現在可以前往下一階段整理這些資料,或是繼續深入調查。
-                </p>
+      {/* 永久可見的完成橫幅（Banner） */}
+      {showCompletionDialog && (
+        <div className="fixed top-0 left-1/2 z-50 transform -translate-x-1/2 w-full max-w-4xl mx-auto px-4">
+          <div className="bg-primary-50 border border-primary-200 rounded-xl shadow-lg p-3 flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="inline-flex items-start justify-center w-12 h-12 bg-primary-100 rounded-full pt-1">
+                <CheckCircle2 className="text-primary-600" size={24} />
               </div>
+              <div>
+                <div className="font-semibold text-dark-900">調查階段完成!</div>
+                <div className="text-sm text-dark-600">你已收集到所有重要線索。現在可以前往下一階段整理，或繼續調查。</div>
+              </div>
+            </div>
 
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    console.log('[S3] User chose to proceed to S4');
-                    actions.goToStage("S4");
-                    missionActions.goToStage("S4");
-                    setShowCompletionDialog(false);
-                  }}
-                  className="w-full px-6 py-3.5 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-all hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <ChevronRight size={20} />
-                  前往整理資料
-                </button>
-                
-                <button
-                  onClick={() => {
-                    console.log('[S3] User chose to continue investigating');
-                    setShowCompletionDialog(false);
-                  }}
-                  className="w-full px-6 py-3.5 bg-white text-dark-700 rounded-xl font-semibold border-2 border-gray-300 hover:bg-gray-50 transition-all active:scale-95"
-                >
-                  繼續調查
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex items-start gap-3">
+              <button
+                onClick={() => {
+                  console.log('[S3] User chose to proceed to S4');
+                  actions.goToStage("S4");
+                  missionActions.goToStage("S4");
+                  setShowCompletionDialog(false);
+                }}
+                className="px-5 py-2.5 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-all"
+              >
+                <ChevronRight size={16} />
+                前往整理資料
+              </button>
+
+              <button
+                onClick={() => {
+                  console.log('[S3] User chose to continue investigating (stay in S3)');
+                  // 明確回到 S3 並關閉橫幅，避免意外跳轉
+                  actions.goToStage("S3");
+                  missionActions.goToStage("S3");
+                  setShowCompletionDialog(false);
+                }}
+                className="px-4 py-2 bg-white text-dark-700 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition-all"
+              >
+                繼續調查
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 筆記本組件 */}
       <Notebook />

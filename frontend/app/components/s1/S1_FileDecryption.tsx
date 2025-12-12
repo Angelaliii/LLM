@@ -8,7 +8,8 @@ import {
   Search,
   BookOpen,
   Feather,
-  History
+  History,
+  ArrowLeft
 } from 'lucide-react';
 
 import './s1.css';
@@ -98,7 +99,6 @@ export default function S1_FileDecryption() {
       // ignore initialization errors
     }
 
-    actions.goToStage("S2");
     if (missionActions && typeof missionActions.goToStage === 'function') {
       missionActions.goToStage("S2");
     }
@@ -113,6 +113,16 @@ export default function S1_FileDecryption() {
 
       <header className="fixed top-0 w-full h-20 bg-[#FDFBF7]/80 backdrop-blur-md z-30 flex items-center justify-between px-8 border-b border-stone-200/60">
         <div className="flex items-center gap-4">
+          {/* 返回按鈕 */}
+          <button
+            onClick={() => actions.goBack()}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-600 hover:text-stone-800"
+            aria-label="返回上一頁"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm font-medium hidden sm:inline">返回</span>
+          </button>
+          
           <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/10">
             <BookOpen size={20} className="text-white" />
           </div>
@@ -272,54 +282,29 @@ export default function S1_FileDecryption() {
             )}
           </motion.div>
 
-          <motion.div 
+           <motion.div 
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.5 }}
-             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-8 flex flex-col justify-center relative overflow-hidden group"
-          >
-             <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-amber-100/50 to-transparent rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-8 flex flex-col justify-center relative overflow-hidden"
+           >
+             <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-amber-100/50 to-transparent rounded-full blur-3xl transition-transform duration-1000" />
 
-             <AnimatePresence mode='wait'>
-              {activeField ? (
-                <motion.div
-                  key={activeField.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="relative z-10"
-                >
-                  <div className="text-xs font-bold text-amber-600 mb-2 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                    Target Analysis
-                  </div>
-                  <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">{activeField.label}</h4>
-                  <p className="text-stone-600 leading-relaxed mb-6 font-serif">
-                    {activeField.hint}
-                  </p>
-                  
-                  <div className="flex items-center gap-2 text-xs font-bold text-stone-400 uppercase tracking-widest">
-                     <div className="h-[1px] w-8 bg-stone-300" />
-                     Waiting for Input
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="empty"
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }}
-                  className="relative z-10 flex flex-col items-center text-center space-y-4"
-                >
-                  <div className="w-16 h-16 rounded-full bg-stone-50 flex items-center justify-center mb-2">
-                      <Search size={24} className="text-stone-300" />
-                  </div>
-                  <p className="text-stone-500 font-serif">
-                      請移動滑鼠至左側<br/>
-                      <span className="text-amber-600 font-bold">迷霧區塊</span> 查看線索
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="relative z-10">
+              <div className="text-xs font-bold text-amber-600 mb-2 uppercase tracking-widest flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                你是誰...
+              </div>
+
+              <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">鈴木先生的自我介紹</h4>
+
+              {/* 身分定位 (從測量員改為文官) */}
+              <p className="text-stone-600 leading-relaxed mb-4 font-serif">
+                鈴木先生，隸屬於臺灣總督府的地方文官，有別於手持警棍的巡查，或操作儀器的測量員，你
+                負責的是民政事務的推行與文書紀錄。
+              </p>
+
+            </div>
           </motion.div>
 
           <motion.button

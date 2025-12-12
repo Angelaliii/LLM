@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, History } from 'lucide-react';
+import { Share2, History, ArrowLeft } from 'lucide-react';
 import { useMissionStore } from '../../store/useMissionStore';
+import { useChatStore } from '../../store/useChatStore';
 
 // --- UTILS ---
 // 獲取並格式化今日日期 (YYYY.MM.DD)
@@ -86,6 +87,7 @@ const MuseumCard = () => {
 
 export default function S5_ViewpointVerification() {
   const missionStore = useMissionStore();
+  const { actions } = useChatStore();
 
   const clearPlayRecords = () => {
     const keys = ['persist:notebook-store', 'persist:mission-store', 'persist:chat-store', 'persist:multi-chat-store'];
@@ -98,6 +100,16 @@ export default function S5_ViewpointVerification() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative flex flex-col">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-amber-100/30 via-transparent to-transparent pointer-events-none" />
+
+      {/* 返回按鈕（左上角） */}
+      <button
+        onClick={() => actions.goBack()}
+        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
+        aria-label="返回上一頁"
+      >
+        <ArrowLeft size={18} />
+        <span className="text-sm font-medium hidden sm:inline">返回</span>
+      </button>
 
       <header className="h-20 flex items-center justify-center px-8 border-b border-stone-200/50 bg-[#FDFBF7]/80 backdrop-blur-md z-50">
         <div>

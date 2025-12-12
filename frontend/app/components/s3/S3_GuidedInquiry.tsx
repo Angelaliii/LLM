@@ -21,6 +21,11 @@ interface Message {
   timestamp: string;
 }
 
+interface PromptSuggestion {
+  text: string;
+  type: 'fact' | 'conflict' | 'empathy';
+}
+
 export default function S3_GuidedInquiry() {
   const { selectedNpcId, conversationsByPersona, actions } = useChatStore();
   const { currentMissionId, currentStageIndex, actions: missionActions } = useMissionStore();
@@ -33,6 +38,7 @@ export default function S3_GuidedInquiry() {
   const [isInitializingBackground, setIsInitializingBackground] = useState(false);
   const [npcData, setNpcData] = useState<any>(null);
   const [showMissionSuccess, setShowMissionSuccess] = useState(false);
+  const [currentSuggestions, setCurrentSuggestions] = useState<PromptSuggestion[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 當所有 gap 都達到 required 時顯示任務完成 modal（只要顯示一次）
@@ -102,6 +108,10 @@ export default function S3_GuidedInquiry() {
     const npc = npcMap[selectedNpcId];
     setNpcData(npc);
 
+    // 🔄 切換 NPC 時清空舊的 suggestions
+    setCurrentSuggestions([]);
+    console.log(`🔄 Switched to NPC: ${selectedNpcId}, cleared suggestions`);
+
     // 從 store 讀取該 NPC 的對話記錄
     const existingConversation = conversationsByPersona?.[selectedNpcId];
     if (existingConversation && existingConversation.length > 0) {
@@ -157,6 +167,11 @@ export default function S3_GuidedInquiry() {
         npcId: selectedNpcId,
         missionId: currentMissionId,
         handlers: {
+          onSuggestions: (suggestions) => {
+            // 🎯 初始化時也要更新 suggestions
+            console.log(`✅ Updated suggestions (init) for ${selectedNpcId}:`, suggestions);
+            setCurrentSuggestions(suggestions);
+          },
           onComplete: (response) => {
             const newMessage: Message = {
               id: `msg_init_${Date.now()}`,
@@ -237,6 +252,11 @@ export default function S3_GuidedInquiry() {
         npcId: selectedNpcId,
         missionId: currentMissionId,
         handlers: {
+          onSuggestions: (suggestions) => {
+            // 🎯 每次回應都更新 suggestions，不同 NPC 不會共用
+            console.log(`✅ Updated suggestions for ${selectedNpcId}:`, suggestions);
+            setCurrentSuggestions(suggestions);
+          },
           onComplete: (response) => {
             const npcMessage: Message = {
               id: `msg_npc_${Date.now()}`,
@@ -428,11 +448,7 @@ export default function S3_GuidedInquiry() {
           <div className="max-w-4xl mx-auto">
             {/* 智能追問引導 */}
             <PromptChips
-              lastNpcMessage={messages[messages.length - 1]?.role === 'npc' ? messages[messages.length - 1]?.content : ''}
-              lastUserMessage={messages[messages.length - 2]?.role === 'user' ? messages[messages.length - 2]?.content : ''}
-              conversationHistory={messages.map(m => ({ role: m.role, content: m.content }))}
-              npcName={npcData.name}
-              missionId={currentMissionId || 'E2'}
+              suggestions={currentSuggestions}
               onChipClick={handlePromptChipClick}
               disabled={isLoading}
             />
