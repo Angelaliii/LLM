@@ -253,8 +253,9 @@ export const useChatStore = create<ChatState>()(
           },
 
           selectMission: async (missionId: string) => {
-            // set mission only, let useMissionStore handle stage transitions
+            // 🔄 修正：設定 ID 後，使用 goToStage("S1") 來確保 S0 被推進堆疊
             set({ missionId, selectedNpcId: null });
+            get().actions.goToStage("S1");
 
             // initialize a fresh session
             get().actions.startNewSession();
@@ -326,6 +327,8 @@ export const useChatStore = create<ChatState>()(
 
           goBack: () => {
             const { navigationStack, missionStage: currentStage } = get();
+            let targetStage: "S0" | "S1" | "S2" | "S3" | "S4" | "S5" = "S0";
+            let newStack: typeof navigationStack = [];
             
             if (navigationStack.length === 0) {
               // No history in stack - use logical fallback based on current stage
@@ -337,26 +340,29 @@ export const useChatStore = create<ChatState>()(
                 "S4": "S3", // Archive repair → Chat
                 "S5": "S4", // Quiz → Archive repair
               };
-              const fallbackStage = fallbackMap[currentStage] || "S0";
-              console.log(`[Navigation] goBack: No stack history, using logical fallback ${currentStage} → ${fallbackStage}`);
-              
-              // 使用 fallback 時也要清空堆疊，避免狀態不一致
-              set({ 
-                missionStage: fallbackStage,
-                navigationStack: [] 
-              });
-              return;
+              targetStage = fallbackMap[currentStage] || "S0";
+              console.log(`[Navigation] goBack: No stack history, using logical fallback ${currentStage} → ${targetStage}`);
+              newStack = [];
+            } else {
+              // Pop and navigate to the last stage in stack
+              newStack = [...navigationStack];
+              targetStage = newStack.pop() || "S0";
+              console.log(`[Navigation] goBack to: ${targetStage}, remaining stack:`, newStack);
             }
             
-            // Pop and navigate to the last stage in stack
-            const newStack = [...navigationStack];
-            const previousStage = newStack.pop() || "S0";
-            
             set({ 
-              missionStage: previousStage,
+              missionStage: targetStage,
               navigationStack: newStack
             });
-            console.log(`[Navigation] goBack to: ${previousStage}, remaining stack:`, newStack);
+
+            // 關鍵修復：同步更新 MissionStore (UI 的真實來源)
+            // 使用動態導入避免循環依賴，並直接使用 setState 避免觸發 goToStage 的副作用循環
+            import('./useMissionStore').then(({ useMissionStore }) => {
+              useMissionStore.setState({ currentStage: targetStage });
+              console.log(`[Navigation] Synced MissionStore to ${targetStage}`);
+            }).catch(err => {
+              console.error('[Navigation] Failed to sync MissionStore:', err);
+            });
           },
 
           selectNpc: (npcId: string) => {
@@ -378,7 +384,8 @@ export const useChatStore = create<ChatState>()(
           },
 
           startQuiz: () => {
-            set({ missionStage: "S5" });
+            // 🔄 修正：使用 goToStage 來確保 S4 進入堆疊
+            get().actions.goToStage("S5");
           },
 
           answerQuiz: (_questionId: string, _answerKey: string) => {
@@ -525,7 +532,9 @@ export const useChatStore = create<ChatState>()(
                           missionId: state.missionId ?? undefined,
                           handlers: {
                             onComplete: (summaryText) => {
-                              set({ hiddenSummary: summaryText, missionStage: 'S4' });
+                              // 🔄 修正：使用 goToStage 來確保堆疊正確
+                              set({ hiddenSummary: summaryText });
+                              get().actions.goToStage('S4');
                               resolve();
                             },
                             onError: (err) => reject(err),
@@ -534,7 +543,8 @@ export const useChatStore = create<ChatState>()(
                       });
                     } catch (e) {
                       // 失敗則仍切換階段，但不一定有 summary
-                      set({ missionStage: 'S4' });
+                      // 🔄 修正：使用 goToStage
+                      get().actions.goToStage('S4');
                     }
                   }
                 }
@@ -551,7 +561,9 @@ export const useChatStore = create<ChatState>()(
 
           // 標示使用者認為調查已經差不多了，前端可在此做後續流程切換
           markInvestigationComplete: () => {
-            set({ investigationComplete: true, missionStage: "S4" });
+            // 🔄 修正：使用 goToStage 來確保 S3 進入堆疊
+            set({ investigationComplete: true });
+            get().actions.goToStage("S4");
           },
 
           retry: async () => {
@@ -597,8 +609,12 @@ export const useChatStore = create<ChatState>()(
           mode: state.mode,
           rigorLevel: state.rigorLevel,
           language: state.language,
-          conversationsByPersona: state.conversationsByPersona, // 🔑 保存每個角色的對話記錄
+          conversationsByPersona: state.conversationsByPersona,
           currentPersonaId: state.currentPersonaId,
+          missionId: state.missionId,
+          missionStage: state.missionStage,
+          navigationStack: state.navigationStack,
+          selectedNpcId: state.selectedNpcId,
         }),
       }
     ),

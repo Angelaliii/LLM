@@ -89,10 +89,9 @@ export default function S2_NpcSelection() {
   const handleSelectNpc = (npcId: string) => {
     setSelectedNpcId(npcId);
     
-    // 立即跳轉到 S3（不需要點「開始訪談」按鈕）
+    // 僅選擇 NPC，不自動跳轉
     actions.selectNpc(npcId);
     missionActions.selectNpc(npcId);
-    missionActions.goToStage("S3");
   };
 
   const handleProceed = () => {
@@ -186,11 +185,18 @@ export default function S2_NpcSelection() {
           </p>
         </motion.div>
 
-        {/* 提示：選擇 NPC 後會立即開始訪談 */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-stone-500 italic">
-            💡 點擊任一 NPC 卡片即可立即開始訪談
-          </p>
+        {/* 底部按鈕區 */}
+        <div className="flex justify-center gap-4 mt-8">
+          <button
+            onClick={handleProceed}
+            disabled={!selectedNpcId}
+            className={`s2-btn-primary flex items-center gap-2 ${
+              !selectedNpcId ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <span>開始訪談</span>
+            <ArrowRight size={20} />
+          </button>
         </div>
       </div>
     </div>
