@@ -171,10 +171,28 @@ export default function Notebook({ className = '' }: NotebookProps) {
               className="space-y-3"
             >
               {mission ? (
-                <div className="prose prose-sm text-sm text-gray-700">
-                  <p>
-                    在日治初期，日本總督府透過MISSING DATA等法律工具，對臺灣進行深入的制度改造。其中，MISSING DATA成為推行土地調查與權力控制的關鍵群體
-                  </p>
+                <div className="space-y-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+                      <span className="text-lg">📜</span>
+                      任務背景
+                    </h3>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      在日治初期，日本總督府透過
+                      <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
+                        ❓ 缺漏資料
+                      </span>
+                      等法律工具，對臺灣進行深入的制度改造。其中，
+                      <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
+                        ❓ 缺漏資料
+                      </span>
+                      成為推行土地調查與權力控制的關鍵群體
+                    </p>
+                  </div>
+                  <div className="text-xs text-gray-500 italic flex items-center gap-2">
+                    <span>💡</span>
+                    <span>透過與 NPC 對話收集線索，填補缺漏的歷史資料</span>
+                  </div>
                 </div>
               ) : (
                 <div className="text-sm text-gray-500">無法載入任務故事</div>

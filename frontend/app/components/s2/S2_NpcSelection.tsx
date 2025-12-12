@@ -87,21 +87,20 @@ export default function S2_NpcSelection() {
   }, [mission]);
 
   const handleSelectNpc = (npcId: string) => {
+    // 只在本地標記為已選中，避免立刻改變 MissionStore 的 currentStage
     setSelectedNpcId(npcId);
-    
-    // 僅選擇 NPC，不自動跳轉
+    // 更新 chat store 的選擇上下文（不變更 MissionStore 階段）
     actions.selectNpc(npcId);
-    missionActions.selectNpc(npcId);
   };
 
   const handleProceed = () => {
     if (!selectedNpcId) return;
     
     // 保存選擇的 NPC 到兩個 store
+    // 先更新 chat store
     actions.selectNpc(selectedNpcId);
-    missionActions.selectNpc(selectedNpcId);
-    
-    // 轉移到 S3（對話階段）
+
+    // 使用 mission store 的 goToStage 來同步兩邊的階段（MissionStore 會同步更新 ChatStore）
     missionActions.goToStage("S3");
   };
 
@@ -128,34 +127,45 @@ export default function S2_NpcSelection() {
     <div className="s2-root bg-gradient-to-br from-amber-50 via-white to-primary-50 py-8">
       <StageNavigation currentStage="S2" />
       
-      {/* 返回按鈕（左上角） */}
-      <button
-        onClick={() => actions.goBack()}
-        className="fixed top-24 left-8 z-20 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
-        aria-label="返回上一頁"
-      >
-        <ArrowLeft size={18} />
-        <span className="text-sm font-medium hidden sm:inline">返回</span>
-      </button>
+      {/* 返回按鈕：已移入標題列內以保持同一排顯示 */}
       
       <div className="s2-container">
         {/* 頂部標題區 */}
         <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="s2-title">
-            選擇調查對象
-          </h1>
-          <p className="s2-subtitle">
-            {currentStage.question}
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-amber-600 text-sm font-semibold">
-            <Info size={16} />
-            <span>每位 NPC 掌握不同的關鍵資訊</span>
-          </div>
-        </motion.div>
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="grid grid-cols-3 items-center">
+              {/* left: back button */}
+              <div className="flex items-center">
+                <button
+                  onClick={() => actions.goBack()}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
+                  aria-label="返回上一頁"
+                >
+                  <ArrowLeft size={18} />
+                  <span className="text-sm font-medium hidden sm:inline">返回</span>
+                </button>
+              </div>
+
+              {/* center: title */}
+              <div className="flex justify-center">
+                <div className="text-center">
+                  <h1 className="s2-title">選擇調查對象</h1>
+                  <p className="s2-subtitle">{currentStage.question}</p>
+                </div>
+              </div>
+
+              {/* right: info / spacer */}
+              <div className="flex items-center justify-end">
+                <div className="hidden sm:flex items-center gap-2 text-amber-600 text-sm font-semibold">
+                  <Info size={16} />
+                  <span>每位 NPC 掌握不同的關鍵資訊</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
 
         {/* NPC 卡片網格 */}
         <div className="s2-npc-grid">

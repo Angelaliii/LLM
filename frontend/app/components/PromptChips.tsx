@@ -75,8 +75,7 @@ export default function PromptChips({
     <div className="mb-4">
       <div className="flex items-center gap-2 mb-3">
         <MessageCircle size={16} className="text-gray-500" />
-        <span className="text-sm text-gray-600 font-medium">智能追問建議</span>
-        <span className="text-xs text-gray-400">（LLM 搭便車生成）</span>
+        <span className="text-sm text-gray-600 font-medium">追問建議</span>
       </div>
       
       <AnimatePresence>

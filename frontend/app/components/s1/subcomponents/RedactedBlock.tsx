@@ -14,7 +14,7 @@ export default function RedactedBlock({ field, isHovered, onHover }: RedactedBlo
 
   return (
     <motion.span
-      className={`relative inline-flex items-center justify-center h-8 mx-1 px-4 rounded-md cursor-help align-middle transition-all duration-500 overflow-hidden ${
+      className={`relative inline-flex items-center justify-center h-8 mx-1 px-4 rounded-md cursor-help align-middle transition-all duration-500 overflow-hidden whitespace-nowrap min-w-[9rem] ${
         isHovered 
           ? 'bg-amber-100/50 text-amber-800 shadow-sm border border-amber-200' 
           : 'bg-stone-200/50 text-stone-400 border border-transparent'

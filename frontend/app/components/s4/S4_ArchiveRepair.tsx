@@ -203,10 +203,11 @@ export default function S4_ArchiveRepair() {
     console.info('[S4] useEffect triggered - progress:', progress, 'autoProgressedRef.current:', autoProgressedRef.current);
     
     if (progress === 100 && !autoProgressedRef.current) {
-      console.info('[S4] ✅ Setting up auto-transition timer (800ms)');
+      console.info('[S4] ✅ Setting up auto-transition timer (2400ms)');
       autoProgressedRef.current = true;
       
       // 等動畫顯示一段時間後自動跳轉（800ms 讓用戶看到完成動畫）
+      // 改為 1200ms，給使用者更明顯的完成動畫與蓋章效果
       const t = setTimeout(() => {
         // 進入 S5（測驗）- 只調用 missionActions，它會自動同步到 ChatStore
         console.info('[S4] ⏰ auto-transition timeout reached, goToStage S5');
@@ -216,7 +217,7 @@ export default function S4_ArchiveRepair() {
         } catch (e) {
           console.warn('[S4] ❌ missionStore.actions.goToStage failed', e);
         }
-      }, 800);
+      }, 2400);
 
       return () => {
         console.info('[S4] Clearing auto-transition timer');

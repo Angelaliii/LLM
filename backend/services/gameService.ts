@@ -20,12 +20,11 @@ const NPC_MAPPING: Record<string, { file: string; name: string; role: string }> 
 };
 
 // 初始化全域 PersonaCache 實例
-// 可透過 npcConfig 覆寫設定（未來擴展）
 const personaCache: PersonaCache = createPersonaCache({
-  strategy: 'lazy',  // 預設 lazy load
-  ttlMs: 5 * 60 * 1000,  // 5 分鐘 TTL
-  preload: false,    // 不預載，按需載入
-  watchFs: false     // 不監控檔案變動（生產環境可能不需要）
+  strategy: 'lazy',
+  ttlMs: 5 * 60 * 1000,
+  preload: false,
+  watchFs: false
 });
 
 /**
@@ -112,7 +111,7 @@ function loadPlayerPersona(storyId: string = 'jp_story_01_early_rule'): any {
 }
 
 /**
- * 建構完整的 System Prompt (強化版 + 記憶管理)
+ * 建構完整的 System Prompt
  * 
  * 處理流程:
  * 1. 載入 NPC PERSONA 檔案 (個性、語氣、知識範圍)
@@ -647,25 +646,28 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
       console.warn(`⚠️  Response B quality issues: ${qualityCheckB.issues.join(', ')}`);
     }
 
-    // 檢查是否達成關鍵點
+    // 🔧 5. 清理標籤並提取追問建議（搭便車模式）
+    const { cleanedText: cleanPrimaryResponse, suggestions: suggestionsA } = cleanAndExtractTags(primaryResponse);
+    const { cleanedText: cleanResponseB, suggestions: suggestionsB } = cleanAndExtractTags(responseB);
+
+    // 檢查是否達成關鍵點（使用已清理的 primary response）
     const keyPointAchieved = checkKeyPointAchieved(
       message,
-      primaryResponse,
-      filteredHistory
+      cleanPrimaryResponse,
+      keyPoints
     );
 
     // 檢查是否解鎖 Stage
-    const stageUnlocked = checkStageUnlock(message, filteredHistory.length);
+    const stageUnlocked = checkStageUnlock(
+      keyPoints,
+      keyPointAchieved
+    );
 
     // 獲取使用的知識
     const knowledgeUsed = await searchKnowledge(message, {
       npcRole: npcInfo.role,
       topK: 2
     });
-
-    // 🔧 5. 清理標籤並提取追問建議（搭便車模式）
-    const { cleanedText: cleanPrimaryResponse, suggestions: suggestionsA } = cleanAndExtractTags(primaryResponse);
-    const { cleanedText: cleanResponseB, suggestions: suggestionsB } = cleanAndExtractTags(responseB);
 
     // 優先使用第一個回應的 suggestions，如果沒有則使用第二個
     const finalSuggestions = suggestionsA || suggestionsB || undefined;
@@ -868,108 +870,85 @@ function checkResponseQuality(
 function checkKeyPointAchieved(
   userMessage: string, 
   assistantResponse: string,
-  conversationHistory: Array<{ role: string; content: string }>
+  existingKeyPoints: any[] = [], 
 ): { id: string; title: string; description: string } | null {
   // 使用集中管理的 KEYWORDS 並補充任務特有詞彙
   const keyPoints = [
-    {
-      id: 'kp1',
-      title: '警察的角色',
-      description: '了解殖民警察在台灣社會中扮演的多重角色',
-      keywords: [
-        // 包含警察與官方相關詞 + 補充詞
-        ...(KEYWORDS.government || []),
-        '權力', '控制', '巡查', '維持秩序'
-      ]
-    },
-    {
-      id: 'kp2',
-      title: '保甲制度',
-      description: '認識保甲制度如何輔助警察控制',
-      keywords: ['保甲', '甲長', '十戶', '壯丁團', '連帶責任']
-    },
-    {
-      id: 'kp3',
-      title: '連坐處罰',
-      description: '理解連坐制度對民眾的影響',
-      keywords: ['連坐', '處罰', '連帶', '責任', '懲罰']
-    },
-    {
-      id: 'kp4',
-      title: '土地調查',
-      description: '了解土地調查如何改變土地制度',
-      keywords: [
-        ...(KEYWORDS.economy || []),
-        '地籍', '測量', '土地權'
-      ]
-    },
-    {
-      id: 'kp5',
-      title: '專賣制度',
-      description: '探索專賣制度對經濟的影響',
-      keywords: [
-        ...(KEYWORDS.economy || []),
-        '食鹽', '菸草'
-      ]
-    }
-  ];
+      {
+        id: 'kp1',
+        title: '六三法 (總督專制)',
+        description: '了解總督擁有的特殊立法權',
+        keywords: ['權力', '命令', '立法', '議會', '專制', '頒布', '特殊'],
+        // 必備詞：六三法相關
+        mustMatch: ['六三法', '法律第六十三號', '63法', '緊急律令', '第63號']
+      },
+      {
+        id: 'kp2',
+        title: '警察制度 (含保甲連坐)',
+        description: '認識警察權力、保甲制度與連坐法',
+        keywords: ['控制', '監視', '警察', '協助', '十戶', '連帶', '責任'],
+        // 必備詞：警察/保甲/連坐相關 (只要出現任一概念就算拿到)
+        mustMatch: ['保甲', '甲長', '壯丁團', '犯罪即決', '連坐', '警察大人', '巡查']
+      }
+    ];
 
-  // 檢查對話中是否提到相關關鍵詞
-  const combinedText = userMessage + ' ' + assistantResponse;
-  
-  for (const kp of keyPoints) {
-    const matchCount = kp.keywords.filter(keyword => 
-      combinedText.includes(keyword)
-    ).length;
+// 提取已獲得的線索 ID 列表
+    const achievedIds = new Set(existingKeyPoints.map(k => k.id));
+    const combinedText = userMessage + ' ' + assistantResponse;
     
-    // 如果匹配到 2 個以上關鍵詞，視為達成該關鍵點
-    if (matchCount >= 2) {
-      // 檢查是否已經達成過（簡單檢查歷史中是否多次出現）
-      const historyMentions = conversationHistory.filter(msg => 
-        kp.keywords.some(keyword => msg.content.includes(keyword))
-      ).length;
-      
-      // 如果歷史中提到不超過 2 次，視為新達成
-      if (historyMentions <= 2) {
-        console.log(`🌟 Key point achieved: ${kp.title} (matched: ${matchCount} keywords)`);
-        return kp;
+for (const kp of keyPoints) {
+    // 如果已經獲得過，直接跳過
+    if (achievedIds.has(kp.id)) continue;
+
+    // 1. 嚴格必備詞檢查
+    let hit = false;
+    if (kp.mustMatch && kp.mustMatch.length > 0) {
+      if (kp.mustMatch.some(word => combinedText.includes(word))) {
+        hit = true;
       }
     }
+
+    // 2. 輔助關鍵字檢查 (如果通過必備詞就不用管這個，或者是輔助判斷)
+    // 為了簡單，只要必備詞中了就給過
+    if (hit) {
+      console.log(`🌟 Key point achieved: ${kp.title}`);
+      return {
+        id: kp.id,
+        title: kp.title,
+        description: kp.description
+      };
+    }
   }
   
   return null;
 }
-
-/**
- * 檢查是否解鎖下一階段 (簡化版)
+  /**
+ * 檢查是否解鎖下一階段 (基於線索累積)
+ * 邏輯：蒐集完該階段所有線索 -> 解鎖下一階段
  */
-function checkStageUnlock(userMessage: string, conversationTurns: number): string | null {
-  // 組合階段檢查關鍵詞，使用後端 KEYWORDS 並補充任務關鍵詞
-  const stageKeywords: Record<string, string[]> = {
-    'stage_1_intro': [
-      ...(KEYWORDS.law || []),
-      '總督專制'
-    ],
-    'stage_2_power': [
-      ...(KEYWORDS.government || []),
-      '保甲', '保甲制度', '連坐', '警察政治'
-    ],
-    'stage_3_finance': [
-      ...(KEYWORDS.economy || []),
-      '田賦', '財政'
-    ]
-  };
+function checkStageUnlock(
+  existingKeyPoints: any[], 
+  newKeyPoint: any | null
+): string | null {
+  
+  // 建立當前所有線索的 ID 集合
+const currentKeyPointIds = new Set(existingKeyPoints.map(k => k.id));
+  if (newKeyPoint) {
+    currentKeyPointIds.add(newKeyPoint.id);
+  }
+  
+  const count = currentKeyPointIds.size; // 總蒐集數
 
-  for (const [stageId, words] of Object.entries(stageKeywords)) {
-    const matchCount = words.filter(word => userMessage.includes(word)).length;
-    if (matchCount >= 2) {
-      return stageId;
-    }
+  // 2. 判斷是否達成通關標準
+  // 總共有 2 個關鍵線索 (kp1, kp2)
+  // 只要蒐集滿 2 個，直接進入 S4 (整理/結算/過關)
+  if (count >= 2) {
+    return 'S4';
   }
 
+  // 其他情況 (0個或1個) 都不做任何階段切換，讓玩家繼續對話
   return null;
 }
-
 /**
  * 生成提示
  */

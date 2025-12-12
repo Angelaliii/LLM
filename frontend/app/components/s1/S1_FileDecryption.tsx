@@ -45,16 +45,15 @@ const FALLBACK_MISSION: S1MissionData = {
     "檔案編號：LAW-1905-SIXCODES",
     "在日治初期，日本總督府透過",
     { type: 'redacted', id: 'field_1' },
-    "等法律工具，對臺灣進行深入的制度改造。其中，",
+    "等法律工具，對臺灣進行深入的制度改造。",
+    "其中，",
     { type: 'redacted', id: 'field_2' },
-    "成為推行土地調查與權力控制的關鍵群體",
-    // { type: 'redacted', id: 'field_3' },
-    // "造成了深遠的影響。"
+    "成為推行土地調查與權力控制的關鍵，透過系統性的調查與登記，",
+    "造成了深遠的影響，改變了臺灣社會的權力結構與土地關係。"
   ],
   redactedFields: [
     { id: 'field_1', label: '法律制度', hint: '日本在臺灣建立的特殊法律體系', status: 'missing' },
-    { id: 'field_2', label: '執行機構', hint: '負責推行政策的基層', status: 'missing' },
-    // { id: 'field_3', label: '影響對象', hint: '受到政策直接影響的人群或區域', status: 'missing' }
+    { id: 'field_2', label: '執行機構', hint: '負責推行政策的基層', status: 'missing' }
   ]
 };
 
@@ -67,8 +66,12 @@ export default function S1_FileDecryption() {
   const [hoveredFieldId, setHoveredFieldId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  // Type assertion: use S1MissionData type for the mission data
-  const missionData: S1MissionData = (mission as any) || FALLBACK_MISSION;
+  // Type assertion: prefer mission only if it provides the expected content structure
+  // otherwise fall back to the embedded `FALLBACK_MISSION` which contains
+  // `contentTemplate` and `redactedFields` used by this view.
+  const missionData: S1MissionData = (mission && (mission as any).contentTemplate && (mission as any).contentTemplate.length)
+    ? (mission as any)
+    : FALLBACK_MISSION;
 
   useEffect(() => {
     let interval: any;
@@ -105,7 +108,7 @@ export default function S1_FileDecryption() {
   };
 
   return (
-    <div className="h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative">
+    <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-auto relative">
       <StageNavigation currentStage="S1" />
       
       <div className="absolute inset-0 bg-stone-100 opacity-50 mix-blend-multiply pointer-events-none paper-pattern" />
@@ -133,35 +136,32 @@ export default function S1_FileDecryption() {
         </div>
         
         <div className="flex items-center gap-3">
-           <div className={`px-4 py-1.5 rounded-full border transition-all duration-500 flex items-center gap-2 ${isScanning ? 'bg-stone-100 border-stone-200' : 'bg-red-50 border-red-200 text-red-800'}`}>
-             <span className={`w-2 h-2 rounded-full ${isScanning ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></span>
-             <span className="text-xs font-semibold tracking-wide">
-               {isScanning ? '檔案修復中...' : '偵測到歷史斷層'}
-             </span>
-           </div>
+          {/* status badge removed per design request */}
         </div>
       </header>
 
-      <main className="pt-32 pb-16 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10 overflow-hidden h-full">
-        
-        <div className="lg:col-span-8 perspective-1000">
+      <main className="px-6 relative z-10">
+        <div className="min-h-[calc(100vh-5rem)] flex items-center pt-20">
+          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 pt-6 pb-6">
+
+            <div className="lg:col-span-8 perspective-1000">
           <motion.div 
             initial={fadeInRotateX.initial}
             animate={fadeInRotateX.animate}
             transition={fadeInRotateX.transition}
             className="bg-white rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-stone-100 overflow-hidden relative"
-            style={{ maxHeight: 'calc(100vh - 160px)', overflow: 'auto' }}
+            style={{ overflow: 'visible' }}
           >
             <div className="h-2 bg-gradient-to-r from-stone-200 via-amber-100 to-stone-200" />
             
-            <div className="p-10 md:p-16 relative">
+            <div className="p-4 md:p-8 relative">
               
               <AnimatePresence>
                 {isScanning && (
                   <motion.div 
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-[#FDFBF7] z-20 flex items-center justify-center backdrop-blur-[1px]"
+                    className="absolute inset-0 bg-white/30 z-20 flex items-center justify-center backdrop-blur-sm"
                   >
                     <RestoreLoader progress={progress} />
                   </motion.div>
@@ -172,9 +172,9 @@ export default function S1_FileDecryption() {
                  <Feather size={200} />
               </div>
 
-              <div className="mb-12 border-b-2 border-stone-100 pb-6 flex justify-between items-end">
+              <div className="mb-6 border-b-2 border-stone-100 pb-3 flex justify-between items-end">
                 <div>
-                    <h2 className="text-4xl font-serif font-bold text-stone-800 mb-3 leading-tight">
+                    <h2 className="text-3xl font-serif font-bold text-stone-800 mb-2 leading-tight">
                         {missionData.title}
                     </h2>
                     <p className="text-stone-500 font-sans text-sm flex items-center gap-2">
@@ -199,10 +199,10 @@ export default function S1_FileDecryption() {
                         return (
                           <motion.div
                             key={index}
-                            initial={{ opacity: 0, filter: 'blur(4px)' }}
-                            animate={!isScanning ? { opacity: 1, filter: 'blur(0px)' } : {}}
-                            transition={{ duration: 0.9, delay: index * 0.05 }}
-                            className="block mb-4 text-sm text-stone-600 font-mono"
+                            initial={{ opacity: 1, filter: 'blur(4px)' }}
+                            animate={isScanning ? { opacity: 1, filter: 'blur(4px)' } : { opacity: 1, filter: 'blur(0px)' }}
+                            transition={{ duration: 0.6, delay: index * 0.05 }}
+                            className="block mb-2 text-sm text-stone-600 font-mono"
                           >
                             {part}
                           </motion.div>
@@ -212,9 +212,9 @@ export default function S1_FileDecryption() {
                       return (
                         <motion.span 
                           key={index}
-                          initial={{ opacity: 0, filter: 'blur(4px)' }}
-                          animate={!isScanning ? { opacity: 1, filter: 'blur(0px)' } : {}}
-                          transition={{ duration: 1.5, delay: index * 0.08 }}
+                          initial={{ opacity: 1, filter: 'blur(4px)' }}
+                          animate={isScanning ? { opacity: 1, filter: 'blur(4px)' } : { opacity: 1, filter: 'blur(0px)' }}
+                          transition={{ duration: 0.45, delay: index * 0.04 }}
                           className="inline-block mr-2 whitespace-pre-wrap"
                         >
                           {part}
@@ -237,7 +237,7 @@ export default function S1_FileDecryption() {
                 </div>
               </div>
 
-              <div className="mt-20 flex justify-end opacity-60">
+              <div className="mt-8 flex justify-end opacity-60">
                  <div className="border border-stone-300 p-4 w-32 h-32 flex items-center justify-center rounded-full rotate-[-12deg]">
                     <span className="text-xs font-serif text-amber-900/50 uppercase tracking-widest text-center">
                         Imperial<br/>Archive<br/>Verified
@@ -248,14 +248,14 @@ export default function S1_FileDecryption() {
           </motion.div>
         </div>
 
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col gap-4">
           
-          <motion.div 
+           <motion.div 
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.3 }}
-             className="bg-white/60 backdrop-blur-xl border border-white/50 shadow-sm rounded-2xl p-6"
-          >
+             className="bg-white/60 backdrop-blur-xl border border-white/50 shadow-sm rounded-2xl p-3"
+           >
             <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-stone-100 rounded-full text-stone-600">
                     <Search size={18} />
@@ -286,7 +286,7 @@ export default function S1_FileDecryption() {
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.5 }}
-             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-8 flex flex-col justify-center relative overflow-hidden"
+             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-4 flex flex-col justify-center relative overflow-hidden"
            >
              <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-amber-100/50 to-transparent rounded-full blur-3xl transition-transform duration-1000" />
 
@@ -307,27 +307,31 @@ export default function S1_FileDecryption() {
             </div>
           </motion.div>
 
-          <motion.button
-            onClick={handleStartInvestigation}
-            disabled={isScanning}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`w-full py-5 rounded-xl shadow-lg flex items-center justify-center gap-3 text-white font-bold tracking-wide transition-all duration-300 ${
-              isScanning 
-                ? 'bg-stone-300 cursor-not-allowed' 
-                : 'bg-[#2C2420] hover:bg-[#433833] shadow-amber-900/20'
-            }`}
-          >
-            {isScanning ? (
-                <span className="text-stone-500">系統運算中...</span>
-            ) : (
-                <>
-                    <span>開始歷史調查</span>
-                    <ArrowRight size={18} className="text-amber-500" />
-                </>
-            )}
-          </motion.button>
+          <div className="sticky bottom-4 z-40">
+            <motion.button
+              onClick={handleStartInvestigation}
+              disabled={isScanning}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`w-full py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 text-white font-bold tracking-wide transition-all duration-300 ${
+                isScanning 
+                  ? 'bg-stone-300 cursor-not-allowed' 
+                  : 'bg-[#2C2420] hover:bg-[#433833] shadow-amber-900/20'
+              }`}
+            >
+              {isScanning ? (
+                  <span className="text-stone-500">系統運算中...</span>
+              ) : (
+                  <>
+                      <span>開始歷史調查</span>
+                      <ArrowRight size={18} className="text-amber-500" />
+                  </>
+              )}
+            </motion.button>
+          </div>
 
+            </div>
+          </div>
         </div>
       </main>
     </div>

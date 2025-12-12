@@ -46,6 +46,7 @@ export default function S3_LineStyleChat() {
   const [isInitializingBackground, setIsInitializingBackground] = useState(false);
   const [npcData, setNpcData] = useState<NpcData | null>(null);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [showMinimizedBanner, setShowMinimizedBanner] = useState(false);
   const [pendingShowCompletionOnNpcFinish, setPendingShowCompletionOnNpcFinish] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState<PromptSuggestion[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -276,11 +277,45 @@ export default function S3_LineStyleChat() {
     const hasGaps = Object.keys(informationGaps).length > 0;
 
     if (allGapsUnlocked && hasGaps && !showCompletionDialog) {
-      console.log('[S3] All investigation gaps unlocked, will show banner after next NPC reply');
-      // Don't show immediately — wait until NPC finishes speaking, then show
-      setPendingShowCompletionOnNpcFinish(true);
+      const clueCount = Object.keys(collectedClues).length;
+      console.log(`[S3] All gaps unlocked; collected clues: ${clueCount}`);
+      // Only schedule the completion banner if we have at least 2 key clues
+      if (clueCount >= 2) {
+        console.log('[S3] Enough clues -> will show banner after next NPC reply');
+        setPendingShowCompletionOnNpcFinish(true);
+      } else {
+        console.log('[S3] Not enough clues yet to show completion banner');
+      }
     }
   }, [informationGaps, showCompletionDialog]);
+
+  // 如果顯示完成橫幅但使用者沒有互動，過一段時間自動縮小成右上角按鈕，確保使用者能看見縮小的入口
+  useEffect(() => {
+    if (!showCompletionDialog) return;
+    const timer = setTimeout(() => {
+      // 若仍在顯示橫幅，就最小化（保留還原按鈕）
+      setShowCompletionDialog(false);
+      setShowMinimizedBanner(true);
+    }, 6000);
+
+    return () => clearTimeout(timer);
+  }, [showCompletionDialog]);
+
+  // Restore banner/minimized button when returning to S3 if conditions still hold
+  useEffect(() => {
+    // If there's already a visible banner or minimized button, nothing to do
+    if (showCompletionDialog || showMinimizedBanner) return;
+
+    const allGapsUnlocked = Object.values(informationGaps).every(gap => gap.status === 'unlocked' || gap.status === 'filled');
+    const clueCount = Object.keys(collectedClues).length;
+
+    // If user has >=2 key clues and all gaps are unlocked, restore the banner
+    if (allGapsUnlocked && clueCount >= 2) {
+      console.log('[S3] Restoring completion banner on return — clues:', clueCount);
+      // Show minimized banner by default to avoid interrupting current conversation
+      setShowMinimizedBanner(true);
+    }
+  }, [currentMissionId, Object.keys(collectedClues).length, Object.keys(informationGaps).length]);
 
   const detectAndAddClues = (npcMessage: string, npcName: string, userQuestion: string) => {
     const { categories, matches } = matchKeywords(npcMessage || '');
@@ -308,6 +343,14 @@ export default function S3_LineStyleChat() {
       const stageId = mission.stages?.[currentStageIndex]?.id || mission.stages?.[0]?.id || 'stage_1_intro';
       try {
         missionActions.updateStageProgress(stageId, matches);
+        // 若進度更新同時產生新線索，計算更新後的線索總數，只有在 >=2 時才顯示完成橫幅
+        const beforeCount = existingClueTexts.size;
+        const afterCount = beforeCount + newClues.length;
+        console.log(`[S3] Stage progress updated; clues before=${beforeCount}, new=${newClues.length}, after=${afterCount}`);
+        if (!showCompletionDialog && !pendingShowCompletionOnNpcFinish && afterCount >= 2) {
+          console.log('[S3] Enough clues after update -> will show completion banner after NPC reply');
+          setPendingShowCompletionOnNpcFinish(true);
+        }
       } catch (e) {
         console.warn('[S3] Failed to update stage progress', e);
       }
@@ -343,9 +386,9 @@ export default function S3_LineStyleChat() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-amber-50 via-white to-primary-50 flex flex-col">
+    <div className="h-screen overflow-hidden bg-white flex flex-col">
       <StageNavigation currentStage="S3" />
-      {showCompletionDialog && <div className="h-20" />}
+      {/* remove spacer — banner is fixed and should not push content down */}
       
       {/* 返回按鈕（左上角） */}
       <button
@@ -361,10 +404,10 @@ export default function S3_LineStyleChat() {
       <div className="flex-1 flex overflow-hidden mt-4">
         {/* 左側：角色選擇欄 */}
         <div className="w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="font-bold text-base lg:text-lg text-dark-900">調查對象</h2>
-            <p className="text-xs lg:text-sm text-dark-600 mt-1">選擇要訪談的角色</p>
-          </div>
+          <div className="pl-8 pt-16 pb-4 border-b border-gray-200">
+              <h2 className="font-bold text-base lg:text-lg text-dark-900">調查對象</h2>
+              <p className="text-xs lg:text-sm text-dark-600 mt-1">選擇要訪談的角色</p>
+            </div>
           
           <div className="flex-1 overflow-y-auto p-2">
             {availableNpcs.map((npc) => (
@@ -517,26 +560,25 @@ export default function S3_LineStyleChat() {
             </div>
 
               <div className="flex items-start gap-3">
-              <button
+                <button
                 onClick={() => {
                   console.log('[S3] User chose to proceed to S4');
                   actions.goToStage("S4");
                   missionActions.goToStage("S4");
                   setShowCompletionDialog(false);
                 }}
-                className="px-5 py-2.5 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-all"
+                className="px-5 py-2.5 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-all flex items-center gap-2"
               >
                 <ChevronRight size={16} />
-                前往整理資料
+                <span>前往整理資料</span>
               </button>
 
               <button
                 onClick={() => {
-                  console.log('[S3] User chose to continue investigating (stay in S3)');
-                  // 明確回到 S3 並關閉橫幅，避免意外跳轉
-                  actions.goToStage("S3");
-                  missionActions.goToStage("S3");
+                  console.log('[S3] User chose to continue investigating (minimize banner)');
+                  // 關閉橫幅並縮到右上角的最小按鈕
                   setShowCompletionDialog(false);
+                  setShowMinimizedBanner(true);
                 }}
                 className="px-4 py-2 bg-white text-dark-700 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition-all"
               >
@@ -546,6 +588,27 @@ export default function S3_LineStyleChat() {
           </div>
         </div>
       )}
+
+      {/* 縮小後的最小按鈕（右上角） */}
+      <AnimatePresence>
+        {showMinimizedBanner && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, x: 20, y: -10 }}
+            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: 20, y: -10 }}
+            transition={{ duration: 0.18 }}
+            onClick={() => {
+              setShowCompletionDialog(true);
+              setShowMinimizedBanner(false);
+            }}
+            className="fixed top-6 right-6 z-50 bg-primary-50 border border-primary-200 text-primary-700 px-3 py-2 rounded-lg shadow-md flex items-center gap-2"
+            aria-label="還原完成橫幅"
+          >
+            <CheckCircle2 size={16} className="text-primary-600" />
+            <span className="text-sm font-medium">完成 — 繼續</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* 筆記本組件 */}
       <Notebook />
