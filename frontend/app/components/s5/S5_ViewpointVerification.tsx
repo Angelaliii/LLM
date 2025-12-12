@@ -110,8 +110,7 @@ export default function S5_ViewpointVerification() {
         }
       });
 
-      // clear sessionStorage as well (defensive)
-      try { sessionStorage.clear(); } catch (e) { /* ignore */ }
+      // do not clear sessionStorage here (preserve any temp startup flags)
 
       const removed = (result && (result as any).removed) ? [(result as any).removed, ...extraRemoved].flat() : extraRemoved;
       console.log('clearPlayRecords removed:', removed);
@@ -124,10 +123,17 @@ export default function S5_ViewpointVerification() {
 
   const handleResetAndReload = async (targetStage: 'S1' | 'S0') => {
     try {
+      // Preserve desired initial stage and mission id across reload using sessionStorage
+      try {
+        sessionStorage.setItem('initial-stage', targetStage);
+        const curMission = missionStore.currentMissionId;
+        if (curMission) sessionStorage.setItem('initial-mission', curMission);
+      } catch (e) { /* ignore */ }
+
       // Centralized clear
       const result = clearGameData();
 
-      // extra defensive removals
+      // extra defensive removals (do not clear sessionStorage so initial-stage survives)
       const removedExtra: string[] = [];
       Object.keys(localStorage).forEach((k) => {
         if (/store|persist/i.test(k)) {
@@ -135,7 +141,7 @@ export default function S5_ViewpointVerification() {
           removedExtra.push(k);
         }
       });
-      try { sessionStorage.clear(); } catch (e) { /* ignore */ }
+      // do NOT clear sessionStorage here; we depend on 'initial-stage' being present after reload
 
       // Ensure in-memory stores are reset
       try { useNotebookStore.getState().actions.resetNotebook(); } catch (e) {}

@@ -13,6 +13,20 @@ const AppMain: React.FC = () => {
   const [isInitialized, setIsInitialized] = React.useState(false);
 
   useEffect(() => {
+    // Check for a short-lived startup instruction (set by S5 reset flow)
+    try {
+      const startupStage = sessionStorage.getItem('initial-stage');
+      const startupMission = sessionStorage.getItem('initial-mission');
+      if (startupStage && ['S0','S1','S2','S3','S4','S5'].includes(startupStage)) {
+        // apply startup stage and mission before UI renders to avoid flashing old state
+        useMissionStore.setState({ currentStage: startupStage as any, currentMissionId: startupMission || null });
+        // cleanup the temp keys
+        sessionStorage.removeItem('initial-stage');
+        sessionStorage.removeItem('initial-mission');
+      }
+    } catch (e) {
+      // ignore
+    }
     // 初始化時確保在正確的階段
     if (!isInitialized) {
       // 強化狀態驗證：檢查 S3 狀態的完整性

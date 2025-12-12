@@ -112,6 +112,23 @@ export default function S3_GuidedInquiry() {
     setCurrentSuggestions([]);
     console.log(`🔄 Switched to NPC: ${selectedNpcId}, cleared suggestions`);
 
+    // 若是透過 S5 的重新啟動導向（sessionStorage.initial-stage）進入，
+    // 強制清除儲存記錄以避免舊訊息短暫閃現
+    const initialStageFlag = sessionStorage.getItem('initial-stage');
+    if (initialStageFlag) {
+      console.log('[S3] Detected initial-stage flag, clearing stored conversation for', selectedNpcId);
+      try {
+        actions.updateConversation(selectedNpcId, [] as any);
+      } catch (e) {
+        console.warn('[S3] Failed to clear stored conversation', e);
+      }
+      sessionStorage.removeItem('initial-stage');
+      setMessages([]);
+      setIsInitializingBackground(true);
+      initializeConversation(npc, mission);
+      return;
+    }
+
     // 從 store 讀取該 NPC 的對話記錄
     const existingConversation = conversationsByPersona?.[selectedNpcId];
     if (existingConversation && existingConversation.length > 0) {
