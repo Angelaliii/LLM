@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { Share2, History, ArrowLeft } from 'lucide-react';
 import { useMissionStore } from '../../store/useMissionStore';
 import { useChatStore } from '../../store/useChatStore';
+import clearGameData from '../../utils/clearGameData';
+import { useNotebookStore } from '../../store/useNotebookStore';
+import { useMultiChatStore } from '../../store/useMultiChatStore';
 
 // --- UTILS ---
 // 獲取並格式化今日日期 (YYYY.MM.DD)
@@ -90,11 +93,70 @@ export default function S5_ViewpointVerification() {
   const { actions } = useChatStore();
 
   const clearPlayRecords = () => {
-    const keys = ['persist:notebook-store', 'persist:mission-store', 'persist:chat-store', 'persist:multi-chat-store'];
-    keys.forEach((k) => localStorage.removeItem(k));
-    Object.keys(localStorage).forEach((k) => {
-      if (/store/i.test(k) && !keys.includes(k)) localStorage.removeItem(k);
-    });
+    // Prefer the centralized helper which also calls store reset methods
+    try {
+      const result = clearGameData();
+      // also remove common persist: prefixed keys in case they're present
+      const extraRemoved: string[] = [];
+      ['notebook-store', 'mission-store', 'chat-store', 'multi-chat-store', 'ChatStore', 'MissionStore', 'NotebookStore'].forEach(k => {
+        const withPrefix = `persist:${k}`;
+        if (localStorage.getItem(withPrefix) !== null) {
+          localStorage.removeItem(withPrefix);
+          extraRemoved.push(withPrefix);
+        }
+        if (localStorage.getItem(k) !== null) {
+          localStorage.removeItem(k);
+          extraRemoved.push(k);
+        }
+      });
+
+      // clear sessionStorage as well (defensive)
+      try { sessionStorage.clear(); } catch (e) { /* ignore */ }
+
+      const removed = (result && (result as any).removed) ? [(result as any).removed, ...extraRemoved].flat() : extraRemoved;
+      console.log('clearPlayRecords removed:', removed);
+      return removed;
+    } catch (e) {
+      console.warn('clearPlayRecords error', e);
+      return [];
+    }
+  };
+
+  const handleResetAndReload = async (targetStage: 'S1' | 'S0') => {
+    try {
+      // Centralized clear
+      const result = clearGameData();
+
+      // extra defensive removals
+      const removedExtra: string[] = [];
+      Object.keys(localStorage).forEach((k) => {
+        if (/store|persist/i.test(k)) {
+          localStorage.removeItem(k);
+          removedExtra.push(k);
+        }
+      });
+      try { sessionStorage.clear(); } catch (e) { /* ignore */ }
+
+      // Ensure in-memory stores are reset
+      try { useNotebookStore.getState().actions.resetNotebook(); } catch (e) {}
+      try { useMissionStore.getState().actions.resetMission(); } catch (e) {}
+      try { useChatStore.getState().actions.reset(); } catch (e) {}
+      try { useMultiChatStore.getState().actions.reset(); } catch (e) {}
+
+      console.log('resetAndClear result:', (result && (result as any).removed) ? (result as any).removed.concat(removedExtra) : removedExtra);
+
+      // navigate state if possible, then reload after short delay
+      try {
+        if (targetStage === 'S1') missionStore.actions.goToStage('S1');
+        else missionStore.actions.goToStage('S0');
+      } catch (e) { /* ignore */ }
+
+      await new Promise((r) => setTimeout(r, 300));
+      location.reload();
+    } catch (e) {
+      console.warn('handleResetAndReload failed', e);
+      location.reload();
+    }
   };
 
   return (
@@ -126,13 +188,7 @@ export default function S5_ViewpointVerification() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
               onClick={() => {
-                clearPlayRecords();
-                try {
-                  missionStore.actions.goToStage('S1');
-                } catch (e) {
-                  window.location.href = '/game';
-                }
-                setTimeout(() => location.reload(), 200);
+                handleResetAndReload('S1');
               }}
               className="px-6 py-3 bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm hover:shadow-md"
             >
@@ -141,13 +197,7 @@ export default function S5_ViewpointVerification() {
 
             <button
               onClick={() => {
-                clearPlayRecords();
-                try {
-                  missionStore.actions.goToStage('S0');
-                } catch (e) {
-                  window.location.href = '/game';
-                }
-                setTimeout(() => location.reload(), 200);
+                handleResetAndReload('S0');
               }}
               className="px-8 py-3 bg-stone-800 hover:bg-stone-700 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
             >
