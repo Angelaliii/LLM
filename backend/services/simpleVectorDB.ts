@@ -11,6 +11,12 @@ export interface KnowledgeSearchResult {
   metadata?: any;
 }
 
+export interface SearchOptions {
+  npcRole?: string;
+  topK?: number;
+  minSimilarity?: number;
+}
+
 interface KnowledgeEntry {
   id: string;
   content: string;
