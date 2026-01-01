@@ -157,12 +157,9 @@ export default function S2_NpcSelection() {
                 </div>
               </div>
 
-              {/* right: info / spacer */}
+              {/* right: spacer (資訊提示已移除) */}
               <div className="flex items-center justify-end">
-                <div className="hidden sm:flex items-center gap-2 text-amber-600 text-sm font-semibold">
-                  <Info size={16} />
-                  <span>每位 NPC 掌握不同的關鍵資訊</span>
-                </div>
+                <div />
               </div>
             </div>
           </motion.div>
@@ -182,18 +179,7 @@ export default function S2_NpcSelection() {
           </AnimatePresence>
         </div>
 
-        {/* 提示區域 */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="s2-hint-box s2-panel mb-6"
-        >
-          <h2 className="text-lg font-bold text-dark-900 mb-2">💡 任務提示</h2>
-          <p className="text-dark-700 leading-relaxed text-sm">
-            {currentStage.hint || '根據你的調查需求，選擇最合適的 NPC 進行訪談。每位 NPC 都能提供獨特的視角和資訊。'}
-          </p>
-        </motion.div>
+        {/* 任務提示區塊已移除 (UI 需求) */}
 
         {/* 底部按鈕區 */}
         <div className="flex justify-center gap-4 mt-8">

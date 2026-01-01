@@ -2,9 +2,18 @@
 
 .s2-npc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+  /* default gap slightly larger for more breathing room */
+  gap: 1.5rem;
   margin: 1rem 0 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* On medium+ screens, force three equal columns for consistent NPC sizing */
+@media (min-width: 768px) {
+  .s2-npc-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem; /* increase gap on medium+ screens */
+  }
 }
 
 .s2-hint-box {
@@ -87,7 +96,57 @@
 
 /* Hero image area inside NPC card */
 .s2-root .npc-hero {
-  height: 160px;
+  height: 180px;
+}
+
+/* Ensure each NPC card fills the grid cell and has consistent height */
+.s2-npc-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.s2-npc-card .npc-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* Make hero image area consistent and prevent image overflow */
+.s2-npc-card .npc-hero {
+  height: 180px;
+}
+
+/* Make cards and photos taller to better fit page layout */
+.s2-npc-card {
+  min-height: 420px;
+}
+
+@media (min-width: 768px) {
+  .s2-npc-card {
+    min-height: 520px;
+  }
+
+  .s2-npc-card .npc-hero {
+    height: 260px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .s2-npc-card {
+    min-height: 560px;
+  }
+
+  .s2-npc-card .npc-hero {
+    height: 300px;
+  }
+}
+
+/* larger gap on very wide screens */
+@media (min-width: 1400px) {
+  .s2-npc-grid {
+    gap: 2.5rem;
+  }
 }
 
 /* Buttons */
@@ -145,6 +204,10 @@
 .card-photo-wrapper {
   position: relative;
   overflow: hidden;
+}
+
+.card-photo-wrapper {
+  height: 100%;
 }
 
 .card-photo-wrapper::after {

@@ -90,12 +90,10 @@ const PROMPT_LIBRARY: Record<string, Partial<Record<TopicKey, PromptChip[]>>> = 
     ],
     'law_63': [
       { id: 'p_law_fact', text: '你提到的這個制度，在法律上有正式的名稱嗎？', level: 'fact', context: 'law_63', stage: 1 },
-      { id: 'p_law_conflict', text: '日本內地的警察也有這種權力嗎？為什麼台灣不一樣？', level: 'conflict', context: 'law_63', stage: 1 },
       { id: 'p_law_empathy', text: '你認為這種制度是必要的惡，還是理所當然？', level: 'empathy', context: 'law_63', stage: 1 }
     ],
     'police_authority': [
       { id: 'p_police_fact', text: '即決處罰的標準是什麼？誰來決定？', level: 'fact', context: 'police_authority', stage: 2 },
-      { id: 'p_police_conflict', text: '有沒有本島人控告過警察濫權？結果如何？', level: 'conflict', context: 'police_authority', stage: 2 },
       { id: 'p_police_empathy', text: '看到本島人害怕你們的樣子，你有什麼感覺？', level: 'empathy', context: 'police_authority', stage: 2 }
     ],
     'hokko_system': [
