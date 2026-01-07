@@ -15,23 +15,10 @@ console.log('='.repeat(80));
 console.log();
 
 // 1️⃣ 檢查日治前期劇本資料
-console.log('📋 1. 檢查日治前期劇本 (jp_story_01_early_rule.json)');
+console.log('📋 1. 檢查日治前期劇本 (已移除)');
 console.log('-'.repeat(80));
-try {
-  const storyPath = path.join(__dirname, 'data/story/jp_story_01_early_rule.json');
-  const storyData = JSON.parse(fs.readFileSync(storyPath, 'utf-8'));
-  
-  console.log('✅ 劇本檔案載入成功');
-  console.log(`   - 劇本 ID: ${storyData.story_id}`);
-  console.log(`   - 時期: ${storyData.period}`);
-  console.log(`   - 標題: ${storyData.title}`);
-  console.log(`   - 目標: ${storyData.main_goal.substring(0, 50)}...`);
-  console.log(`   - 階段數量: ${storyData.stages.length}`);
-  console.log(`   - 玩家角色: ${storyData.player_persona.name} (${storyData.player_persona.role})`);
-  console.log();
-} catch (error: any) {
-  console.log('❌ 劇本檔案載入失敗:', error.message);
-}
+console.log('⚠️  劇本檔案已移除，跳過此項檢查。');
+console.log();
 
 // 2️⃣ 檢查 NPC 人物設定
 console.log('👥 2. 檢查 NPC 人物設定');

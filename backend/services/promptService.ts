@@ -1,24 +1,3 @@
-/**
- * @deprecated 此文件已廢棄 - 改用 LLM 搭便車模式生成 suggestions
- * 
- * 舊設計：PromptService - 基於知識圖譜的檢索式引導 (Knowledge-Graph based Retrieval Guidance)
- * 新設計：LLM 在生成 NPC 回應時，同時生成 <suggestions> 標籤內容（搭便車模式）
- * 
- * 原設計理念（已被新方式取代）：
- * 1. 避免 LLM 幻覺問題 - 使用預定義的提問庫而非動態生成
- *    → 新方式：LLM 在有完整 persona 和對話上下文時，生成的 suggestions 更貼合當下情境
- * 2. 確保教學目標達成 - 每個提示都對應特定的學習階段和認知目標
- *    → 新方式：在 persona 中明確要求 LLM 必須生成 fact/conflict/empathy 三種類型的提問
- * 3. 動態推送鷹架問題 - 根據對話上下文分析，推送引發後設認知的問題
- *    → 新方式：LLM 根據當前對話內容，動態生成最相關的追問建議
- * 
- * 優點：
- * - 減少維護成本（不需要手動維護龐大的 PROMPT_LIBRARY）
- * - 更貼合對話上下文（LLM 知道剛才說了什麼）
- * - 統一架構（所有 NPC 邏輯都在 persona 文件中）
- */
-
-// 追問層次定義（對應 Bloom's Taxonomy 認知層級）
 export type InquiryLevel = 'fact' | 'conflict' | 'empathy';
 
 // 話題類型定義（對應學習階段的關鍵概念）

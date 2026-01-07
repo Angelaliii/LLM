@@ -1,8 +1,3 @@
-/**
- * 任務資料 - E2: 日本統治下的權利與土地：歷史修復任務
- * 臨時兼容文件
- */
-
 export const e2Npcs = [
   {
     id: "police_officer",

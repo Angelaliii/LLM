@@ -1,4 +1,3 @@
-// Backend keyword config — keep in sync with frontend config
 export const KEYWORDS = {
   law: ['六三法', '法律第六十三號'],
   government: [ '警察制度'],

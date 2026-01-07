@@ -1,6 +1,5 @@
 /**
  * 任務：日本統治下的權利與土地：歷史修復任務
- * 基於 backend/data/story/jp_story_01_early_rule.json
  * 時代：日治初期 (1905年)
  */
 

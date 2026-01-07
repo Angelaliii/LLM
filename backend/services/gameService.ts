@@ -12,14 +12,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { KEYWORDS } from '../config/keywords';
 
-// NPC ID 映射
+// NPC 
 const NPC_MAPPING: Record<string, { file: string; name: string; role: string }> = {
   'student': { file: 'NPC_JP01_Student.md', name: '小清', role: '學生' },
   'police_officer': { file: 'NPC_JP02_Police.md', name: '佐藤 敬一', role: '警察' },
   'land_surveyor': { file: 'NPC_JP03_LandSurveyor.md', name: '山本 勘助', role: '土地測量員' }
 };
 
-// 初始化全域 PersonaCache 實例
 const personaCache: PersonaCache = createPersonaCache({
   strategy: 'lazy',
   ttlMs: 5 * 60 * 1000,
@@ -27,9 +26,7 @@ const personaCache: PersonaCache = createPersonaCache({
   watchFs: false
 });
 
-/**
- * 載入 NPC Persona（非同步，使用快取）
- */
+//載入 NPC Persona
 async function loadNPCPersona(npcId: string): Promise<string> {
   const npcInfo = NPC_MAPPING[npcId];
   if (!npcInfo) {
@@ -45,9 +42,7 @@ async function loadNPCPersona(npcId: string): Promise<string> {
   }
 }
 
-/**
- * 過濾對話歷史 - 移除自我介紹和無關內容
- */
+// 過濾對話歷史 - 移除自我介紹和無關內容
 function filterConversationHistory(
   history: Array<{ role: string; content: string }>,
   npcId: string,
@@ -64,9 +59,9 @@ function filterConversationHistory(
       return true;
     }
 
-    // 對於 NPC 回答,檢查是否為自我介紹
+    // NPC 回答,檢查是否為自我介紹
     if (msg.role === 'assistant') {
-      // 第一輪對話的自我介紹保留
+      // 第一輪對話的自我介紹
       if (idx <= 1) {
         return true;
       }
@@ -90,18 +85,30 @@ function filterConversationHistory(
     return true;
   });
 
-  // 只保留最近的 N 輪對話
   return filtered.slice(-maxTurns * 2);
 }
 
 /**
  * 載入 Story 的 Player Persona 資訊
  */
-function loadPlayerPersona(storyId: string = 'jp_story_01_early_rule'): any {
+let warnedMissingPlayerPersona = false;
+
+function loadPlayerPersona(storyId?: string): any {
+  if (!storyId) {
+    if (!warnedMissingPlayerPersona) {
+      console.warn('⚠️  Player persona file not configured; skipping load.');
+      warnedMissingPlayerPersona = true;
+    }
+    return null;
+  }
+
   const storyPath = path.join(__dirname, '../data/story', `${storyId}.json`);
   
   if (!fs.existsSync(storyPath)) {
-    console.warn(`⚠️  Story file not found: ${storyPath}`);
+    if (!warnedMissingPlayerPersona) {
+      console.warn(`⚠️  Story file not found: ${storyPath}`);
+      warnedMissingPlayerPersona = true;
+    }
     return null;
   }
 
@@ -110,17 +117,7 @@ function loadPlayerPersona(storyId: string = 'jp_story_01_early_rule'): any {
   return storyData.player_persona;
 }
 
-/**
- * 建構完整的 System Prompt
- * 
- * 處理流程:
- * 1. 載入 NPC PERSONA 檔案 (個性、語氣、知識範圍)
- * 2. 載入 Player Persona (玩家身份、背景、關係)
- * 3. 載入歷史摘要和關鍵線索（永久記憶）
- * 4. 使用 RAG 檢索 knowledge_base.json 相關知識
- * 5. 從 mission 資料中獲取相關劇本資訊
- * 6. 結合所有資料生成完整的 System Prompt
- */
+
 async function buildSystemPrompt(
   npcId: string,
   userQuery: string,
@@ -132,7 +129,7 @@ async function buildSystemPrompt(
   const npcInfo = NPC_MAPPING[npcId];
   const npcConfig = getNPCConfig(npcId);
   
-  // 1️⃣ 載入 NPC PERSONA 檔案（使用快取）
+  // 載入 NPC PERSONA 檔案（使用快取）
   const npcPersona = await loadNPCPersona(npcId);
   console.log(`📝 Loaded PERSONA for ${npcInfo.name}`);
   
@@ -140,7 +137,7 @@ async function buildSystemPrompt(
     throw new Error(`NPC config not found: ${npcId}`);
   }
 
-  // 2️⃣ 載入玩家身份資訊
+  // 載入玩家身份資訊
   const playerPersona = loadPlayerPersona();
   console.log(`👤 Loaded Player Persona: ${playerPersona?.name || 'Unknown'}`);
 
@@ -429,11 +426,7 @@ export interface GameChatResponse {
   };
 }
 
-/**
- * 清理內部標籤並提取追問建議
- * 移除 <thinking> 區塊和 <reply> 標籤
- * 提取 <suggestions> 內容並解析為 JSON
- */
+
 function cleanAndExtractTags(text: string): { 
   cleanedText: string; 
   suggestions: Array<{ text: string; type: 'fact' | 'conflict' | 'empathy' }> | null 
@@ -455,25 +448,16 @@ function cleanAndExtractTags(text: string): {
   
   // 清理文本
   const cleanedText = text
-    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') // 移除 thinking 區塊
-    .replace(/<suggestions>[\s\S]*?<\/suggestions>/gi, '') // 移除 suggestions 區塊
-    .replace(/<reply>/gi, '') // 移除 reply 開始標籤
-    .replace(/<\/reply>/gi, '') // 移除 reply 結束標籤
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') 
+    .replace(/<suggestions>[\s\S]*?<\/suggestions>/gi, '') 
+    .replace(/<reply>/gi, '') 
+    .replace(/<\/reply>/gi, '')
     .trim();
   
   return { cleanedText, suggestions };
 }
 
-/**
- * 處理遊戲對話 - 使用 Mistral API (強化版)
- * 
- * 處理流程:
- * 1. 過濾對話歷史 (移除重複自介、教學口吻)
- * 2. 建構 System Prompt (載入 PERSONA + RAG + mission)
- * 3. 生成兩個不同 temperature 的回答
- * 4. 檢查回答品質
- * 5. 提取 LLM 生成的追問建議 (搭便車模式)
- */
+
 export async function handleGameChat(request: GameChatRequest): Promise<GameChatResponse> {
   const { npcId, message, conversationHistory = [], sessionId, summaries = [], keyPoints = [] } = request;
 
@@ -523,11 +507,6 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     const tempPrimary = getNpcTemperature(npcId, 0.7);
     console.log(`🤖 Generating primary response with temperature ${tempPrimary}...`);
     
-    // maxTokens 計算：
-    // - <thinking>: 約 150 tokens
-    // - <reply>: maxResponseLength (字符數) * 2 (中文 token 轉換)
-    // - <suggestions>: 約 200 tokens
-    // - 加上安全緩衝 +300
     const estimatedMaxTokens = 150 + (npcConfig.language.maxResponseLength * 2) + 200 + 300;
     
     let primaryResponse = await chatWithMistral(messages, { 
@@ -539,7 +518,6 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     const parserCheck = parseAndValidate(primaryResponse, npcId);
     let qualityCheck = checkResponseQuality(primaryResponse, npcId);
     
-    // 合併 parser 與品質檢查的結果
     const mergedIssues = [...new Set([...parserCheck.issues, ...qualityCheck.issues])];
     const hasAnyIssues = parserCheck.hasIssues || qualityCheck.hasIssues;
     qualityCheck = {
@@ -549,14 +527,13 @@ export async function handleGameChat(request: GameChatRequest): Promise<GameChat
     };
     
     const fallbackConfig = npcConfig.qualityFallback || { enabled: true, lowTemp: 0.3, maxLowTempRetries: 1, useRewrite: true, maxRewritePasses: 1 };
-    // 推導低溫：從主溫度減 0.3，但不低於 0.2，也不高於主溫度
     const tempLow = fallbackConfig.lowTemp ?? Math.max(0.2, Math.min(tempPrimary, Math.round((tempPrimary - 0.3) * 10) / 10));
     const fallbackAttempts: Array<{ type: string; attempt: number; ok: boolean; temperature?: number }> = [];
     
     if (qualityCheck.hasIssues) {
       console.warn(`⚠️  quality_issue_detected: ${qualityCheck.issues.join(', ')}`);
       
-      // 低溫重生流程
+    
       if (fallbackConfig.enabled && fallbackConfig.maxLowTempRetries! > 0) {
         for (let attempt = 1; attempt <= fallbackConfig.maxLowTempRetries!; attempt++) {
           console.log(`🔄 low_temp_regen_start: attempt ${attempt}, temp ${tempLow}`);
