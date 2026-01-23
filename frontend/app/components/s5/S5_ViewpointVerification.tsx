@@ -20,9 +20,9 @@ const getTodayDate = () => {
 // --- MOCK DATA ---
 const ARCHIVE_INFO = {
   id: 'LAW-1905-SIXCODES',
-  title: '日本統治下的權利與土地：歷史修復任務',
+  title: 'Rights and Land under Japanese Rule: Historical Restoration Mission',
   summary:
-    '透過本次修復行動，我們成功還原了1905年日本治下的權利與土地狀況。',
+    'Through this restoration, we successfully reconstructed the 1905 rights and land conditions under Japanese governance.',
   integrity: '100%'
 };
 
@@ -41,10 +41,10 @@ const MuseumCard = () => {
         <h3 className="font-serif font-bold text-3xl md:text-4xl text-stone-900 leading-tight">
           {ARCHIVE_INFO.title}
         </h3>
-        <div className="mt-2 text-sm text-stone-500">典藏編號: {ARCHIVE_INFO.id}</div>
+        <div className="mt-2 text-sm text-stone-500">Catalog No.: {ARCHIVE_INFO.id}</div>
 
         <div className="bg-[#F9F7F2] p-6 rounded mt-6 border-l-4 border-stone-800">
-          <h4 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">修復摘要</h4>
+          <h4 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Restoration Summary</h4>
           <p className="font-serif text-stone-800 leading-relaxed text-base md:text-lg">
             {ARCHIVE_INFO.summary}
           </p>
@@ -52,11 +52,11 @@ const MuseumCard = () => {
 
         <div className="mt-6 grid grid-cols-2 gap-6">
           <div>
-            <div className="text-[10px] font-bold text-stone-400 uppercase">完整度</div>
+            <div className="text-[10px] font-bold text-stone-400 uppercase">Integrity</div>
             <div className="text-xl font-bold font-mono text-amber-600">{ARCHIVE_INFO.integrity}</div>
           </div>
           <div>
-            <div className="text-[10px] font-bold text-stone-400 uppercase">修復日期</div>
+            <div className="text-[10px] font-bold text-stone-400 uppercase">Restoration Date</div>
             <div className="text-base font-serif text-stone-700">{todayDate}</div>
           </div>
         </div>
@@ -169,14 +169,14 @@ export default function S5_ViewpointVerification() {
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative flex flex-col">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-amber-100/30 via-transparent to-transparent pointer-events-none" />
 
-      {/* 返回按鈕（左上角） */}
+      {/* Back button (top-left) */}
       <button
         onClick={() => actions.goBack()}
         className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
-        aria-label="返回上一頁"
+        aria-label="Back to previous page"
       >
         <ArrowLeft size={18} />
-        <span className="text-sm font-medium hidden sm:inline">返回</span>
+        <span className="text-sm font-medium hidden sm:inline">Back</span>
       </button>
 
       <header className="h-20 flex items-center justify-center px-8 border-b border-stone-200/50 bg-[#FDFBF7]/80 backdrop-blur-md z-50">
@@ -198,7 +198,7 @@ export default function S5_ViewpointVerification() {
               }}
               className="px-6 py-3 bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm hover:shadow-md"
             >
-              <Share2 size={18} /> 重新開始
+              <Share2 size={18} /> Restart
             </button>
 
             <button
@@ -207,7 +207,7 @@ export default function S5_ViewpointVerification() {
               }}
               className="px-8 py-3 bg-stone-800 hover:bg-stone-700 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
             >
-              <History size={18} /> 返回任務大廳
+              <History size={18} /> Return to Mission Lobby
             </button>
           </motion.div>
         </div>

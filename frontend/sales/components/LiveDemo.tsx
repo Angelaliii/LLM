@@ -7,15 +7,15 @@ import Icon from "./Icon";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// 兩組示範問答；展示順序為：使用者(Q) 右側 → 歷史人物(A) 左側 → 下一組 Q → A
+// Two sets of demo Q&A; display order: user(Q) right side → historical figure(A) left side → next Q → A
 const qaPairs = [
   {
-    q: "您為什麼要統一文字？",
-    a: "統一文字能促進政令傳達與文化整合，減少地方隔閡，對於治理大一統國家十分重要。",
+    q: "Why did you unify the written language?",
+    a: "Unifying the written language promotes the transmission of government decrees and cultural integration, reducing regional divisions, which is essential for governing a unified empire.",
   },
   {
-    q: "長城是誰建的？",
-    a: "長城由各時期邊防與民夫共同構築，始皇時期統一六國後，進行了連接與加固的工程以防外患。",
+    q: "Who built the Great Wall?",
+    a: "The Great Wall was constructed by border defense forces and laborers across different periods. After unifying the Six States, I implemented projects to connect and strengthen it to defend against external threats.",
   },
 ];
 
@@ -78,10 +78,10 @@ const LiveDemo: React.FC = () => {
       <div className="container-max">
         <div className="text-center mb-16">
           <h2 className="text-heading-2 text-dark-900 mb-4">
-            立即體驗歷史對話
+            Experience Historical Dialogue Instantly
           </h2>
           <p className="text-xl text-dark-700 max-w-3xl mx-auto">
-            與日治時期歷史人物直接對話，感受革命性的歷史學習體驗。輸入您的問題，立即獲得第一人稱回應。
+            Engage directly with historical figures from the Japanese colonial period and experience revolutionary history learning. Enter your questions and get first-person responses instantly.
           </p>
         </div>
 
@@ -94,13 +94,13 @@ const LiveDemo: React.FC = () => {
                   <Icon name="user" size="md" className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">日治時期人物</h3>
-                  <p className="text-primary-100">始皇帝 • 統一六國 • 在線中</p>
+                  <h3 className="text-xl font-bold">Historical Figure from Japanese Colonial Period</h3>
+                  <p className="text-primary-100">Emperor Qin Shi Huang • Unified Six States • Online</p>
                 </div>
                 <div className="ml-auto">
                   <div className="flex items-center space-x-2 text-primary-100">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm">即時回應</span>
+                    <span className="text-sm">Real-time Response</span>
                   </div>
                 </div>
               </div>
@@ -135,20 +135,20 @@ const LiveDemo: React.FC = () => {
           <div className="text-center mt-12">
             <div className="bg-white rounded-xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-dark-900 mb-4">
-                想要完整體驗？立即開始免費試用
+                Want the Full Experience? Start Your Free Trial Now
               </h3>
               <p className="text-dark-700 mb-6">
-                上方僅為簡化展示，完整版本包含更豐富的歷史人物、深度對話與教學管理功能
+                The above is a simplified preview. The complete version includes richer historical figures, in-depth dialogues, and comprehensive teaching management features.
               </p>
               <CTAButton
                 size="lg"
                 to="/game"
                 openInNewTab
-                trackingLabel="開始完整體驗"
+                trackingLabel="Start Full Experience"
                 trackingLocation="demo-cta"
               >
                 <Icon name="play" size="sm" className="mr-2" />
-                開始完整體驗
+                Start Full Experience
               </CTAButton>
             </div>
           </div>

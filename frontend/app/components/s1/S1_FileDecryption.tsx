@@ -38,22 +38,22 @@ interface S1MissionData {
 // --- FALLBACK MISSION DATA ---
 const FALLBACK_MISSION: S1MissionData = {
   id: "E2",
-  title: "日本統治下的權利與土地：歷史修復任務",
-  description: "本案聚焦於獨特的法律體系對土地與民權的影響，部分檔案因年代久遠而出現多處缺漏。",
-  period: "日治初期 (1905年)",
+  title: "Rights and Land under Japanese Rule: Archive Repair Mission",
+  description: "This case focuses on how the unique legal system affected land and civil rights. Some documents are missing due to age-related degradation.",
+  period: "Early Japanese Colonial Period (1905)",
   contentTemplate: [
-    "檔案編號：LAW-1905-SIXCODES",
-    "在日治初期，日本總督府透過",
+    "Document ID: LAW-1905-SIXCODES",
+    "In the early Japanese colonial period, the Governor-General of Taiwan used ",
     { type: 'redacted', id: 'field_1' },
-    "等法律工具，對臺灣進行深入的制度改造。",
-    "其中，",
+    " and other legal instruments to conduct deep institutional reforms in Taiwan.",
+    "Among them, ",
     { type: 'redacted', id: 'field_2' },
-    "成為推行土地調查與權力控制的關鍵，透過系統性的調查與登記，",
-    "造成了深遠的影響，改變了臺灣社會的權力結構與土地關係。"
+    " became the key to implementing land surveys and power control. Through systematic surveys and registrations,",
+    " it had profound impacts, reshaping Taiwan’s power structure and land relations."
   ],
   redactedFields: [
-    { id: 'field_1', label: '法律制度', hint: '日本在臺灣建立的特殊法律體系', status: 'missing' },
-    { id: 'field_2', label: '執行機構', hint: '負責推行政策的基層', status: 'missing' }
+    { id: 'field_1', label: 'Legal System', hint: 'The special legal framework established in Taiwan by Japan', status: 'missing' },
+    { id: 'field_2', label: 'Implementing Agency', hint: 'The grassroots body responsible for executing policies', status: 'missing' }
   ]
 };
 
@@ -120,17 +120,17 @@ export default function S1_FileDecryption() {
           <button
             onClick={() => actions.goBack()}
             className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-600 hover:text-stone-800"
-            aria-label="返回上一頁"
+            aria-label="Go back to previous page"
           >
             <ArrowLeft size={18} />
-            <span className="text-sm font-medium hidden sm:inline">返回</span>
+            <span className="text-sm font-medium hidden sm:inline">Back</span>
           </button>
           
           <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/10">
             <BookOpen size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-stone-800 font-serif">歷史對話系統</h1>
+            <h1 className="text-lg font-bold tracking-tight text-stone-800 font-serif">Time Talk</h1>
             <p className="text-xs text-stone-500 tracking-wider uppercase">Archive Repair V2.2</p>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function S1_FileDecryption() {
                         {missionData.title}
                     </h2>
                     <p className="text-stone-500 font-sans text-sm flex items-center gap-2">
-                      <History size={14} /> 原始紀錄歸檔：{missionData.period || '日治時期'}
+                      <History size={14} /> Original Record Archived: {missionData.period || 'Japanese colonial period'}
                     </p>
                 </div>
                  <div className="text-right hidden md:block">
@@ -260,21 +260,21 @@ export default function S1_FileDecryption() {
                 <div className="p-2 bg-stone-100 rounded-full text-stone-600">
                     <Search size={18} />
                 </div>
-                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider">修復診斷報告</h3>
+                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider">Restoration Diagnostic Report</h3>
             </div>
             
             {isScanning ? (
                 <div className="text-stone-500 text-sm">
-                    正在分析文本結構完整性...
+                  Analyzing text structure integrity...
                 </div>
             ) : (
                 <div className="space-y-4">
                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 flex gap-3">
                        <div className="text-amber-600 shrink-0 mt-0.5 text-lg">✨</div>
                        <div>
-                           <p className="text-amber-900 font-bold text-sm">發現 2 處記憶斷層</p>
+                       <p className="text-amber-900 font-bold text-sm">Detected 2 memory gaps</p>
                            <p className="text-amber-700/70 text-xs mt-1 leading-relaxed">
-                               檔案因年代久遠而模糊不清，請透過人物訪談來重建當時的場景細節。
+                         The record is blurred by age—conduct character interviews to rebuild the scene details.
                            </p>
                        </div>
                    </div>
@@ -286,22 +286,21 @@ export default function S1_FileDecryption() {
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.5 }}
-             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-4 flex flex-col justify-center relative overflow-hidden"
+             className="flex-1 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100 p-4 flex flex-col justify-start relative overflow-hidden"
            >
              <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-amber-100/50 to-transparent rounded-full blur-3xl transition-transform duration-1000" />
 
             <div className="relative z-10">
               <div className="text-xs font-bold text-amber-600 mb-2 uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                你是誰...
+                Who are you...
               </div>
 
-              <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">鈴木先生的自我介紹</h4>
+              <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">Mr. Suzuki's Introduction</h4>
 
               {/* 身分定位 (從測量員改為文官) */}
               <p className="text-stone-600 leading-relaxed mb-4 font-serif">
-                鈴木先生，隸屬於臺灣總督府的地方文官，有別於手持警棍的巡查，或操作儀器的測量員，你
-                負責的是民政事務的推行與文書紀錄。
+                Mr. Suzuki serves as a local civil officer under the Taiwan Governor-General. Unlike baton-wielding police inspectors or surveyors operating instruments, you handle civil administration and official recordkeeping.
               </p>
 
             </div>
@@ -323,7 +322,7 @@ export default function S1_FileDecryption() {
                   <span className="text-stone-500">系統運算中...</span>
               ) : (
                   <>
-                      <span>開始歷史調查</span>
+                      <span>Start Historical Investigation</span>
                       <ArrowRight size={18} className="text-amber-500" />
                   </>
               )}

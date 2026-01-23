@@ -32,7 +32,7 @@ export default function DropZone({
     e.preventDefault();
     e.stopPropagation();
 
-    // 讀取 dataTransfer 的 clueId，並觸發全域事件讓父元件處理
+    // Read the clueId from dataTransfer and fire a global event for the parent to handle
     try {
       const clueId = e.dataTransfer.getData('clueId');
       if (clueId) {
@@ -69,7 +69,7 @@ export default function DropZone({
             className="flex items-center gap-1 text-amber-600"
           >
             <HelpCircle size={16} className="animate-pulse" />
-            <span className="text-sm font-semibold text-amber-700">[待修復]</span>
+            <span className="text-sm font-semibold text-amber-700">[to repair]</span>
           </motion.div>
         ) : (
           <motion.div

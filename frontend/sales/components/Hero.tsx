@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
             <div className="mb-6">
               <span className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
                 <Icon name="star" size="sm" className="mr-2" />
-                革命性 LLM 歷史教學
+                Revolutionary LLM History Education
               </span>
             </div>
 
@@ -65,7 +65,7 @@ const Hero: React.FC = () => {
                 to="/game"
                 trackingLabel={copy.hero.cta.primary}
                 trackingLocation="hero"
-                ariaLabel={`${copy.hero.cta.primary} - 開始免費體驗歷史對話系統`}
+                ariaLabel={`${copy.hero.cta.primary} - Start Free Trial of Time Talk`}
               >
                 <Icon name="play" size="sm" className="mr-2" />
                 {copy.hero.cta.primary}
@@ -77,38 +77,38 @@ const Hero: React.FC = () => {
                 href="#demo"
                 trackingLabel={copy.hero.cta.secondary}
                 trackingLocation="hero"
-                ariaLabel={`${copy.hero.cta.secondary} - 觀看互動展示`}
+                ariaLabel={`${copy.hero.cta.secondary} - Watch Interactive Demo`}
               >
                 <Icon name="external" size="sm" className="mr-2" />
                 {copy.hero.cta.secondary}
               </CTAButton>
             </div>
 
-            {/* 社會證明數據 */}
+            {/* Social proof data */}
             <div className="flex flex-wrap items-center gap-8 mt-12 pt-8 border-t border-gray-200">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-500">
                   10000%
                 </div>
-                <div className="text-sm text-dark-700">期待程度</div>
+                <div className="text-sm text-dark-700">Excitement Level</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-500">50+</div>
-                <div className="text-sm text-dark-700">待合作學校</div>
+                <div className="text-sm text-dark-700">Partner Schools</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-500">98%</div>
-                <div className="text-sm text-dark-700">期望滿意度</div>
+                <div className="text-sm text-dark-700">Satisfaction Rate</div>
               </div>
             </div>
           </div>
 
-          {/* 右側示意圖 */}
+          {/* Right side illustration */}
           <div className="animate-fade-in lg:animate-slide-up">
             <div className="relative">
-              {/* 主要插圖容器 */}
+              {/* Main illustration container */}
               <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-                {/* 對話介面模擬 */}
+                {/* Chat interface simulation */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3 pb-4 border-b border-gray-100">
                     <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
@@ -116,34 +116,34 @@ const Hero: React.FC = () => {
                     </div>
                     <div>
                       <div className="font-semibold text-dark-900">
-                        日治時期人物
+                        Historical Figure
                       </div>
-                      <div className="text-sm text-primary-500">● 在線中</div>
+                      <div className="text-sm text-primary-500">● Online</div>
                     </div>
                   </div>
 
-                  {/* 對話氣泡 */}
+                  {/* Chat bubbles */}
                   <div className="space-y-3">
                     <div className="flex justify-end">
                       <div className="bg-primary-500 text-white rounded-lg px-4 py-2 max-w-xs">
-                        您好！我想了解統一六國的過程
+                        Hi! I'd like to know about the process of unifying the Six States
                       </div>
                     </div>
 
                     <div className="flex justify-start">
                       <div className="bg-gray-100 text-dark-900 rounded-lg px-4 py-3 max-w-sm">
                         <div className="typing-cursor">
-                          朕統一六國用時十年，先後滅韓、趙、魏、楚、燕、齊。每滅一國，朕皆深思熟慮...
+                          I unified the Six States in ten years, successively conquered Han, Zhao, Wei, Chu, Yan, and Qi. With each state conquered, I carefully deliberated...
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 輸入框 */}
+                  {/* Input box */}
                   <div className="flex items-center space-x-2 pt-4 border-t border-gray-100">
                     <input
                       type="text"
-                      placeholder="輸入您的問題..."
+                      placeholder="Type your question..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       readOnly
                     />
@@ -154,15 +154,15 @@ const Hero: React.FC = () => {
                 </div>
               </div>
 
-              {/* 浮動元素 */}
+              {/* Floating elements */}
               <div className="absolute -top-4 -right-4 bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-medium animate-bounce">
-                30秒啟動
+                30s Launch
               </div>
 
               <div className="absolute -bottom-4 -left-4 bg-white shadow-lg rounded-lg px-4 py-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-dark-700">即時回應</span>
+                  <span className="text-dark-700">Real-time Response</span>
                 </div>
               </div>
             </div>

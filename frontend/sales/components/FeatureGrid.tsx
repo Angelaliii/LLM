@@ -15,11 +15,11 @@ const FeatureGrid: React.FC = () => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
             <Icon name="star" size="sm" className="mr-2" />
-            核心優勢
+            Core Advantages
           </div>
-          <h2 className="text-heading-2 text-dark-900 mb-4">三大核心優勢</h2>
+          <h2 className="text-heading-2 text-dark-900 mb-4">Three Core Advantages</h2>
           <p className="text-xl text-dark-700 max-w-3xl mx-auto">
-            革命性的 LLM 技術結合歷史教育，為師生打造全新的學習體驗
+            Revolutionary LLM technology combined with history education creates a brand new learning experience for teachers and students
           </p>
         </div>
 

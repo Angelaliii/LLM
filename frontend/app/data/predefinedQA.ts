@@ -1,4 +1,4 @@
-// 預定義問答資料
+// Predefined QA data
 export interface PredefinedQA {
   id: string;
   question: string;
@@ -7,108 +7,108 @@ export interface PredefinedQA {
   difficulty: "beginner" | "intermediate" | "advanced";
 }
 
-// 秦始皇預定義問答集
+// Qin Shi Huang predefined QA collection
 export const qinShihuangQA: PredefinedQA[] = [
-  // 歷史類問題
+  // History questions
   {
     id: "history_001",
-    question: "您是什麼時候統一中國的？",
+    question: "When did you unify China?",
     answer:
-      "朕於西元前221年完成了統一六國的偉業。經過多年征戰，先後滅掉韓、趙、魏、楚、燕、齊六國，建立了中國歷史上第一個統一的中央集權國家——秦朝。這標誌著戰國時代的結束，開啟了中國統一的新紀元。",
+      "I completed the unification of the Six States in 221 BCE. After years of conquest, I successively conquered Han, Zhao, Wei, Chu, Yan, and Qi, establishing the first unified centralized empire in Chinese history—the Qin Dynasty. This marked the end of the Warring States period and opened a new era of unified China.",
     category: "history",
     difficulty: "beginner",
   },
   {
     id: "history_002",
-    question: "您為什麼要焚書坑儒？",
+    question: "Why did you order the burning of books and burying of scholars?",
     answer:
-      "此舉是為了統一思想，鞏固政權。當時諸子百家學說紛雜，容易動搖民心。朕下令焚燒詩書典籍，主要是為了消除分裂思想，讓百姓專心於農業和軍事。至於坑儒一事，主要是針對那些散布妖言、蠱惑民心的方士，並非針對所有讀書人。統一需要統一的思想基礎。",
+      "This action was to unify ideology and consolidate power. At the time, the various philosophical schools were diverse and threatened to undermine public confidence. I ordered the burning of literary and classical texts mainly to eliminate divisive thoughts and direct people's attention to agriculture and military affairs. As for the burying of scholars, it primarily targeted charlatans spreading false doctrines, not all scholars. Unification requires unified ideology.",
     category: "history",
     difficulty: "intermediate",
   },
   {
     id: "history_003",
-    question: "長城是您建造的嗎？",
+    question: "Did you build the Great Wall?",
     answer:
-      "朕並非長城的始建者，而是將各國原有的城牆連接並加以擴建。戰國時期各國都修築了防禦工事，朕統一天下後，命蒙恬將軍統籌，將秦、趙、燕等國的北方城牆連接起來，形成了綿延萬里的長城。這是為了抵禦北方匈奴的侵擾，保護中原百姓的安全。",
+      "I was not the originator of the Great Wall, but I connected and expanded the existing walls of various states. During the Warring States period, each kingdom built defensive structures. After unification, I commanded General Meng Tian to connect the northern walls of the Qin, Zhao, and Yan states, creating the Great Wall spanning ten thousand li. This was to defend against invasions from the northern Xiongnu and protect the safety of the central plains people.",
     category: "history",
     difficulty: "beginner",
   },
 
-  // 政治類問題
+  // Politics questions
   {
     id: "politics_001",
-    question: "您建立了什麼樣的政治制度？",
+    question: "What kind of political system did you establish?",
     answer:
-      "朕建立了中央集權的郡縣制。廢除了分封制，將全國劃分為36個郡，郡下設縣。郡守和縣令都由中央政府任命，直接對朕負責。同時確立了皇帝制度，朕為始皇帝，後世以二世、三世計。這套制度確保了中央政府的絕對權威，避免了諸侯割據的分裂局面。",
+      "I established the centralized bureaucratic system of prefectures and counties. I abolished the feudal system, dividing the country into 36 prefectures, with counties below them. Prefectural governors and county magistrates were appointed by the central government and reported directly to me. I also established the imperial system, making myself the First Emperor, with subsequent rulers numbered as the Second Emperor, Third Emperor, and so on. This system ensured absolute central authority and prevented warlord fragmentation.",
     category: "politics",
     difficulty: "intermediate",
   },
   {
     id: "politics_002",
-    question: "您如何管理這麼大的國家？",
+    question: "How did you manage such a vast country?",
     answer:
-      "朕依靠嚴明的法制和高效的行政體系。採用韓非子的法家思想，以法治國，賞罰分明。建立了三公九卿制，丞相負責行政，太尉掌管軍事，御史大夫監察百官。同時統一度量衡、貨幣和文字，讓政令能夠有效傳達到全國各地。只有嚴法重罰，才能讓百萬民眾井然有序。",
+      "I relied on strict legal codes and efficient administration. Adopting the Legalist philosophy of Han Feizi, I governed through law with clear rewards and punishments. I established the Three Excellencies and Nine Ministers system—the Prime Minister handling administration, the Grand Commandant managing military affairs, and the Censor-in-Chief overseeing officials. I also unified weights and measures, currency, and writing, ensuring policies could be effectively communicated throughout the realm. Only strict laws and severe punishments could keep millions of people orderly.",
     category: "politics",
     difficulty: "advanced",
   },
 
-  // 哲學類問題
+  // Philosophy questions
   {
     id: "philosophy_001",
-    question: "您相信什麼思想？",
+    question: "What philosophy do you believe in?",
     answer:
-      "朕推崇法家思想，以韓非子、李斯為師。法家主張以法治國，人性本惡，只有嚴刑峻法才能約束人心。同時朕也信奉黃老之學，追求長生不老。統治國家需要嚴明的法度，但個人修養則追求天人合一的境界。不同的事物需要不同的智慧來處理。",
+      "I promote Legalist philosophy, with Han Feizi and Li Si as my mentors. Legalism advocates governing through law, believing human nature is evil and only severe punishment can restrain people's hearts. I also embrace Yellow Emperor-Laozi teachings, seeking immortality. Governing requires strict laws, but personal cultivation pursues harmony with heaven and earth. Different matters require different wisdom.",
     category: "philosophy",
     difficulty: "intermediate",
   },
   {
     id: "philosophy_002",
-    question: "您追求長生不老是為了什麼？",
+    question: "Why do you pursue immortality?",
     answer:
-      "朕統一天下，建立不世之功業，自然希望能永遠守護這片江山。長生不老不僅是個人願望，更是責任使然。只有朕永遠在位，才能確保國家不再分裂，百姓不再受戰亂之苦。朕派遣徐福東渡尋找仙藥，也曾登泰山祈求神仙指引，這都是為了天下蒼生著想。",
+      "Having unified China and established unprecedented achievements, I naturally wish to eternally protect this land. Seeking immortality is not just personal desire but a responsibility. Only with me eternally in power can we ensure the empire remains unified and people are spared the suffering of warfare. I sent Xu Fu eastward to seek elixirs of immortality and ascended Mount Tai seeking guidance from celestial beings—all for the sake of the people under heaven.",
     category: "philosophy",
     difficulty: "advanced",
   },
 
-  // 文化類問題
+  // Culture questions
   {
     id: "culture_001",
-    question: "您為什麼要統一文字？",
+    question: "Why did you unify the writing system?",
     answer:
-      "各國文字不同，如何能政令統一？朕令李斯以小篆為標準，統一全國文字。此舉不僅便於政令傳達，更有利於文化交流和商業往來。統一的文字是統一國家的基礎，讓遠在邊疆的百姓也能讀懂朕的詔書，這才是真正的大一統。",
+      "If each state used different characters, how could policies be unified? I ordered Li Si to standardize the use of Small Seal script throughout the country. This not only facilitated policy implementation but also promoted cultural exchange and commerce. Unified writing is the foundation of a unified state, allowing people even in remote regions to understand my edicts. This is true great unification.",
     category: "culture",
     difficulty: "beginner",
   },
   {
     id: "culture_002",
-    question: "您對後世的文化發展有什麼看法？",
+    question: "What are your thoughts on cultural development for future generations?",
     answer:
-      "朕所建立的制度和文化基礎，為後世奠定了根基。統一的文字讓中華文化得以傳承，中央集權的政治制度被歷代王朝沿用。雖然朕的一些政策在當時引起爭議，但統一的價值是永恆的。朕希望後世能在統一的基礎上，發展出更加繁榮的文化。",
+      "The systems and cultural foundations I established provide a foundation for posterity. Unified writing allows Chinese civilization to be transmitted, and the centralized bureaucratic system has been adopted by subsequent dynasties. Though some of my policies were controversial at the time, the value of unification is eternal. I hope future generations will develop even more prosperous culture based on this unified foundation.",
     category: "culture",
     difficulty: "advanced",
   },
 
-  // 軍事類問題
+  // Military questions
   {
     id: "military_001",
-    question: "您是如何統一六國的？",
+    question: "How did you unify the Six States?",
     answer:
-      "朕採用遠交近攻的策略，逐一征服六國。先滅較弱的韓國，再攻趙國，接著是魏國、楚國、燕國，最後平定齊國。期間重用王翦、蒙恬等名將，以強大的軍事力量和靈活的外交手段，在十年內完成了統一大業。每一步都經過精心計劃，絕不盲目用兵。",
+      "I employed a strategy of befriending distant states while attacking nearby ones, conquering the six states one by one. I first defeated the weaker Han, then Zhao, followed by Wei, Chu, Yan, and finally Qi. I appointed capable generals like Wang Jian and Meng Tian, using strong military force and flexible diplomacy to complete unification within ten years. Each step was carefully planned without rash military action.",
     category: "military",
     difficulty: "intermediate",
   },
   {
     id: "military_002",
-    question: "您的軍隊有什麼特色？",
+    question: "What are the characteristics of your army?",
     answer:
-      "朕的軍隊紀律嚴明，裝備精良。採用兵農合一制度，平時務農，戰時為兵。軍中等級森嚴，依軍功封爵，激勵將士勇敢作戰。同時注重攻城器械的發展，弩機威力強大，能夠攻破堅固城池。最重要的是軍令如山，違令者必斬，這樣才能在戰場上所向披靡。",
+      "My army maintains strict discipline and superior equipment. I employ the farmer-soldier system where people farm during peace and become soldiers during war. Military hierarchy is rigidly enforced, with ranks awarded based on military merit to encourage valor. I also invested in developing siege weapons—the crossbow's power was formidable enough to breach fortified cities. Most importantly, military orders are absolute; violators are executed. This is how my army becomes irresistible on the battlefield.",
     category: "military",
     difficulty: "advanced",
   },
 ];
 
-// 可選的輸入選項（按鈕形式）
+// Optional input options (button form)
 export const predefinedQuestions = qinShihuangQA.map((qa) => ({
   id: qa.id,
   text: qa.question,
@@ -116,15 +116,15 @@ export const predefinedQuestions = qinShihuangQA.map((qa) => ({
   difficulty: qa.difficulty,
 }));
 
-// 根據問題ID查找答案
+// Find answer by question ID
 export const findAnswerById = (questionId: string): string | null => {
   const qa = qinShihuangQA.find((item) => item.id === questionId);
   return qa ? qa.answer : null;
 };
 
-// 根據問題文本查找答案
+// Find answer by question text
 export const findAnswerByQuestion = (question: string): string | null => {
   const qa = qinShihuangQA.find((item) => item.question === question);
   return qa ? qa.answer : null;
 };
-// （已移除）分類/難度篩選功能如需可在未來復原或放入新的資料管理模組。
+// (Removed) Category/Difficulty filtering functionality can be restored in future or moved to new data management module if needed.

@@ -55,27 +55,27 @@ export default function S3_LineStyleChat() {
   const npcMap: Record<string, NpcData> = {
     'police_officer': {
       id: 'police_officer',
-      name: '佐藤敬一',
-      role: '日本基層警察',
+      name: 'Keiichi Sato',
+      role: 'Japanese Police Officer',
       avatar: '/assets/images/police.png',
       color: 'from-slate-700 to-slate-900',
-      description: '負責執行總督府命令的日本警察，權力極大，令人敬畏。'
+      description: 'Police officer executing Governor-General orders with broad authority.'
     },
     'student': {
       id: 'student',
-      name: '小清',
-      role: '公學校學生',
+      name: 'Xiaoqing',
+      role: 'Public School Student',
       avatar: '/assets/images/student.png',
       color: 'from-emerald-600 to-emerald-800',
-      description: '台南市區的公學校學生，能提供基層台籍民眾的生活視角。'
+      description: 'Student in 1905 Tainan, offering a grassroots Taiwanese perspective.'
     },
     'land_surveyor': {
       id: 'land_surveyor',
-      name: '山本勘助',
-      role: '土地測量員',
+      name: 'Kansuke Yamamoto',
+      role: 'Land Surveyor',
       avatar: '/assets/images/Cadastral_surveyor.png',
       color: 'from-amber-700 to-amber-900',
-      description: '負責土地調查和林野清查的測量員，掌握財政與土地相關資訊。'
+      description: 'Conducts land surveys and forest inspections; holds fiscal and land insights.'
     }
   };
 
@@ -340,11 +340,11 @@ export default function S3_LineStyleChat() {
     const clues: Array<any> = [];
 
     if (categories.includes('law')) {
-      clues.push({ text: '六三法', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
+      clues.push({ text: 'Law No. 63', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
     }
 
     if (categories.includes('government')) {
-      clues.push({ text: '警察制度', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
+      clues.push({ text: 'Colonial police system', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
     }
 
     const existingClueTexts = new Set(
@@ -412,10 +412,10 @@ export default function S3_LineStyleChat() {
       <button
         onClick={() => actions.goBack()}
         className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
-        aria-label="返回上一頁"
+        aria-label="Go back to previous page"
       >
         <ArrowLeft size={18} />
-        <span className="text-sm font-medium hidden sm:inline">返回</span>
+        <span className="text-sm font-medium hidden sm:inline">Back</span>
       </button>
       
       {/* LINE 風格雙欄佈局 */}
@@ -423,8 +423,8 @@ export default function S3_LineStyleChat() {
         {/* 左側：角色選擇欄 */}
         <div className="w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
           <div className="pl-8 pt-16 pb-4 border-b border-gray-200">
-              <h2 className="font-bold text-base lg:text-lg text-dark-900">調查對象</h2>
-              <p className="text-xs lg:text-sm text-dark-600 mt-1">選擇要訪談的角色</p>
+              <h2 className="font-bold text-base lg:text-lg text-dark-900">Interview Targets</h2>
+              <p className="text-xs lg:text-sm text-dark-600 mt-1">Choose a character to interview</p>
             </div>
           
           <div className="flex-1 overflow-y-auto p-2">
@@ -473,7 +473,7 @@ export default function S3_LineStyleChat() {
                     {isInitializingBackground && (
                       <div className="inline-flex items-center gap-2 mt-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                         <Loader className="animate-spin text-gray-600" size={12} />
-                        <span>載入背景資料…</span>
+                        <span>Loading background context…</span>
                       </div>
                     )}
                   </div>
@@ -504,7 +504,7 @@ export default function S3_LineStyleChat() {
                       className="flex items-center gap-3 text-gray-600"
                     >
                       <Loader className="animate-spin" size={20} />
-                      <span>{npcData.name} 正在思考...</span>
+                      <span>{npcData.name} is thinking...</span>
                     </motion.div>
                   )}
 
@@ -533,7 +533,7 @@ export default function S3_LineStyleChat() {
                         }
                       }}
                       disabled={isLoading}
-                      placeholder="輸入你的問題..."
+                      placeholder="Type your question..."
                       className="flex-1 px-5 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 disabled:bg-gray-100 shadow-sm transition-all"
                     />
                     <button
@@ -546,7 +546,7 @@ export default function S3_LineStyleChat() {
                       }`}
                     >
                       <Send size={18} />
-                      發送
+                      Send
                     </button>
                   </div>
                 </div>
@@ -555,8 +555,8 @@ export default function S3_LineStyleChat() {
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500">
               <div className="text-center">
-                <p className="text-lg mb-2">請從左側選擇一位調查對象</p>
-                <p className="text-sm">開始你的歷史探索之旅</p>
+                <p className="text-lg mb-2">Select an interview target on the left</p>
+                <p className="text-sm">Start your historical inquiry</p>
               </div>
             </div>
           )}
@@ -572,8 +572,8 @@ export default function S3_LineStyleChat() {
                 <CheckCircle2 className="text-primary-600" size={24} />
               </div>
               <div>
-                <div className="font-semibold text-dark-900">調查階段完成!</div>
-                <div className="text-sm text-dark-600">你已收集到所有重要線索。現在可以前往下一階段整理，或繼續調查。</div>
+                <div className="font-semibold text-dark-900">Investigation stage complete!</div>
+                <div className="text-sm text-dark-600">You have gathered all key clues. Go organize them in the next stage or keep investigating.</div>
               </div>
             </div>
 
@@ -588,7 +588,7 @@ export default function S3_LineStyleChat() {
                 className="px-5 py-2.5 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-all flex items-center gap-2"
               >
                 <ChevronRight size={16} />
-                <span>前往整理資料</span>
+                <span>Go organize findings</span>
               </button>
 
               <button
@@ -600,7 +600,7 @@ export default function S3_LineStyleChat() {
                 }}
                 className="px-4 py-2 bg-white text-dark-700 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition-all"
               >
-                繼續調查
+                Continue investigating
               </button>
             </div>
           </div>
@@ -620,7 +620,7 @@ export default function S3_LineStyleChat() {
               setShowMinimizedBanner(false);
             }}
             className="fixed top-6 right-6 z-50 bg-primary-50 border border-primary-200 text-primary-700 px-3 py-2 rounded-lg shadow-md flex items-center gap-2"
-            aria-label="還原完成橫幅"
+            aria-label="Completion banner"
           >
             <CheckCircle2 size={16} className="text-primary-600" />
             <span className="text-sm font-medium">完成 — 繼續</span>

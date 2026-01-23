@@ -18,7 +18,7 @@ const PricingPlans: React.FC = () => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
             <Icon name="star" size="sm" className="mr-2" />
-            方案價格
+            Pricing Plans
           </div>
           <h2 className="text-heading-2 text-dark-900 mb-4">
             {copy.pricing.title}
@@ -42,7 +42,7 @@ const PricingPlans: React.FC = () => {
               {index === 1 && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
-                    🏆 最受歡迎
+                    🏆 Most Popular
                   </span>
                 </div>
               )}
@@ -87,7 +87,7 @@ const PricingPlans: React.FC = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-dark-700 mb-4">需要客製化方案或有其他問題？</p>
+          <p className="text-dark-700 mb-4">Need a custom plan or have questions? Contact us.</p>
         </div>
       </div>
     </section>

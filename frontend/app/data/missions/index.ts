@@ -1,29 +1,29 @@
 /**
- * 任務資料統一匯出
+ * Mission data unified export
  */
 
 import { tainanColonialRuleMission, MissionData } from './tainan-colonial-rule';
 
-// 所有可用任務
+// All available missions
 export const allMissions: MissionData[] = [
   tainanColonialRuleMission,
-  // 未來可以在這裡添加更多任務
+  // More missions can be added here in the future
 ];
 
-// 根據 ID 取得任務
+// Get mission by ID
 export const getMissionById = (id: string): MissionData | undefined => {
   return allMissions.find(mission => mission.id === id);
 };
 
-// 根據難度篩選任務
-export const getMissionsByDifficulty = (difficulty: '初級' | '中級' | '高級'): MissionData[] => {
+// Filter missions by difficulty
+export const getMissionsByDifficulty = (difficulty: 'Beginner' | 'Intermediate' | 'Advanced'): MissionData[] => {
   return allMissions.filter(mission => mission.difficulty === difficulty);
 };
 
-// 根據時期篩選任務
+// Filter missions by period
 export const getMissionsByPeriod = (period: string): MissionData[] => {
   return allMissions.filter(mission => mission.period.includes(period));
 };
 
-// 匯出類型
+// Export types
 export type { MissionData, Stage } from './tainan-colonial-rule';

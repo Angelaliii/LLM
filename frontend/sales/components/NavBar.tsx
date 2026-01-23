@@ -22,11 +22,11 @@ const NavBar: React.FC = () => {
   }, []);
 
   const navItems = [
-    { label: "產品特色", href: "#features" },
-    { label: "互動展示", href: "#demo" },
-    { label: "教學優勢", href: "#teaching" },
-    { label: "方案價格", href: "#pricing" },
-    { label: "常見問題", href: "#faq" },
+    { label: "Features", href: "#features" },
+    { label: "Interactive Demo", href: "#demo" },
+    { label: "Teaching Advantages", href: "#teaching" },
+    { label: "Pricing Plans", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -37,7 +37,7 @@ const NavBar: React.FC = () => {
         isScrolled ? "bg-white shadow-lg" : "bg-white/90 backdrop-blur-sm"
       }`}
       role="navigation"
-      aria-label="主要導覽"
+      aria-label="Main navigation"
     >
       <div className="container-max">
         <div className="flex items-center justify-between h-16 px-4 md:px-6">
@@ -47,9 +47,9 @@ const NavBar: React.FC = () => {
               <Icon name="chat" size="md" className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-dark-900">歷史對話系統</h1>
+              <h1 className="text-xl font-bold text-dark-900">Time Talk</h1>
               <p className="text-xs text-dark-700 hidden sm:block">
-                LLM 互動教學平台
+                LLM Interactive Teaching Platform
               </p>
             </div>
           </div>
@@ -77,7 +77,7 @@ const NavBar: React.FC = () => {
           <button
             className="lg:hidden p-2 text-dark-700 hover:text-primary-500 transition-colors"
             onClick={toggleMobileMenu}
-            aria-label="開啟選單"
+            aria-label="Open menu"
             aria-expanded={isMobileMenuOpen}
           >
             <Icon name={isMobileMenuOpen ? "close" : "menu"} size="md" />

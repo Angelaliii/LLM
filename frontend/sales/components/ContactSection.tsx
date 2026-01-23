@@ -7,11 +7,11 @@ const ContactSection: React.FC = () => {
       <div className="container-max">
         <div className="max-w-2xl mx-auto text-center">
           <h3 className="text-3xl font-bold text-white mb-4">
-            準備開始您的歷史教學革命？
+            Ready to Start Your History Teaching Revolution?
           </h3>
           <p className="text-primary-100 mb-8">
-            填寫下方表單，我們將在 24
-            小時內與您聯繫，提供完整的產品展示與客製化建議
+            Fill out the form below, and we will contact you within 24
+            hours to provide a complete product demonstration and customized recommendations
           </p>
 
           <form className="bg-white rounded-xl p-8 shadow-xl text-left">
@@ -21,14 +21,14 @@ const ContactSection: React.FC = () => {
                   htmlFor="name"
                   className="block text-sm font-medium text-dark-900 mb-2"
                 >
-                  姓名 *
+                  Name *
                 </label>
                 <input
                   type="text"
                   id="name"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="請輸入您的姓名"
+                  placeholder="Enter your name"
                 />
               </div>
 
@@ -37,14 +37,14 @@ const ContactSection: React.FC = () => {
                   htmlFor="email"
                   className="block text-sm font-medium text-dark-900 mb-2"
                 >
-                  電子郵件 *
+                  Email *
                 </label>
                 <input
                   type="email"
                   id="email"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="請輸入您的電子郵件"
+                  placeholder="Enter your email"
                 />
               </div>
 
@@ -53,16 +53,16 @@ const ContactSection: React.FC = () => {
                   htmlFor="role"
                   className="block text-sm font-medium text-dark-900 mb-2"
                 >
-                  身分 *
+                  Role *
                 </label>
                 <select
                   id="role"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="">請選擇身分</option>
-                  <option value="student">學生</option>
-                  <option value="parent">家長</option>
+                  <option value="">Select your role</option>
+                  <option value="student">Student</option>
+                  <option value="parent">Parent</option>
                 </select>
               </div>
 
@@ -71,13 +71,13 @@ const ContactSection: React.FC = () => {
                   htmlFor="institution"
                   className="block text-sm font-medium text-dark-900 mb-2"
                 >
-                  學校/機構
+                  School/Organization
                 </label>
                 <input
                   type="text"
                   id="institution"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="請輸入學校或機構名稱"
+                  placeholder="Enter school or organization name"
                 />
               </div>
             </div>
@@ -87,13 +87,13 @@ const ContactSection: React.FC = () => {
                 htmlFor="message"
                 className="block text-sm font-medium text-dark-900 mb-2"
               >
-                需求說明
+                Requirements Description
               </label>
               <textarea
                 id="message"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="請簡述您的需求或想了解的內容..."
+                placeholder="Please briefly describe your needs or what you'd like to know..."
               ></textarea>
             </div>
 
@@ -103,12 +103,12 @@ const ContactSection: React.FC = () => {
                 className="w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
               >
                 <Icon name="arrow" size="sm" className="mr-2" />
-                立即提交，開始免費體驗
+                Submit Now, Start Free Trial
               </button>
             </div>
 
             <p className="text-xs text-gray-500 mt-4 text-center">
-              提交表單即表示您同意我們的隱私政策。我們承諾不會將您的資料用於其他用途。
+              By submitting this form, you agree to our privacy policy. We promise not to use your data for any other purpose.
             </p>
           </form>
         </div>

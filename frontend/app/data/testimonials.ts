@@ -12,105 +12,105 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     id: "testimonial-1",
-    name: "林雅惠",
-    role: "歷史科教師",
-    institution: "台北市立大同高中",
+    name: "Lin Ya-hui",
+    role: "History Teacher",
+    institution: "Taipei Datong High School",
     content:
-      "使用歷史對話系統後，學生上課專注度明顯提升。原本對歷史興趣缺缺的同學，現在會主動詢問更多歷史問題。系統的教師管理介面很直觀，我可以輕鬆追蹤每位學生的學習進度，大幅減少備課時間。",
+      "After using Time Talk, student focus during class has noticeably improved. Students who previously had little interest in history now actively ask more questions. The teacher management interface is very intuitive—I can easily track each student's progress and significantly reduce preparation time.",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "teacher",
   },
   {
     id: "testimonial-2",
-    name: "王小明",
-    role: "高二學生",
-    institution: "新竹市立建功高中",
+    name: "Wang Xiao-ming",
+    role: "Grade 11 Student",
+    institution: "Hsinchu Jiangong High School",
     content:
-      "以前覺得歷史很無聊，都是死背年代和人名。但和秦始皇對話後，我才知道他統一天下背後的辛苦和壓力。現在我會主動查資料，想了解更多歷史故事。歷史從我最討厭的科目變成最期待的課程！",
+      "I used to find history boring—just memorizing dates and names. But after dialoguing with Qin Shi Huang, I understood the hardship and pressure behind his unification of China. Now I actively research history and want to learn more stories. History went from my most hated subject to my most anticipated class!",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "student",
   },
   {
     id: "testimonial-3",
-    name: "陳美玲",
-    role: "家長",
-    institution: "國三學生家長",
+    name: "Chen Mei-ling",
+    role: "Parent",
+    institution: "Parent of Grade 9 Student",
     content:
-      "孩子使用這個系統後，不只是歷史成績進步，連表達能力都變好了。他會跟我分享和秦始皇的對話內容，講得生動有趣。最重要的是，我能透過學習報告了解孩子的學習狀況，很放心讓他繼續使用。",
+      "After my child used this system, not only did history grades improve, but communication skills got better too. He shares the dialogue content with me in vivid detail. Most importantly, through learning reports I can understand his progress—I'm confident letting him continue using it.",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "parent",
   },
   {
     id: "testimonial-4",
-    name: "張志明",
-    role: "歷史科主任",
-    institution: "高雄市立前鎮高中",
+    name: "Zhang Zhi-ming",
+    role: "History Department Head",
+    institution: "Kaohsiung Qianzheng High School",
     content:
-      "我們學校導入這套系統已經一學期，學生的歷史科平均成績提升了 15 分。老師們反映課堂氣氛更活潑，學生願意主動參與討論。技術支援團隊很專業，導入過程很順利。",
+      "We've used this system for one semester, and average history scores increased by 15 points. Teachers report more lively classroom atmosphere and greater student participation. The technical support team is professional—the implementation was smooth.",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "teacher",
   },
   {
     id: "testimonial-5",
-    name: "李小華",
-    role: "國三學生",
-    institution: "台中市立居仁國中",
+    name: "Li Xiao-hua",
+    role: "Grade 9 Student",
+    institution: "Taichung Juren Junior High School",
     content:
-      "會考前我最擔心社會科，特別是歷史。用了這個系統後，複習變得很有趣，我可以問秦始皇當時的想法，比課本更容易理解。會考社會科拿到 A++，謝謝這個神奇的系統！",
+      "I was most worried about Social Studies before the high school entrance exam, especially history. With this system, review became fun. I could ask Qin Shi Huang his thoughts back then—much easier to understand than textbooks. I got A++ in Social Studies on the exam. Thank you for this magical system!",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "student",
   },
   {
     id: "testimonial-6",
-    name: "劉家豪",
-    role: "教務主任",
-    institution: "彰化縣立員林高中",
+    name: "Liu Jia-hao",
+    role: "Academic Affairs Director",
+    institution: "Changhua Yuanlin High School",
     content:
-      "學校數位轉型需要找到真正有效的工具，歷史對話系統完全符合我們的需求。不只提升教學效果，也讓我們在招生時更有競爭力。家長對學校的創新教學方式印象深刻。",
+      "Our school's digital transformation needed an effective tool—Time Talk perfectly meets our needs. It not only improves teaching effectiveness but also strengthens our recruitment competitiveness. Parents are impressed with our innovative teaching approach.",
     rating: 5,
     avatar: "<IMG_PLACEHOLDER>",
     type: "teacher",
   },
 ];
 
-// 根據類型篩選見證
+// Filter testimonials by type
 export const getTestimonialsByType = (
   type: Testimonial["type"]
 ): Testimonial[] => {
   return testimonials.filter((testimonial) => testimonial.type === type);
 };
 
-// 取得隨機見證
+// Get random testimonials
 export const getRandomTestimonials = (count: number): Testimonial[] => {
   const shuffled = [...testimonials].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
-// 合作單位（社會證明）
+// Partnerships (social proof)
 export const partnerships = [
   {
-    name: "台北市教育局",
-    type: "政府合作",
-    description: "數位教學創新試點計畫合作夥伴",
+    name: "Taipei Department of Education",
+    type: "Government Partnership",
+    description: "Digital teaching innovation pilot program partner",
   },
   {
-    name: "國立台灣師範大學",
-    type: "學術合作",
-    description: "歷史教育研究中心技術顧問",
+    name: "National Taiwan Normal University",
+    type: "Academic Partnership",
+    description: "History Education Research Center technical advisor",
   },
   {
-    name: "全國高級中等學校教育產業工會",
-    type: "教育組織",
-    description: "推薦數位教學工具",
+    name: "National Association of High School Teachers",
+    type: "Educational Organization",
+    description: "Recommended digital teaching tool",
   },
   {
-    name: "108 課綱適性教學聯盟",
-    type: "教育聯盟",
-    description: "符合新課綱教學工具認證",
+    name: "108 Curriculum Guideline Adaptive Teaching Alliance",
+    type: "Educational Alliance",
+    description: "Certified teaching tool for new curriculum",
   },
 ];

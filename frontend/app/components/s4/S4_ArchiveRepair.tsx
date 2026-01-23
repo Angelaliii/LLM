@@ -10,7 +10,7 @@ import DropZone from './subcomponents/DropZone';
 import './s4.css';
 import StageNavigation from '../ui/StageNavigation';
 
-// S4 任務配置
+// S4 archive repair configuration
 interface ArchiveField {
   id: string;
   label: string;
@@ -31,17 +31,17 @@ export default function S4_ArchiveRepair() {
   const { informationGaps, collectedClues } = useNotebookStore();
   const mission = currentMissionId ? getMissionById(currentMissionId) : null;
 
-  // 從筆記本獲取線索並轉換格式
+  // Pull clues from the notebook and normalize shape
   const clues: ClueCard[] = React.useMemo(() => {
     const notebookClues = Object.values(collectedClues);
     if (notebookClues.length === 0) {
-      // 如果沒有收集到線索，提供預設線索
+      // Provide a default set when no clues are collected
       return [
-        { id: 'clue_A', text: '《治安警察法》', type: 'key', source: '林小清 (學生)' },
-        { id: 'clue_B', text: '蔣渭水', type: 'key', source: '陳記者 (報導)' },
-        { id: 'clue_C', text: '田健治郎', type: 'key', source: '總督府公告' },
-        { id: 'clue_err1', text: '六三法', type: 'info', source: '歷史資料庫' },
-        { id: 'clue_err2', text: '林獻堂', type: 'info', source: '議會請願書' },
+        { id: 'clue_A', text: 'Public Order Police Law', type: 'key', source: 'Lin (student)' },
+        { id: 'clue_B', text: 'Jiang Weishui', type: 'key', source: 'Reporter Chen (article)' },
+        { id: 'clue_C', text: 'Den Kenjiro', type: 'key', source: 'Governor-General notice' },
+        { id: 'clue_err1', text: 'Law No. 63', type: 'info', source: 'History archive' },
+        { id: 'clue_err2', text: 'Lin Hsien-tang', type: 'info', source: 'Petition record' },
       ];
     }
     
@@ -53,44 +53,44 @@ export default function S4_ArchiveRepair() {
     }));
   }, [collectedClues]);
 
-  // 根據收集到的線索動態生成字段配置
+  // Dynamically build fields based on collected clues
   const [fields, setFields] = useState<ArchiveField[]>(() => {
     const keyClues = Object.values(collectedClues).filter(clue => clue.type === 'fact');
     
     if (keyClues.length === 0) {
-      // 預設配置
+      // Default configuration when no key clues are available
       return [
         {
           id: 'field_1',
-          label: '法律名稱',
-          correctText: '《治安警察法》',
+          label: 'Legal basis',
+          correctText: 'Public Order Police Law',
           correctClueId: 'clue_A'
         },
         {
           id: 'field_2',
-          label: '核心人物',
-          correctText: '蔣渭水',
+          label: 'Key figure',
+          correctText: 'Jiang Weishui',
           correctClueId: 'clue_B'
         },
         {
           id: 'field_3',
-          label: '當時總督',
-          correctText: '田健治郎',
+          label: 'Governor at the time',
+          correctText: 'Den Kenjiro',
           correctClueId: 'clue_C'
         }
       ];
     }
 
-    // 基於收集的線索生成字段
+    // Build fields from the collected key clues
     return keyClues.slice(0, 3).map((clue, index) => ({
       id: `field_${index + 1}`,
-      label: `資料${index + 1}`,
+      label: `Record ${index + 1}`,
       correctText: clue.text,
       correctClueId: clue.id
     }));
   });
 
-  // 初始化欄位狀態，根據實際的 fields 動態建立 key
+  // Initialize field state keyed to the current fields
   const makeInitialFieldStates = (flds: ArchiveField[]) => {
     return flds.reduce((acc, f) => {
       acc[f.id] = { status: 'empty' };
@@ -112,17 +112,17 @@ export default function S4_ArchiveRepair() {
   const [isDragging, setIsDragging] = useState(false);
   const autoProgressedRef = useRef(false); // 使用 ref 避免 re-render 干擾
 
-  // 計算進度（以 fields 為準，確保欄位數與狀態同步）
+  // Progress is tied to the field list to stay in sync
   const filledCount = fields.filter(f => fieldStates[f.id]?.status === 'filled').length;
   const totalCount = fields.length || 1;
   const progress = Math.round((filledCount / Math.max(totalCount, 1)) * 100);
 
-  // 處理拖曳結束
+  // Handle drag end
   const handleDragEnd = (event: any, clue: ClueCard, fieldId: string) => {
     const field = fields.find(f => f.id === fieldId);
     if (!field) return;
 
-    // 更靈活的驗證邏輯：匹配線索ID或內容
+    // More flexible validation: match by ID or matching text content
     const isCorrect = clue.id === field.correctClueId || 
                      clue.text.includes(field.correctText) ||
                      field.correctText.includes(clue.text);
@@ -132,21 +132,21 @@ export default function S4_ArchiveRepair() {
         ...prev,
         [fieldId]: { status: 'filled', filledBy: clue.id }
       }));
-      setFeedback({ type: 'success', msg: '修復成功！資料吻合。' });
+      setFeedback({ type: 'success', msg: 'Restoration successful: the clue fits.' });
       
-      // 如果這是筆記本線索，標記為已使用
+      // If this came from the notebook, mark it as used (trace only)
       if (collectedClues[clue.id]) {
-        console.log(`筆記本線索 ${clue.id} 已成功用於修復`);
+        console.log(`Notebook clue ${clue.id} applied to repair.`);
       }
     } else {
-      setFeedback({ type: 'error', msg: '錯誤：證據與缺漏處不符。請嘗試其他線索。' });
+      setFeedback({ type: 'error', msg: "Error: the clue doesn't match this gap. Try another." });
       triggerErrorEffect(fieldId);
     }
 
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  // 全域 drop 事件監聽（由 DropZone 發送），以處理 HTML5 dataTransfer 降落情況
+  // Global drop listener (sent by DropZone) to support HTML5 dataTransfer
   useEffect(() => {
     const onDropEvent = (e: Event) => {
       const ev = e as CustomEvent<{ fieldId: string; clueId: string }>;
@@ -156,7 +156,7 @@ export default function S4_ArchiveRepair() {
       const clue = clues.find(c => c.id === clueId);
       if (!clue) return;
 
-      // 將 isDragging 狀態復原並處理結果
+      // Reset dragging state and process the drop
       setIsDragging(false);
       handleDragEnd(null, clue, fieldId);
     };
@@ -198,7 +198,7 @@ export default function S4_ArchiveRepair() {
     }
   };
 
-  // 當進度達成 100%，自動播放蓋章動畫並在短延遲後進入 S5
+  // Auto-play stamp animation and transition to S5 at 100% progress
   useEffect(() => {
     console.info('[S4] useEffect triggered - progress:', progress, 'autoProgressedRef.current:', autoProgressedRef.current);
     
@@ -206,10 +206,8 @@ export default function S4_ArchiveRepair() {
       console.info('[S4] ✅ Setting up auto-transition timer (2400ms)');
       autoProgressedRef.current = true;
       
-      // 等動畫顯示一段時間後自動跳轉（800ms 讓用戶看到完成動畫）
-      // 改為 1200ms，給使用者更明顯的完成動畫與蓋章效果
+      // Allow the animation to show before auto-transition
       const t = setTimeout(() => {
-        // 進入 S5（測驗）- 只調用 missionActions，它會自動同步到 ChatStore
         console.info('[S4] ⏰ auto-transition timeout reached, goToStage S5');
         try {
           missionActions.goToStage("S5");
@@ -231,9 +229,9 @@ export default function S4_ArchiveRepair() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-primary-50">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">無法載入任務</p>
+          <p className="text-xl text-gray-600 mb-4">Mission could not be loaded</p>
           <p className="text-sm text-gray-500 mb-6">
-            {currentMissionId ? `無法找到任務: ${currentMissionId}` : '未選擇任何任務'}
+            {currentMissionId ? `Mission not found: ${currentMissionId}` : 'No mission selected'}
           </p>
           <button
             onClick={() => {
@@ -242,7 +240,7 @@ export default function S4_ArchiveRepair() {
             }}
             className="btn-primary"
           >
-            返回任務列表
+            Back to missions
           </button>
         </div>
       </div>
@@ -252,20 +250,20 @@ export default function S4_ArchiveRepair() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans selection:bg-amber-200 overflow-hidden relative flex flex-col">
       <StageNavigation currentStage="S4" />
-      {/* 背景裝飾 */}
+      {/* Background texture */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-30 pointer-events-none" />
 
-      {/* 返回按鈕（左上角） */}
+      {/* Back button (top-left) */}
       <button
         onClick={() => actions.goBack()}
         className="fixed top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm hover:bg-white shadow-sm hover:shadow-md transition-all text-stone-600 hover:text-stone-800 border border-stone-200"
-        aria-label="返回上一頁"
+        aria-label="Back to previous page"
       >
         <ArrowLeft size={18} />
-        <span className="text-sm font-medium hidden sm:inline">返回</span>
+        <span className="text-sm font-medium hidden sm:inline">Back</span>
       </button>
 
-      {/* 頂部導航 */}
+      {/* Top bar */}
       <header className="h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-8 z-30">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-stone-800 rounded-lg flex items-center justify-center text-amber-50 shadow-lg">
@@ -321,35 +319,35 @@ export default function S4_ArchiveRepair() {
             {/* 紙張質感 */}
             <div className="absolute inset-0 bg-stone-50 opacity-50 mix-blend-multiply pointer-events-none" />
 
-            {/* 檔案 Header */}
+            {/* Archive header */}
             <div className="border-b-2 border-stone-800 pb-4 mb-8 flex justify-between items-end relative z-10">
-              <h2 className="text-3xl font-serif font-bold text-stone-900">日治初期：權利與土地報告</h2>
+              <h2 className="text-3xl font-serif font-bold text-stone-900">Early Japanese Rule: Rights and Land Report</h2>
               <div className="text-xs font-mono text-stone-500">CONFIDENTIAL // REPAIR_MODE</div>
             </div>
 
-            {/* 檔案內容 */}
+            {/* Archive content */}
             <div className="font-serif text-xl leading-[2.5] text-stone-700 relative z-10">
               <div>
-                檔案編號：LAW-1905-SIXCODES
+                File ID: LAW-1905-SIXCODES
                 <br />
-                在日治初期，日本總督府透過
+                During early Japanese rule, the Government-General used
                 <DropZone
                   fieldId={fields[0]?.id ?? 'field_1'}
                   status={getFieldState(fields[0]?.id).status}
                   config={fields[0]}
                   highlight={isDragging && getFieldState(fields[0]?.id).status === 'empty'}
                 />
-                等法律工具，對臺灣進行深入的制度改造。
+                and other legal instruments to reshape Taiwan's institutions in depth.
                 <br />
                 <br />
-                其中，
+                Among them,
                 <DropZone
                   fieldId={fields[1]?.id ?? 'field_2'}
                   status={getFieldState(fields[1]?.id).status}
                   config={fields[1]}
                   highlight={isDragging && getFieldState(fields[1]?.id).status === 'empty'}
                 />
-                成為推行土地調查與權力控制的關鍵群體，對當時臺灣社會的基層結構造成了深遠的影響。
+                became the key group driving land surveys and power consolidation, deeply affecting grassroots society in Taiwan.
               </div>
             </div>
 
@@ -373,7 +371,7 @@ export default function S4_ArchiveRepair() {
           </motion.div>
         </div>
 
-        {/* 右側：證據卡片集合 */}
+        {/* Right side: clue cards */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -382,16 +380,16 @@ export default function S4_ArchiveRepair() {
           >
             <h3 className="text-lg font-bold text-stone-900 mb-4 flex items-center gap-2">
               <HelpCircle size={20} className="text-amber-600" />
-              筆記本：收集的線索
+              Notebook: Collected Clues
               <span className="ml-auto text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded">
-                {Object.keys(collectedClues).length} 條線索
+                {Object.keys(collectedClues).length} clues
               </span>
             </h3>
 
             {Object.keys(collectedClues).length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                <p>尚未收集任何線索</p>
-                <p className="text-sm mt-1">請先完成 S1-S3 階段收集線索</p>
+                <p>No clues collected yet</p>
+                <p className="text-sm mt-1">Complete stages S1–S3 to gather clues.</p>
               </div>
             )}
 
@@ -415,13 +413,13 @@ export default function S4_ArchiveRepair() {
             </div>
           </motion.div>
 
-          {/* 操作按鈕 */}
+          {/* Actions */}
           <div className="flex flex-col gap-3">
             <button
               onClick={handleReset}
               className="w-full px-4 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-lg transition-colors"
             >
-              重置
+              Reset
             </button>
 
             <motion.button
@@ -436,7 +434,7 @@ export default function S4_ArchiveRepair() {
               }`}
             >
               <span>
-                {progress === 100 ? '檔案修復完成 - 進入S5' : `進度 ${progress}%`}
+                {progress === 100 ? 'Archive restored – proceed to S5' : `Progress ${progress}%`}
               </span>
               {progress === 100 && <ArrowRight size={18} />}
             </motion.button>

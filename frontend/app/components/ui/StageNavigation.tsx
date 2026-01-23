@@ -15,45 +15,45 @@ interface Stage {
 const stages: Stage[] = [
   {
     id: 'S0',
-    name: '首頁',
+    name: 'Frontpage',
     icon: <Home className="w-5 h-5" />,
-    description: '返回任務選擇'
+    description: 'Return to mission selection'
   },
   {
     id: 'S1',
-    name: '檔案修復',
+    name: 'File Repair',
     icon: <FileText className="w-5 h-5" />,
-    description: '解密歷史檔案'
+    description: 'Decrypt historical files'
   },
   {
     id: 'S2',
-    name: 'NPC 選擇',
+    name: 'NPC Selection',
     icon: <Users className="w-5 h-5" />,
-    description: '選擇對話對象'
+    description: 'Choose conversation partner'
   },
   {
     id: 'S3',
-    name: '引導對話',
+    name: 'Guided Dialogue',
     icon: <MessageSquare className="w-5 h-5" />,
-    description: '與 NPC 對話探索'
+    description: 'Dialogue exploration with NPC'
   },
   {
     id: 'S4',
-    name: '檔案整理',
+    name: 'Archive Repair',
     icon: <Archive className="w-5 h-5" />,
-    description: '整理收集的資訊'
+    description: 'Organize collected information'
   },
   {
     id: 'S5',
-    name: '反思總結',
+    name: 'Reflection & Summary',
     icon: <BookOpen className="w-5 h-5" />,
-    description: '反思與總結'
+    description: 'Reflect and summarize learning'
   }
 ];
 
 interface StageNavigationProps {
   currentStage?: string;
-  showFloatingMenu?: boolean; // 是否顯示右下浮動選單
+  showFloatingMenu?: boolean; // Whether to display floating menu in bottom right
 }
 
 export default function StageNavigation({ currentStage, showFloatingMenu = false }: StageNavigationProps) {
@@ -71,29 +71,29 @@ export default function StageNavigation({ currentStage, showFloatingMenu = false
     setIsOpen(!isOpen);
   };
 
-  // 如果不顯示浮動選單，直接返回 null
+  // If floating menu should not be displayed, return null
   if (!showFloatingMenu) {
     return null;
   }
 
   return (
     <>
-      {/* 漂浮按鈕 */}
+      {/* Floating button */}
       <motion.button
         className="fixed bottom-6 right-6 z-[9999] bg-gradient-to-br from-amber-600 to-amber-800 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-amber-500/30"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={toggleMenu}
-        aria-label="開啟導航選單"
+        aria-label="Open navigation menu"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </motion.button>
 
-      {/* 導航選單面板 */}
+      {/* Navigation menu panel */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* 背景遮罩 */}
+            {/* Background overlay */}
             <motion.div
               className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-[9998]"
               initial={{ opacity: 0 }}
@@ -102,7 +102,7 @@ export default function StageNavigation({ currentStage, showFloatingMenu = false
               onClick={() => setIsOpen(false)}
             />
 
-            {/* 選單內容 */}
+            {/* Menu content */}
             <motion.div
               className="fixed bottom-20 right-6 z-[9999] bg-gradient-to-br from-stone-50 to-amber-50/80 rounded-2xl shadow-2xl border-2 border-amber-200/60 overflow-hidden w-80 backdrop-blur-md"
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -111,8 +111,8 @@ export default function StageNavigation({ currentStage, showFloatingMenu = false
               transition={{ type: 'spring', damping: 25 }}
             >
               <div className="p-4 border-b border-amber-200/60 bg-white/40">
-                <h3 className="text-lg font-bold text-stone-800 font-serif">階段導航</h3>
-                <p className="text-sm text-stone-600 mt-1">快速跳轉到任意階段</p>
+                <h3 className="text-lg font-bold text-stone-800 font-serif">Stage Navigation</h3>
+                <p className="text-sm text-stone-600 mt-1">Quick jump to any stage</p>
               </div>
 
               <div className="p-2 max-h-[70vh] overflow-y-auto">
@@ -158,7 +158,7 @@ export default function StageNavigation({ currentStage, showFloatingMenu = false
 
               <div className="p-3 border-t border-amber-200/60 bg-white/40">
                 <p className="text-xs text-stone-500 text-center font-medium">
-                  點擊任意階段即可跳轉
+                  Click any stage to jump
                 </p>
               </div>
             </motion.div>

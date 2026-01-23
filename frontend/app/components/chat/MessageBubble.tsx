@@ -11,23 +11,23 @@ interface MessageBubbleProps {
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isStreaming = false,
-  personaName = "對話角色",
+  personaName = "Dialogue Character",
   avatarUrl,
 }) => {
   const isUser = message.role === "user";
 
-  // 格式化時間戳，容錯處理不同型別或無效時間
+  // Format timestamp with error handling for different types or invalid times
   const formatTime = (timestamp?: string | number | Date) => {
     if (!timestamp) return "";
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp as any);
     if (isNaN(date.getTime())) return "";
-    return new Intl.DateTimeFormat("zh-TW", {
+    return new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
   };
 
-  // 計算可讀性顯示
+  // Calculate readability display
   const getReadabilityColor = (score?: number) => {
     if (!score) return "gray";
     if (score >= 80) return "green";
@@ -36,15 +36,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   const getReadabilityText = (score?: number) => {
-    if (!score) return "未評估";
-    if (score >= 80) return "易讀";
-    if (score >= 60) return "適中";
-    return "困難";
+    if (!score) return "Not Assessed";
+    if (score >= 80) return "Easy to Read";
+    if (score >= 60) return "Moderate";
+    return "Difficult";
   };
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4 items-end gap-2`}>
-      {/* NPC 頭像 (左側) */}
+      {/* NPC avatar (left side) */}
       {!isUser && avatarUrl && (
         <img
           src={avatarUrl}
@@ -54,18 +54,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       )}
       
       <div className={`max-w-[70%] ${isUser ? "order-2" : "order-1"}`}>
-        {/* 用戶名稱 */}
+        {/* User name */}
         <div
           className={`flex items-center mb-2 ${
             isUser ? "justify-end" : "justify-start"
           }`}
         >
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            {isUser ? "您" : personaName}
+            {isUser ? "You" : personaName}
           </span>
         </div>
 
-        {/* 消息內容 */}
+        {/* Message content */}
         <div
           className={`relative px-4 py-3 rounded-2xl shadow-sm ${
             isUser
@@ -73,7 +73,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600"
           }`}
         >
-          {/* 消息文本 */}
+          {/* Message text */}
           <div className="prose prose-sm max-w-none">
             {message.content.split("\n").map((paragraph, idx) => (
               <p
@@ -85,7 +85,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             ))}
           </div>
 
-          {/* 串流指示器 */}
+          {/* Streaming indicator */}
           {isStreaming && (
             <div className="inline-flex items-center ml-1">
               <div className="flex space-x-1">

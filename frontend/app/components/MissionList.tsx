@@ -1,4 +1,4 @@
-// S0 - 任務選單：從任務列表中選擇要挑戰的任務
+// S0 - Mission Selection: Choose a mission to challenge from the mission list
 import React from "react";
 import { useMissionStore } from "../store/useMissionStore";
 import { useMultiChatStore } from "../store/useMultiChatStore";
@@ -8,8 +8,8 @@ interface MissionDisplay {
   id: string;
   name: string;
   era: string;
-  difficulty: "初級" | "中級" | "高級";
-  status: "未開始" | "進行中" | "已完成";
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  status: "Not Started" | "In Progress" | "Completed";
   bestScore?: number;
   description: string;
   estimatedTime: string;
@@ -27,18 +27,18 @@ const getConversationLength = (chatStore: any, personaId?: string | null) => {
   return 0;
 };
 
-const getMissionStatus = (missionId: string, currentMissionId: string | null, selectedNpcId: string | null, chatStore: any): "未開始" | "進行中" | "已完成" => {
+const getMissionStatus = (missionId: string, currentMissionId: string | null, selectedNpcId: string | null, chatStore: any): "Not Started" | "In Progress" | "Completed" => {
   if (currentMissionId === missionId && selectedNpcId && getConversationLength(chatStore, selectedNpcId) > 0) {
-    return "進行中";
+    return "In Progress";
   }
-  return "未開始";
+  return "Not Started";
 };
 
 const MissionList: React.FC = () => {
   const { actions, currentMissionId, selectedNpcId } = useMissionStore();
   const chatStore = useMultiChatStore();
 
-  // 將任務資料轉換為顯示格式（動態狀態）
+  // Convert mission data to display format (dynamic status)
   const missions: MissionDisplay[] = allMissions.map((mission) => ({
     id: mission.id,
     name: mission.title,
@@ -51,31 +51,31 @@ const MissionList: React.FC = () => {
     learningGoals: mission.learningGoals,
   }));
 
-  // 檢查是否有進行中的對話
+  // Check if there's an ongoing conversation
   const hasOngoingConversation = (missionId: string) => {
     return currentMissionId === missionId && selectedNpcId && getConversationLength(chatStore, selectedNpcId) > 0;
   };
 
   const handleMissionSelect = (missionId: string) => {
-    // 如果有進行中的對話，直接跳到 S3（對話頁面）
+    // If there's an ongoing conversation, jump directly to S3 (dialog page)
     if (hasOngoingConversation(missionId)) {
       actions.goToStage('S3');
     } else {
-      // Debug log: 使用者選擇任務
+      // Debug log: User selected mission
       // eslint-disable-next-line no-console
       console.info('[MissionList] selectMission called:', missionId);
-      // 否則正常進入任務流程（S1）
+      // Otherwise proceed with normal mission flow (S1)
       actions.selectMission(missionId);
     }
   };
 
   const getDifficultyColor = (difficulty: MissionDisplay["difficulty"]) => {
     switch (difficulty) {
-      case "初級":
+      case "Beginner":
         return "bg-green-100 text-green-800";
-      case "中級":
+      case "Intermediate":
         return "bg-yellow-100 text-yellow-800";
-      case "高級":
+      case "Advanced":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -84,9 +84,9 @@ const MissionList: React.FC = () => {
 
   const getStatusIcon = (status: MissionDisplay["status"]) => {
     switch (status) {
-      case "已完成":
+      case "Completed":
         return "✅";
-      case "進行中":
+      case "In Progress":
         return "🔄";
       default:
         return "🚀";
@@ -97,8 +97,8 @@ const MissionList: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-amber-50 py-12">
       <div className="container-max">
         <div className="text-center mb-12">
-          <h1 className="text-heading-1 text-dark-900 mb-4">
-            選擇您的歷史任務
+          <h1 className="text-heading-2 text-dark-900 mb-4 whitespace-nowrap">
+            Choose Your History Mission
           </h1>
         </div>
 
@@ -160,7 +160,7 @@ const MissionList: React.FC = () => {
                 className="w-full btn-primary flex items-center justify-center gap-2 group"
               >
                 <span>
-                  {hasOngoingConversation(mission.id) ? '繼續對話' : '開始任務'}
+                  {hasOngoingConversation(mission.id) ? 'Continue Chat' : 'Start Mission'}
                 </span>
                 <span className="group-hover:translate-x-1 transition-transform">
                   →

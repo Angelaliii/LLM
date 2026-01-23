@@ -1,4 +1,4 @@
-// 主系統應用入口 - S0-S5 使用者流程
+// Main system application entry - S0-S5 user flow
 import React, { useEffect } from "react";
 import { useMissionStore } from "./store/useMissionStore";
 import MissionList from "./components/MissionList";  // S0
@@ -6,7 +6,7 @@ import S1_FileDecryption from "./components/s1/S1_FileDecryption"; // S1
 import S2_NpcSelection from "./components/s2/S2_NpcSelection"; // S2
 import S3Component from "./components/new_S3"; // S3 (LINE-style chat)
 import S4_ArchiveRepair from "./components/s4/S4_ArchiveRepair"; // S4
-import S5_ViewpointVerification from "./components/s5/S5_ViewpointVerification";   // S5 (替換舊版)
+import S5_ViewpointVerification from "./components/s5/S5_ViewpointVerification";   // S5 (Replace old version)
 
 const AppMain: React.FC = () => {
   const { currentStage, currentMissionId, actions } = useMissionStore();
@@ -29,12 +29,12 @@ const AppMain: React.FC = () => {
     }
     // 初始化時確保在正確的階段
     if (!isInitialized) {
-      // 強化狀態驗證：檢查 S3 狀態的完整性
+      // Strengthen state validation: check completeness of S3 state
       if (currentStage === "S3" && (!currentMissionId)) {
         console.warn('[AppMain] S3 stage but missing missionId, resetting to S0');
         actions.resetMission();
       } else if (!currentMissionId && currentStage !== "S0") {
-        // 如果沒有選擇任務但不在 S0，重置到 S0（任務列表）
+        // If no mission selected but not in S0, reset to S0 (mission list)
         console.warn('[AppMain] No mission selected, resetting to S0');
         actions.resetMission();
       }
@@ -48,10 +48,10 @@ const AppMain: React.FC = () => {
     console.info('[AppMain] currentStage:', currentStage, 'currentMissionId:', currentMissionId);
   }, [currentStage, currentMissionId]);
 
-  // 根據當前階段渲染對應介面
+  // Render the current stage UI
   const renderCurrentStage = () => {
     try {
-      // 防禦性檢查：如果 currentStage 不是有效值，回到 S0
+      // Defensive check: if currentStage is not valid, return to S0
       const validStages = ["S0", "S1", "S2", "S3", "S4", "S5"];
       if (!validStages.includes(currentStage)) {
         console.warn('[AppMain] Invalid currentStage:', currentStage, 'resetting to S0');
@@ -77,7 +77,7 @@ const AppMain: React.FC = () => {
       }
     } catch (error) {
       console.error('[AppMain] Error rendering stage:', error);
-      // 發生錯誤時重置到安全狀態
+      // Reset to safe state when error occurs
       actions.resetMission();
       return <MissionList />;
     }
@@ -85,9 +85,9 @@ const AppMain: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 主要內容區域 */}
+      {/* Main content area */}
       <main className="flex-1">
-        <React.Suspense fallback={<div className="p-8 text-center">載入中...</div>}>
+        <React.Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
           {renderCurrentStage()}
         </React.Suspense>
       </main>

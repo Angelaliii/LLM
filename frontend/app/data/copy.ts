@@ -1,4 +1,4 @@
-// 主要文案內容管理
+// Main copy content management
 export interface CopyVariant {
   id: string;
   name: string;
@@ -32,73 +32,73 @@ export interface CopyVariant {
 export const copyVariants: CopyVariant[] = [
   {
     id: "default",
-    name: "A 版本（情境導向）",
+    name: "Version A (Scenario-Oriented)",
     content: {
       hero: {
-        headline: "穿越時空，與千古一帝面對面",
+        headline: "Time Travel: Talk with Legends",
         subheadline:
-          "透過 AI 技術重現歷史場景，讓學生與秦始皇直接對話，體驗真實的歷史決策過程",
+          "Experience immersive historical learning through AI-powered conversations with legendary figures from the past",
         cta: {
-          primary: "開始時空對話",
-          secondary: "預覽對話場景",
+          primary: "Start Time Talk",
+          secondary: "Preview Dialog Scenario",
         },
       },
       features: [
         {
-          title: "真實歷史情境重現",
+          title: "Mission-Based Learning System",
           description:
-            "基於史料還原秦朝宮廷場景，學生可體驗重大歷史決策時刻，理解君王心境與時代壓力。",
-          proof: "重現 50+ 重要歷史事件場景",
+            "Structured 6-stage journey with AI progress tracking and gamified clue collection.",
+          proof: "Gamified progression keeps students engaged from start to finish",
         },
         {
-          title: "互動式歷史探索",
+          title: "Intelligent RAG-Enhanced Conversations",
           description:
-            "不再是被動接受知識，學生主動提問、探索、思辨，培養歷史思維與邏輯推理能力。",
-          proof: "學習參與度提升 85%，記憶效果持續 3 倍",
+            "Dual-process AI ensures accurate responses with guided prompts and auto-captured insights.",
+          proof: "Contextual knowledge snippets captured automatically in student notebooks",
         },
         {
-          title: "課堂即用教學設計",
+          title: "Interactive Archive Repair Mode",
           description:
-            "符合 50 分鐘課堂節奏，提供完整教案與學習單，教師輕鬆融入現有教學流程。",
-          proof: "10 分鐘完成課前準備，零技術門檻",
+            "Drag evidence cards to complete historical documents with visual tracking and validation.",
+          proof: "Hands-on learning through evidence synthesis and validation",
         },
       ],
       pricing: {
-        title: "彈性授權，滿足不同需求",
-        subtitle: "從個人探索到全校推廣，都有合適方案",
+        title: "Flexible Licensing for Every Need",
+        subtitle: "From individual exploration to campus-wide programs, we have the right plan",
         plans: [
           {
-            name: "探索體驗",
-            price: "免費試用",
+            name: "Explore",
+            price: "Free Trial",
             features: [
-              "體驗完整對話流程",
-              "3 次深度互動機會",
-              "基礎歷史問答",
-              "了解產品核心功能",
+              "Experience full dialogue flow",
+              "3 deep interaction opportunities",
+              "Basic historical Q&A",
+              "Understand core product features",
             ],
-            cta: "開始探索",
+            cta: "Start Exploring",
           },
           {
-            name: "個人深度",
-            price: "NT$ 299/月",
+            name: "Personal Depth",
+            price: "NT$ 299/month",
             features: [
-              "解鎖全部歷史人物",
-              "無限對話次數",
-              "專屬學習報告",
-              "進階互動功能",
+              "Unlock all historical figures",
+              "Unlimited dialogue sessions",
+              "Exclusive learning reports",
+              "Advanced interactive features",
             ],
-            cta: "深度學習",
+            cta: "Deep Learning",
           },
           {
-            name: "教育夥伴",
-            price: "專案洽談",
+            name: "Education Partner",
+            price: "Contact for Quote",
             features: [
-              "全校師生共享",
-              "教學管理平台",
-              "客製化內容",
-              "教師專業培訓",
+              "School-wide access for all faculty and students",
+              "Teaching management platform",
+              "Customized content",
+              "Professional teacher training",
             ],
-            cta: "成為夥伴",
+            cta: "Become a Partner",
           },
         ],
       },

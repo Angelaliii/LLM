@@ -228,16 +228,16 @@ const ChatWindow: React.FC = () => {
           {/* 角色切換器 */}
           <PersonaSwitcher />
 
-          {/* 消息列表（內容超出時在此處滾動） */}
+          {/* Message List (scrollable when content overflows) */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && !isStreaming && (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🏛️</div>
                   <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    與日治時期人物對話
+                    Dialogue with Historical Figures from the Japanese Colonial Period
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                    請從左側選擇 NPC 角色，輸入您的問題，探索日治時期台灣的歷史真相。
+                    Select an NPC character from the left, enter your questions, and explore the historical facts of Taiwan during the Japanese colonial period.
                   </p>
                 </div>
               )}

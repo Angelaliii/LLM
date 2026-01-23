@@ -15,9 +15,9 @@ const FAQ: React.FC = () => {
     <section id="faq" className="section-padding bg-gray-50">
       <div className="container-max">
         <div className="text-center mb-16">
-          <h2 className="text-heading-2 text-dark-900 mb-4">常見問題解答</h2>
+          <h2 className="text-heading-2 text-dark-900 mb-4">Frequently Asked Questions</h2>
           <p className="text-xl text-dark-700 max-w-3xl mx-auto">
-            我們整理了使用者最關心的問題，幫助您快速了解產品詳情
+            We've compiled the questions our users care about most to help you quickly understand our product details.
           </p>
         </div>
 
@@ -59,10 +59,10 @@ const FAQ: React.FC = () => {
           <div className="text-center mt-12">
             <div className="bg-white rounded-xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-dark-900 mb-4">
-                還有其他問題？
+                Have More Questions?
               </h3>
               <p className="text-dark-700 mb-6">
-                我們的專業團隊隨時為您解答，提供最適合的解決方案
+                Our team is ready to help you find the right solution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
@@ -70,14 +70,14 @@ const FAQ: React.FC = () => {
                   className="inline-flex items-center justify-center px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200"
                 >
                   <Icon name="email" size="sm" className="mr-2" />
-                  發送郵件詢問
+                  Email Us
                 </a>
                 <a
                   href="tel:+886-2-1234-5678"
                   className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary-500 text-primary-500 rounded-lg hover:bg-primary-500 hover:text-white transition-all duration-200"
                 >
                   <Icon name="phone" size="sm" className="mr-2" />
-                  電話諮詢
+                  Call Us
                 </a>
               </div>
             </div>

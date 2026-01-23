@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Zap, Heart, MessageCircle } from 'lucide-react';
 
-// 追問層次定義
+// Inquiry level definitions
 export type InquiryLevel = 'fact' | 'conflict' | 'empathy';
 
-// 提示結構（簡化版，直接接收 LLM 生成的 suggestions）
+// Prompt structure (simplified version, directly receives LLM-generated suggestions)
 interface PromptChip {
   text: string;
   type: InquiryLevel;
 }
 
 interface PromptChipsProps {
-  suggestions?: PromptChip[]; // 主要 prop：直接接收 LLM 生成的 suggestions
+  suggestions?: PromptChip[]; // Main prop: directly receives LLM-generated suggestions
   onChipClick: (prompt: string, level: InquiryLevel) => void;
   disabled?: boolean;
 }
@@ -24,7 +24,7 @@ export default function PromptChips({
 }: PromptChipsProps) {
   const [isVisible, setIsVisible] = useState(true);
 
-  // 當 suggestions 更新時，確保顯示狀態重置
+  // Reset display state when suggestions update
   useEffect(() => {
     if (suggestions.length > 0) {
       setIsVisible(true);
@@ -37,22 +37,22 @@ export default function PromptChips({
         return {
           icon: Brain,
           color: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200',
-          label: '事實層',
-          description: '詢問具體事件'
+          label: 'Fact-Based',
+          description: 'Ask about concrete events'
         };
       case 'conflict':
         return {
           icon: Zap,
           color: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200',
-          label: '衝突層',
-          description: '詢問對立面'
+          label: 'Conflict-Oriented',
+          description: 'Ask about opposing perspectives'
         };
       case 'empathy':
         return {
           icon: Heart,
           color: 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200',
-          label: '同理層',
-          description: '詢問個人感受'
+          label: 'Empathy-Based',
+          description: 'Ask about personal feelings'
         };
     }
   };
@@ -62,7 +62,7 @@ export default function PromptChips({
     
     onChipClick(prompt.text, prompt.type);
     
-    // 點擊後隱藏一下子，給予反饋
+    // Hide briefly after clicking to provide feedback
     setIsVisible(false);
     setTimeout(() => setIsVisible(true), 1000);
   };
@@ -75,7 +75,7 @@ export default function PromptChips({
     <div className="mb-4">
       <div className="flex items-center gap-2 mb-3">
         <MessageCircle size={16} className="text-gray-500" />
-        <span className="text-sm text-gray-600 font-medium">追問建議</span>
+        <span className="text-sm text-gray-600 font-medium">Follow-up Suggestions</span>
       </div>
       
       <AnimatePresence>
