@@ -130,6 +130,18 @@
     "trait_precise": "精確",
     "trait_pragmatic": "務實"
   },
+  "s3": {
+    "init_prompt": "請開始與 {{npcName}} 的對話，為任務「{{missionTitle}}」提供背景介紹。",
+    "connection_error": "無法連接 NPC 知識庫。請檢查後端服務。",
+    "response_error": "無法取得回覆。請重試。",
+    "failed_load": "無法載入對話",
+    "back_to_missions": "返回任務列表",
+    "loading_background": "載入背景資料…",
+    "change_target": "更換調查對象",
+    "thinking": "{{npcName}} 正在思考...",
+    "input_placeholder": "輸入你的問題...",
+    "send": "發送"
+  },
   "faq": {
     "title": "常見問題"
   },
@@ -144,5 +156,34 @@
   "validation": {
     "email": "請輸入有效的電子郵件",
     "password": "密碼至少需 8 個字元"
+  },
+  "notebook": {
+    "title": "調查筆記",
+    "tab_story": "任務故事",
+    "tab_clues": "關鍵線索",
+    "mission_background": "任務背景",
+    "background_text_1": "在日治初期，日本總督府透過",
+    "background_text_2": "等法律工具，對臺灣進行深入的制度改造。其中，",
+    "background_text_3": "成為推行土地調查與權力控制的關鍵群體",
+    "missing_data": "缺漏資料",
+    "hint_collect_clues": "透過與 NPC 對話收集線索，填補缺漏的歷史資料",
+    "no_mission": "無法載入任務故事",
+    "locked_need_clues": "未解鎖 · 需要收集線索",
+    "unlocked": "已解鎖",
+    "related_clues": "相關線索: {{count}} 個",
+    "clue_type_fact": "事實",
+    "clue_type_conflict": "衝突",
+    "clue_type_empathy": "同理",
+    "clue_type_background": "背景",
+    "gap_e2_legal_system": "法律制度",
+    "gap_e2_legal_system_desc": "日本在臺灣建立的特殊法律體系",
+    "gap_e2_enforcement": "執行機構",
+    "gap_e2_enforcement_desc": "負責推行政策的基層",
+    "gap_default_background": "事件背景",
+    "gap_default_background_desc": "歷史事件的背景脈絡",
+    "gap_default_people": "關鍵人物",
+    "gap_default_people_desc": "重要的歷史人物",
+    "gap_default_impact": "影響結果",
+    "gap_default_impact_desc": "事件的歷史意義"
   }
 }

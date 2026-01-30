@@ -74,16 +74,16 @@ const MISSION_GAPS: Record<string, InformationGap[]> = {
   'E2': [
     {
       id: 'gap_1',
-      label: '法律制度',
-      description: '日本在臺灣建立的特殊法律體系',
+      label: 'notebook.gap_e2_legal_system',
+      description: 'notebook.gap_e2_legal_system_desc',
       status: 'locked',
       correctAnswer: '六三法',
       unlockedClues: []
     },
     {
       id: 'gap_2',
-      label: '執行機構',
-      description: '負責推行政策的基層',
+      label: 'notebook.gap_e2_enforcement',
+      description: 'notebook.gap_e2_enforcement_desc',
       status: 'locked',
       correctAnswer: '警察',
       unlockedClues: []
@@ -92,22 +92,22 @@ const MISSION_GAPS: Record<string, InformationGap[]> = {
   'default': [
     {
       id: 'gap_1',
-      label: '事件背景',
-      description: '歷史事件的背景脈絡',
+      label: 'notebook.gap_default_background',
+      description: 'notebook.gap_default_background_desc',
       status: 'locked',
       unlockedClues: []
     },
     {
       id: 'gap_2',
-      label: '關鍵人物',
-      description: '重要的歷史人物',
+      label: 'notebook.gap_default_people',
+      description: 'notebook.gap_default_people_desc',
       status: 'locked',
       unlockedClues: []
     },
     {
       id: 'gap_3',
-      label: '影響結果',
-      description: '事件的歷史意義',
+      label: 'notebook.gap_default_impact',
+      description: 'notebook.gap_default_impact_desc',
       status: 'locked',
       unlockedClues: []
     }

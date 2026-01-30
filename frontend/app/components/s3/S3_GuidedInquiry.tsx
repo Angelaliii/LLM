@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
@@ -27,6 +28,7 @@ interface PromptSuggestion {
 }
 
 export default function S3_GuidedInquiry() {
+  const { t } = useTranslation();
   const { selectedNpcId, conversationsByPersona, actions } = useChatStore();
   const { currentMissionId, currentStageIndex, actions: missionActions } = useMissionStore();
   const { collectedClues, informationGaps, gapProgress, actions: notebookActions } = useNotebookStore();
@@ -74,22 +76,22 @@ export default function S3_GuidedInquiry() {
   const npcMap: Record<string, any> = {
     'police_officer': {
       id: 'police_officer',
-      name: '佐藤敬一',
-      role: '日本基層警察',
+      name: t('s2.police_officer_name'),
+      role: t('s2.police_officer_role'),
       avatar: '/assets/images/police.png',
       color: 'from-slate-700 to-slate-900'
     },
     'student': {
       id: 'student',
-      name: '小清',
-      role: '公學校學生',
+      name: t('s2.student_name'),
+      role: t('s2.student_role'),
       avatar: '/assets/images/student.png',
       color: 'from-emerald-600 to-emerald-800'
     },
     'land_surveyor': {
       id: 'land_surveyor',
-      name: '山本勘助',
-      role: '土地測量員',
+      name: t('s2.land_surveyor_name'),
+      role: t('s2.land_surveyor_role'),
       avatar: '/assets/images/Cadastral_surveyor.png',
       color: 'from-amber-700 to-amber-900'
     }
@@ -177,7 +179,7 @@ export default function S3_GuidedInquiry() {
     
     try {
       // 使用有效的初始化訊息而不是空字符串
-      const initPrompt = `請開始與 ${npc.name} 的對話，為任務「${mission.title}」提供背景介紹。`;
+      const initPrompt = t('s3.init_prompt', { npcName: npc.name, missionTitle: mission.title });
       console.log(`📝 [S3] Sending init prompt: "${initPrompt}"`);
       
       await streamChatViaBackend(initPrompt, {
@@ -213,7 +215,7 @@ export default function S3_GuidedInquiry() {
             const errorMsg: Message = {
               id: `msg_err_${Date.now()}`,
               role: 'system',
-              content: '無法連接 NPC 知識庫。請檢查後端服務。',
+              content: t('s3.connection_error'),
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
 
@@ -299,7 +301,7 @@ export default function S3_GuidedInquiry() {
             const errorMsg: Message = {
               id: `msg_err_${Date.now()}`,
               role: 'system',
-              content: '無法取得回覆。請重試。',
+              content: t('s3.response_error'),
               timestamp: new Date().toLocaleTimeString('zh-TW')
             };
             const errorMessages = [...newMessages, errorMsg];
@@ -370,7 +372,7 @@ export default function S3_GuidedInquiry() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-primary-50">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">無法載入對話</p>
+          <p className="text-xl text-gray-600 mb-4">{t('s3.failed_load')}</p>
           <button
             onClick={() => {
               // 同步重置兩個 stores
@@ -379,7 +381,7 @@ export default function S3_GuidedInquiry() {
             }}
             className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            返回任務列表
+            {t('s3.back_to_missions')}
           </button>
         </div>
       </div>
@@ -406,7 +408,7 @@ export default function S3_GuidedInquiry() {
               {isInitializingBackground && (
                 <div className="inline-flex items-center gap-2 mt-2 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                   <Loader className="animate-spin text-gray-600" size={14} />
-                  <span>載入背景資料…</span>
+                  <span>{t('s3.loading_background')}</span>
                 </div>
               )}
             </div>
@@ -420,7 +422,7 @@ export default function S3_GuidedInquiry() {
               }}
               className="px-5 py-2.5 text-sm font-semibold text-dark-700 hover:bg-gray-100 rounded-lg transition-all border border-gray-200 shadow-sm hover:shadow"
             >
-              更換調查對象
+              {t('s3.change_target')}
             </button>
             {/* 開發用清除按鈕已移除；請使用命令列工具執行資料清除 */}
           </div>
@@ -451,7 +453,7 @@ export default function S3_GuidedInquiry() {
               className="flex items-center gap-3 text-gray-600"
             >
               <Loader className="animate-spin" size={20} />
-              <span>{npcData.name} 正在思考...</span>
+              <span>{t('s3.thinking', { npcName: npcData.name })}</span>
             </motion.div>
           )}
 
@@ -483,7 +485,7 @@ export default function S3_GuidedInquiry() {
                     }
                   }}
                   disabled={isLoading}
-                  placeholder="輸入你的問題..."
+                  placeholder={t('s3.input_placeholder')}
                   className="flex-1 px-5 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 disabled:bg-gray-100 shadow-sm transition-all"
                 />
                 <button
@@ -496,7 +498,7 @@ export default function S3_GuidedInquiry() {
                   }`}
                 >
                   <Send size={18} />
-                  發送
+                  {t('s3.send')}
                 </button>
               </div>
             </div>

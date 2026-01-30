@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useNotebookStore, type Clue, type InformationGap } from '../store/useNotebookStore';
 import { useMissionStore } from '../store/useMissionStore';
 import { getMissionById } from '../data/missions';
@@ -20,6 +21,7 @@ interface NotebookProps {
 }
 
 export default function Notebook({ className = '' }: NotebookProps) {
+  const { t } = useTranslation();
   const { 
     informationGaps, 
     collectedClues, 
@@ -83,13 +85,13 @@ export default function Notebook({ className = '' }: NotebookProps) {
   const getClueTypeLabel = (type: Clue['type']) => {
     switch (type) {
       case 'fact':
-        return '事實';
+        return t('notebook.clue_type_fact');
       case 'conflict':
-        return '衝突';
+        return t('notebook.clue_type_conflict');
       case 'empathy':
-        return '同理';
+        return t('notebook.clue_type_empathy');
       default:
-        return '背景';
+        return t('notebook.clue_type_background');
     }
   };
 
@@ -126,7 +128,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-2">
           <BookOpen size={20} className="text-primary-600" />
-          <h2 className="text-lg font-bold text-dark-900">調查筆記</h2>
+          <h2 className="text-lg font-bold text-dark-900">{t('notebook.title')}</h2>
         </div>
         <button
           onClick={actions.toggleNotebook}
@@ -145,7 +147,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
               activeTab === 'story' ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            任務故事
+            {t('notebook.tab_story')}
           </button>
           <button
             onClick={() => setActiveTab('key')}
@@ -153,7 +155,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
               activeTab === 'key' ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            關鍵線索
+            {t('notebook.tab_clues')}
           </button>
         </div>
 
@@ -175,27 +177,27 @@ export default function Notebook({ className = '' }: NotebookProps) {
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
                       <span className="text-lg">📜</span>
-                      任務背景
+                      {t('notebook.mission_background')}
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      在日治初期，日本總督府透過
+                      {t('notebook.background_text_1')}
                       <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
-                        ❓ 缺漏資料
+                        ❓ {t('notebook.missing_data')}
                       </span>
-                      等法律工具，對臺灣進行深入的制度改造。其中，
+                      {t('notebook.background_text_2')}
                       <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
-                        ❓ 缺漏資料
+                        ❓ {t('notebook.missing_data')}
                       </span>
-                      成為推行土地調查與權力控制的關鍵群體
+                      {t('notebook.background_text_3')}
                     </p>
                   </div>
                   <div className="text-xs text-gray-500 italic flex items-center gap-2">
                     <span>💡</span>
-                    <span>透過與 NPC 對話收集線索，填補缺漏的歷史資料</span>
+                    <span>{t('notebook.hint_collect_clues')}</span>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">無法載入任務故事</div>
+                <div className="text-sm text-gray-500">{t('notebook.no_mission')}</div>
               )}
             </motion.div>
           ) : activeTab === 'key' ? (
@@ -211,7 +213,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       {getGapStatusIcon(gap)}
-                      <h3 className="font-medium text-dark-900">{gap.label}</h3>
+                      <h3 className="font-medium text-dark-900">{t(gap.label)}</h3>
                     </div>
                     <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
                       {gapProgress && gapProgress[gap.id]
@@ -219,19 +221,19 @@ export default function Notebook({ className = '' }: NotebookProps) {
                         : '0/1'}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{gap.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">{t(gap.description)}</p>
 
                   {gap.status === 'locked' ? (
-                    <div className="text-xs text-gray-500 italic">未解鎖 · 需要收集線索</div>
+                    <div className="text-xs text-gray-500 italic">{t('notebook.locked_need_clues')}</div>
                   ) : gap.status === 'filled' ? (
                     <div className="bg-green-50 border border-green-200 rounded p-2">
                       <div className="text-sm font-medium text-green-800">✅ {gap.correctAnswer}</div>
                     </div>
                   ) : (
                     <div className="bg-amber-50 border border-amber-200 rounded p-2">
-                      <div className="text-sm text-amber-700">已解鎖</div>
+                      <div className="text-sm text-amber-700">{t('notebook.unlocked')}</div>
                       {gap.unlockedClues.length > 0 && (
-                        <div className="mt-2 text-xs text-amber-600">相關線索: {gap.unlockedClues.length} 個</div>
+                        <div className="mt-2 text-xs text-amber-600">{t('notebook.related_clues', { count: gap.unlockedClues.length })}</div>
                       )}
                       <div className="mt-1 text-xs text-amber-700">
                         {gapProgress && gapProgress[gap.id]

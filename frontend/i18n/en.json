@@ -130,6 +130,18 @@
     "trait_precise": "Precise",
     "trait_pragmatic": "Pragmatic"
   },
+  "s3": {
+    "init_prompt": "Please begin the conversation with {{npcName}} and provide background introduction for the mission '{{missionTitle}}'.",
+    "connection_error": "Unable to connect to NPC knowledge base. Please check backend service.",
+    "response_error": "Unable to get response. Please try again.",
+    "failed_load": "Failed to load conversation",
+    "back_to_missions": "Back to Mission List",
+    "loading_background": "Loading background data...",
+    "change_target": "Change Investigation Target",
+    "thinking": "{{npcName}} is thinking...",
+    "input_placeholder": "Enter your question...",
+    "send": "Send"
+  },
   "npc": {
     "select": "Select NPC",
     "selector": "NPC Selector"
@@ -148,5 +160,34 @@
   "validation": {
     "email": "Please enter a valid email address",
     "password": "Password must be at least 8 characters"
+  },
+  "notebook": {
+    "title": "Investigation Notes",
+    "tab_story": "Mission Story",
+    "tab_clues": "Key Clues",
+    "mission_background": "Mission Background",
+    "background_text_1": "In the early Japanese colonial period, the Governor-General's Office used",
+    "background_text_2": "and other legal tools to deeply restructure Taiwan's institutions. Among them,",
+    "background_text_3": "became key actors in implementing land surveys and power control",
+    "missing_data": "Missing Data",
+    "hint_collect_clues": "Collect clues through NPC conversations to fill in missing historical data",
+    "no_mission": "Unable to load mission story",
+    "locked_need_clues": "Locked · Need to collect clues",
+    "unlocked": "Unlocked",
+    "related_clues": "Related clues: {{count}}",
+    "clue_type_fact": "Fact",
+    "clue_type_conflict": "Conflict",
+    "clue_type_empathy": "Empathy",
+    "clue_type_background": "Background",
+    "gap_e2_legal_system": "Legal System",
+    "gap_e2_legal_system_desc": "The special legal framework established by Japan in Taiwan",
+    "gap_e2_enforcement": "Enforcement Agency",
+    "gap_e2_enforcement_desc": "Grassroots institutions responsible for implementing policies",
+    "gap_default_background": "Event Background",
+    "gap_default_background_desc": "Historical context of the event",
+    "gap_default_people": "Key Figures",
+    "gap_default_people_desc": "Important historical figures",
+    "gap_default_impact": "Impact Results",
+    "gap_default_impact_desc": "Historical significance of the event"
   }
 }
