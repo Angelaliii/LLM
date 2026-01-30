@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useChatStore } from '../../store/useChatStore';
 import { useMissionStore } from '../../store/useMissionStore';
 import { getMissionById } from '../../data/missions';
@@ -58,6 +59,7 @@ const FALLBACK_MISSION: S1MissionData = {
 };
 
 export default function S1_FileDecryption() {
+  const { t } = useTranslation();
   const { missionId, actions } = useChatStore();
   const missionActions = useMissionStore(state => state.actions);
   const mission = missionId ? getMissionById(missionId) : null;
@@ -120,18 +122,18 @@ export default function S1_FileDecryption() {
           <button
             onClick={() => actions.goBack()}
             className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-600 hover:text-stone-800"
-            aria-label="返回上一頁"
+            aria-label={t('common.back_label')}
           >
             <ArrowLeft size={18} />
-            <span className="text-sm font-medium hidden sm:inline">返回</span>
+            <span className="text-sm font-medium hidden sm:inline">{t('common.back')}</span>
           </button>
           
           <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-800 rounded-lg flex items-center justify-center shadow-lg shadow-amber-900/10">
             <BookOpen size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-stone-800 font-serif">歷史對話系統</h1>
-            <p className="text-xs text-stone-500 tracking-wider uppercase">Archive Repair V2.2</p>
+            <h1 className="text-lg font-bold tracking-tight text-stone-800 font-serif">{t('s1.title')}</h1>
+            <p className="text-xs text-stone-500 tracking-wider uppercase">{t('s1.subtitle')}</p>
           </div>
         </div>
         
@@ -178,11 +180,11 @@ export default function S1_FileDecryption() {
                         {missionData.title}
                     </h2>
                     <p className="text-stone-500 font-sans text-sm flex items-center gap-2">
-                      <History size={14} /> 原始紀錄歸檔：{missionData.period || '日治時期'}
+                      <History size={14} /> {t('s1.original_record')}{missionData.period || '日治時期'}
                     </p>
                 </div>
                  <div className="text-right hidden md:block">
-                   <div className="text-xs font-mono text-stone-400 mb-1">DOC_ID</div>
+                   <div className="text-xs font-mono text-stone-400 mb-1">{t('s1.doc_id')}</div>
                    <div className="text-lg font-serif font-bold text-stone-700 whitespace-nowrap">#1905-{missionData.id || 'SEC'}</div>
                  </div>
               </div>
@@ -260,21 +262,21 @@ export default function S1_FileDecryption() {
                 <div className="p-2 bg-stone-100 rounded-full text-stone-600">
                     <Search size={18} />
                 </div>
-                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider">修復診斷報告</h3>
+                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider">{t('s1.file_restoration_title')}</h3>
             </div>
             
             {isScanning ? (
                 <div className="text-stone-500 text-sm">
-                    正在分析文本結構完整性...
+                    {t('s1.analyzing_text')}
                 </div>
             ) : (
                 <div className="space-y-4">
                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 flex gap-3">
                        <div className="text-amber-600 shrink-0 mt-0.5 text-lg">✨</div>
                        <div>
-                           <p className="text-amber-900 font-bold text-sm">發現 2 處記憶斷層</p>
+                           <p className="text-amber-900 font-bold text-sm">{t('s1.memory_gaps_found')}</p>
                            <p className="text-amber-700/70 text-xs mt-1 leading-relaxed">
-                               檔案因年代久遠而模糊不清，請透過人物訪談來重建當時的場景細節。
+                               {t('s1.memory_gaps_desc')}
                            </p>
                        </div>
                    </div>
@@ -293,15 +295,14 @@ export default function S1_FileDecryption() {
             <div className="relative z-10">
               <div className="text-xs font-bold text-amber-600 mb-2 uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
-                你是誰...
+                {t('s1.identity_hint')}
               </div>
 
-              <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">鈴木先生的自我介紹</h4>
+              <h4 className="text-2xl font-serif font-bold text-stone-900 mb-3">{t('s1.identity_title')}</h4>
 
               {/* 身分定位 (從測量員改為文官) */}
               <p className="text-stone-600 leading-relaxed mb-4 font-serif">
-                鈴木先生，隸屬於臺灣總督府的地方文官，有別於手持警棍的巡查，或操作儀器的測量員，你
-                負責的是民政事務的推行與文書紀錄。
+                {t('s1.identity_desc')}
               </p>
 
             </div>
@@ -320,10 +321,10 @@ export default function S1_FileDecryption() {
               }`}
             >
               {isScanning ? (
-                  <span className="text-stone-500">系統運算中...</span>
+                  <span className="text-stone-500">{t('s1.computing')}</span>
               ) : (
                   <>
-                      <span>開始歷史調查</span>
+                      <span>{t('s1.start_investigation')}</span>
                       <ArrowRight size={18} className="text-amber-500" />
                   </>
               )}

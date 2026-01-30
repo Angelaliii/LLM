@@ -1,0 +1,49 @@
+{
+  "languageGate": {
+    "title": "選擇您的介面語言",
+    "description": "您可以在任何時刻於右上角修改語言設定",
+    "chinese": "中文（繁體）",
+    "english": "English",
+    "skip": "稍後再說",
+    "skipLabel": "跳過語言選擇"
+  },
+  "common": {
+    "error": "發生錯誤",
+    "send": "送出",
+    "refresh": "重新整理",
+    "confirm": "確認",
+    "cancel": "取消",
+    "cta": "行動呼籲",
+    "loading": "載入中...",
+    "close": "關閉",
+    "back": "返回",
+    "next": "下一步",
+    "prev": "上一步"
+  },
+  "missions": {
+    "list": "任務列表",
+    "intro": "任務介紹",
+    "completed": "完成階段",
+    "stageCompletion": "階段完成",
+    "stageCard": "階段完成卡片"
+  },
+  "npc": {
+    "select": "選擇 NPC",
+    "selector": "NPC 選擇器"
+  },
+  "faq": {
+    "title": "常見問題"
+  },
+  "features": {
+    "grid": "功能網格"
+  },
+  "errors": {
+    "networkError": "網路連線失敗，請稍後再試",
+    "loadingFailed": "載入失敗，請重新整理頁面",
+    "required": "{{field}} 為必填"
+  },
+  "validation": {
+    "email": "請輸入有效的電子郵件",
+    "password": "密碼至少需 8 個字元"
+  }
+}

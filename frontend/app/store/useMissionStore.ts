@@ -13,6 +13,9 @@ interface MissionState {
   currentMissionId: string | null;
   selectedNpcId: string | null;
   
+  // 語言選擇狀態
+  isLanguageGateShown: boolean;
+  
   // 新增：當前關卡追蹤
   currentStageIndex: number;
   completedStages: string[]; // 已完成的關卡 ID
@@ -79,6 +82,9 @@ interface MissionState {
     
     // 導航控制
     goToStage: (stage: MissionStage) => void;
+    
+    // 語言選擇控制
+    setLanguageGateShown: (shown: boolean) => void;
   };
 }
 
@@ -90,6 +96,7 @@ export const useMissionStore = create<MissionState>()(
         currentStage: "S0",
         currentMissionId: null,
         selectedNpcId: null,
+        isLanguageGateShown: true, // 預設顯示語言選擇
         
         currentStageIndex: 0,
         completedStages: [],
@@ -285,6 +292,11 @@ export const useMissionStore = create<MissionState>()(
             } catch (e) {
               console.warn('[MissionStore.goToStage] Failed to sync with ChatStore:', e);
             }
+          },
+          
+          setLanguageGateShown: (shown: boolean) => {
+            console.log('[MissionStore] setLanguageGateShown:', shown);
+            set({ isLanguageGateShown: shown });
           },
         },
       }),

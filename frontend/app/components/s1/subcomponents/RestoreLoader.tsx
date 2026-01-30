@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Hourglass } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { restoreLoaderPathTransition } from '../animations';
 
 interface RestoreLoaderProps {
@@ -8,6 +9,7 @@ interface RestoreLoaderProps {
 }
 
 export default function RestoreLoader({ progress }: RestoreLoaderProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
       <div className="relative w-16 h-16">
@@ -36,7 +38,7 @@ export default function RestoreLoader({ progress }: RestoreLoaderProps) {
         </div>
       </div>
       <p className="text-stone-500 font-serif tracking-widest text-sm animate-pulse">
-        RESTORING ARCHIVES... {progress}%
+        {t('s1.restoring_archives')} {progress}%
       </p>
     </div>
   );

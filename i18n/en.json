@@ -1,0 +1,49 @@
+{
+  "languageGate": {
+    "title": "Select Your Language",
+    "description": "You can change the language anytime in the top-right corner",
+    "chinese": "中文 (Traditional)",
+    "english": "English",
+    "skip": "Later",
+    "skipLabel": "Skip language selection"
+  },
+  "common": {
+    "error": "An error occurred",
+    "send": "Send",
+    "refresh": "Refresh",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "cta": "Call to Action",
+    "loading": "Loading...",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous"
+  },
+  "missions": {
+    "list": "Mission List",
+    "intro": "Mission Introduction",
+    "completed": "Stage Completed",
+    "stageCompletion": "Stage Completion",
+    "stageCard": "Stage Completion Card"
+  },
+  "npc": {
+    "select": "Select NPC",
+    "selector": "NPC Selector"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions"
+  },
+  "features": {
+    "grid": "Feature Grid"
+  },
+  "errors": {
+    "networkError": "Network connection failed. Please try again later.",
+    "loadingFailed": "Loading failed. Please refresh the page.",
+    "required": "{{field}} is required"
+  },
+  "validation": {
+    "email": "Please enter a valid email address",
+    "password": "Password must be at least 8 characters"
+  }
+}

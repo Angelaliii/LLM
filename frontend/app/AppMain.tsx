@@ -1,15 +1,18 @@
 // 主系統應用入口 - S0-S5 使用者流程
 import React, { useEffect } from "react";
 import { useMissionStore } from "./store/useMissionStore";
-import MissionList from "./components/MissionList";  // S0
+import LanguageGate from "./components/language/LanguageGate";  // 語言選擇
+import { useLanguageSelector } from "./components/language/useLanguageSelector";
+import MissionList from "./components/MissionList";  // S0 任務列表
 import S1_FileDecryption from "./components/s1/S1_FileDecryption"; // S1  
 import S2_NpcSelection from "./components/s2/S2_NpcSelection"; // S2
-import S3Component from "./components/new_S3"; // S3 (LINE-style chat)
+import S3Component from "./components/s3/S3_LineStyleChat"; // S3 (LINE-style chat)
 import S4_ArchiveRepair from "./components/s4/S4_ArchiveRepair"; // S4
 import S5_ViewpointVerification from "./components/s5/S5_ViewpointVerification";   // S5 (替換舊版)
 
 const AppMain: React.FC = () => {
   const { currentStage, currentMissionId, actions } = useMissionStore();
+  const { isLanguageGateShown, isLoading: isLanguageLoading } = useLanguageSelector();
   const [isInitialized, setIsInitialized] = React.useState(false);
 
   useEffect(() => {
@@ -47,6 +50,21 @@ const AppMain: React.FC = () => {
     // eslint-disable-next-line no-console
     console.info('[AppMain] currentStage:', currentStage, 'currentMissionId:', currentMissionId);
   }, [currentStage, currentMissionId]);
+
+  // 若語言未初始化或需要顯示語言 Gate，先顯示語言選擇
+  if (isLanguageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLanguageGateShown) {
+    return <LanguageGate />;
+  }
 
   // 根據當前階段渲染對應介面
   const renderCurrentStage = () => {

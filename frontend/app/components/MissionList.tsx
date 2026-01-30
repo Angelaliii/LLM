@@ -1,5 +1,6 @@
 // S0 - 任務選單：從任務列表中選擇要挑戰的任務
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useMissionStore } from "../store/useMissionStore";
 import { useMultiChatStore } from "../store/useMultiChatStore";
 import { allMissions } from "../data/missions";
@@ -35,6 +36,7 @@ const getMissionStatus = (missionId: string, currentMissionId: string | null, se
 };
 
 const MissionList: React.FC = () => {
+  const { t } = useTranslation();
   const { actions, currentMissionId, selectedNpcId } = useMissionStore();
   const chatStore = useMultiChatStore();
 
@@ -98,7 +100,7 @@ const MissionList: React.FC = () => {
       <div className="container-max">
         <div className="text-center mb-12">
           <h1 className="text-heading-1 text-dark-900 mb-4">
-            選擇您的歷史任務
+            {t('s0.title')}
           </h1>
         </div>
 
@@ -121,7 +123,7 @@ const MissionList: React.FC = () => {
                       mission.difficulty
                     )} backdrop-blur-sm bg-opacity-90`}
                   >
-                    {mission.difficulty}
+                    {t(`s0.difficulty_${mission.difficulty === "初級" ? "easy" : mission.difficulty === "中級" ? "medium" : "hard"}`)}
                   </span>
                 </div>
               </div>
@@ -147,7 +149,7 @@ const MissionList: React.FC = () => {
               {mission.bestScore && (
                 <div className="mb-4 p-3 bg-primary-50 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-primary-700">最高分數</span>
+                    <span className="text-sm text-primary-700">{t('s0.best_score')}</span>
                     <span className="text-lg font-bold text-primary-600">
                       {mission.bestScore}分
                     </span>
@@ -160,7 +162,7 @@ const MissionList: React.FC = () => {
                 className="w-full btn-primary flex items-center justify-center gap-2 group"
               >
                 <span>
-                  {hasOngoingConversation(mission.id) ? '繼續對話' : '開始任務'}
+                  {hasOngoingConversation(mission.id) ? t('s0.continue_conversation') : t('s0.start_mission')}
                 </span>
                 <span className="group-hover:translate-x-1 transition-transform">
                   →
@@ -169,7 +171,7 @@ const MissionList: React.FC = () => {
               
               {hasOngoingConversation(mission.id) && (
                 <div className="mt-2 text-xs text-center text-green-600 dark:text-green-400">
-                  💬 有進行中的對話
+                  {t('s0.ongoing_conversation_hint')}
                 </div>
               )}
             </div>

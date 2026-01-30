@@ -194,7 +194,7 @@ export default function S5_ViewpointVerification() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
               onClick={() => {
-                handleResetAndReload('S1');
+                handleResetAndReload('S0');
               }}
               className="px-6 py-3 bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm hover:shadow-md"
             >

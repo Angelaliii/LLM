@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { redactedBackdropAnim } from '../animations';
 
 interface RedactedBlockProps {
@@ -10,6 +11,7 @@ interface RedactedBlockProps {
 }
 
 export default function RedactedBlock({ field, isHovered, onHover }: RedactedBlockProps) {
+  const { t } = useTranslation();
   if (!field) return null;
 
   return (
@@ -43,7 +45,7 @@ export default function RedactedBlock({ field, isHovered, onHover }: RedactedBlo
         </motion.span>
       ) : (
         <span className="flex items-center gap-1 relative z-10 opacity-60">
-          <span className="tracking-[0.1em] text-xs font-serif italic">MISSING DATA</span>
+          <span className="tracking-[0.1em] text-xs font-serif italic">{t('s1.missing_data')}</span>
         </span>
       )}
     </motion.span>
