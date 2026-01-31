@@ -1,5 +1,20 @@
 // Backend safety guardrails moved from frontend
-import type { SafetyCheckResult } from "../../types/api";
+interface SafetyIssue {
+  type:
+    | "inappropriate"
+    | "anachronistic"
+    | "historical_inaccuracy"
+    | "educational_concern";
+  severity: "low" | "medium" | "high";
+  message: string;
+  suggestion?: string;
+}
+
+interface SafetyCheckResult {
+  isSafe: boolean;
+  issues: SafetyIssue[];
+  alternativePrompt?: string;
+}
 
 export const SAFETY_KEYWORDS = {
   violence: [
@@ -108,7 +123,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
   }
 
   return {
-    isSafe: issues.length === 0 || issues.every((issue) => issue.severity === "low"),
+    isSafe: issues.length === 0 || issues.every((issue: SafetyIssue) => issue.severity === "low"),
     issues,
     alternativePrompt:
       issues.length > 0 ? generateAlternativePrompt(content, issues) : undefined,
@@ -117,14 +132,14 @@ export function checkContentSafety(content: string): SafetyCheckResult {
 
 function generateAlternativePrompt(
   _originalContent: string,
-  issues: SafetyCheckResult["issues"]
+  issues: SafetyIssue[]
 ): string {
   const hasViolence = issues.some(
-    (issue) => issue.type === "inappropriate" && issue.message.includes("暴力")
+    (issue: SafetyIssue) => issue.type === "inappropriate" && issue.message.includes("暴力")
   );
-  const hasAnachronism = issues.some((issue) => issue.type === "anachronistic");
+  const hasAnachronism = issues.some((issue: SafetyIssue) => issue.type === "anachronistic");
   const hasPolitics = issues.some(
-    (issue) => issue.type === "inappropriate" && issue.message.includes("政治")
+    (issue: SafetyIssue) => issue.type === "inappropriate" && issue.message.includes("政治")
   );
 
   if (hasViolence) {
@@ -143,7 +158,7 @@ function generateAlternativePrompt(
 }
 
 export function checkResponseSafety(response: string): SafetyCheckResult {
-  const issues: SafetyCheckResult["issues"] = [];
+  const issues: SafetyIssue[] = [];
 
   const citationPattern = /《[^》]+》第\d+章|《[^》]+》卷\d+|出自《[^》]+》第\d+頁/g;
   const hasSpecificCitations = citationPattern.test(response);
@@ -178,7 +193,7 @@ export function checkResponseSafety(response: string): SafetyCheckResult {
   }
 
   return {
-    isSafe: issues.length === 0 || issues.every((issue) => issue.severity === "low"),
+    isSafe: issues.length === 0 || issues.every((issue: SafetyIssue) => issue.severity === "low"),
     issues,
   };
 }
