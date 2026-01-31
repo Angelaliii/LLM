@@ -49,6 +49,7 @@ export default function S3_LineStyleChat() {
   const [showMinimizedBanner, setShowMinimizedBanner] = useState(false);
   const [pendingShowCompletionOnNpcFinish, setPendingShowCompletionOnNpcFinish] = useState(false);
   const [currentSuggestions, setCurrentSuggestions] = useState<PromptSuggestion[]>([]);
+  const [dismissedWarning, setDismissedWarning] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // NPC 資料對應表
@@ -406,6 +407,31 @@ export default function S3_LineStyleChat() {
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col">
       <StageNavigation currentStage="S3" />
+      
+      {/* 英文介面警示 */}
+      {!dismissedWarning && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="bg-red-50 border-b border-red-200 px-8 py-6 flex items-center gap-4"
+        >
+          <div className="flex-shrink-0 w-16" />
+          <div className="flex-1 ml-12">
+            <p className="text-base text-red-900">
+              <span className="font-semibold">⚠️ Notice:</span> This English interface is for demonstration purposes. Since the original system and its keyword mechanisms were developed in Chinese, this page remains in Chinese to ensure functional accuracy.
+            </p>
+          </div>
+          <button
+            onClick={() => setDismissedWarning(true)}
+            className="flex-shrink-0 text-red-600 hover:text-red-800 transition-colors text-2xl"
+            aria-label="Dismiss warning"
+          >
+            ✕
+          </button>
+        </motion.div>
+      )}
       {/* remove spacer — banner is fixed and should not push content down */}
       
       {/* 返回按鈕（左上角） */}
