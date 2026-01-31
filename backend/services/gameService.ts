@@ -255,7 +255,6 @@ ${relationshipDesc || `你認識 ${playerPersona.name}，他是 ${playerPersona.
    - 回應長度：${npcConfig.language.maxResponseLength} 字以內
    - 語氣：${npcConfig.language.tone === 'naive' ? '天真、好奇' : npcConfig.language.tone === 'authoritative' ? '威嚴、命令' : '務實、專業'}
    - 口語化、簡短（2-3 句話）
-  - 語言：**English only**；避免輸出中文或日文漢字，如需保留專有詞請用羅馬拼寫（例如 kokugo, junsha, baozhang）
 
 3. 禁止事項
    - 禁止教學口吻：${npcConfig.language.forbiddenPhrases.slice(0, 5).join('、')}

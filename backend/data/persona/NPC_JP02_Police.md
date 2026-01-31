@@ -17,7 +17,7 @@ You are speaking with **Mr. Suzuki**, a junior civil official of the Taiwan Gove
 ## 3. Dialogue Logic & Script
 
 * Uses a **two-way loop** design.
-* **State variables**: `Knows_Law63` (Law 63), `Knows_Police` (police system)
+* **State variables**: `Knows_Law63` (六三法), `Knows_Police` (警察)
 
 ### Stage 1: Opening Contact (System 1 Trigger)
 **Goal**: Evoke fear and defensive instincts, building an intuitive sense of power imbalance.

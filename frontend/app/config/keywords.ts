@@ -1,7 +1,7 @@
 // 集中管理關鍵字分類與簡單匹配工具
 export const KEYWORDS: Record<string, string[]> = {
-  law: ['law no. 63', 'article 63', 'six-three law'],
-  government: ['police', 'colonial police', 'police system']
+  law: ['六三法', '法律第六十三號', '63法', '緊急律令', 'law no. 63', 'article 63', 'six-three law'],
+  government: ['警察', '警察制度', '殖民警察', 'police', 'colonial police', 'police system']
 };
 
 // 簡單匹配：回傳匹配到的類別與對應關鍵字

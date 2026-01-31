@@ -83,13 +83,13 @@ export default function Notebook({ className = '' }: NotebookProps) {
   const getClueTypeLabel = (type: Clue['type']) => {
     switch (type) {
       case 'fact':
-        return 'Fact';
+        return '事實';
       case 'conflict':
-        return 'Conflict';
+        return '衝突';
       case 'empathy':
-        return 'Empathy';
+        return '同理';
       default:
-        return 'Background';
+        return '背景';
     }
   };
 
@@ -126,7 +126,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-2">
           <BookOpen size={20} className="text-primary-600" />
-          <h2 className="text-lg font-bold text-dark-900">Investigation Notebook</h2>
+          <h2 className="text-lg font-bold text-dark-900">調查筆記</h2>
         </div>
         <button
           onClick={actions.toggleNotebook}
@@ -145,7 +145,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
               activeTab === 'story' ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Mission Story
+            任務故事
           </button>
           <button
             onClick={() => setActiveTab('key')}
@@ -153,7 +153,7 @@ export default function Notebook({ className = '' }: NotebookProps) {
               activeTab === 'key' ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Key Clues
+            關鍵線索
           </button>
         </div>
 
@@ -175,27 +175,27 @@ export default function Notebook({ className = '' }: NotebookProps) {
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
                       <span className="text-lg">📜</span>
-                      Mission Background
+                      任務背景
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      In the early Japanese colonial period, the Governor-General used
+                      在日治初期，日本總督府透過
                       <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
-                        ❓ Missing data
+                        ❓ 缺漏資料
                       </span>
-                      as legal tools to restructure Taiwan's institutions. In particular,
+                      等法律工具，對臺灣進行深入的制度改造。其中，
                       <span className="inline-flex items-center mx-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
-                        ❓ Missing data
+                        ❓ 缺漏資料
                       </span>
-                      became the key group for executing land surveys and enforcing control.
+                      成為推行土地調查與權力控制的關鍵群體
                     </p>
                   </div>
                   <div className="text-xs text-gray-500 italic flex items-center gap-2">
                     <span>💡</span>
-                    <span>Gather clues by talking with NPCs to fill the missing historical details.</span>
+                    <span>透過與 NPC 對話收集線索，填補缺漏的歷史資料</span>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">Mission story unavailable</div>
+                <div className="text-sm text-gray-500">無法載入任務故事</div>
               )}
             </motion.div>
           ) : activeTab === 'key' ? (
@@ -222,16 +222,16 @@ export default function Notebook({ className = '' }: NotebookProps) {
                   <p className="text-sm text-gray-600 mb-3">{gap.description}</p>
 
                   {gap.status === 'locked' ? (
-                    <div className="text-xs text-gray-500 italic">Locked · collect clues to unlock</div>
+                    <div className="text-xs text-gray-500 italic">未解鎖 · 需要收集線索</div>
                   ) : gap.status === 'filled' ? (
                     <div className="bg-green-50 border border-green-200 rounded p-2">
                       <div className="text-sm font-medium text-green-800">✅ {gap.correctAnswer}</div>
                     </div>
                   ) : (
                     <div className="bg-amber-50 border border-amber-200 rounded p-2">
-                      <div className="text-sm text-amber-700">Unlocked</div>
+                      <div className="text-sm text-amber-700">已解鎖</div>
                       {gap.unlockedClues.length > 0 && (
-                        <div className="mt-2 text-xs text-amber-600">Related clues: {gap.unlockedClues.length}</div>
+                        <div className="mt-2 text-xs text-amber-600">相關線索: {gap.unlockedClues.length} 個</div>
                       )}
                       <div className="mt-1 text-xs text-amber-700">
                         {gapProgress && gapProgress[gap.id]

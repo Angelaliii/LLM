@@ -74,18 +74,18 @@ const MISSION_GAPS: Record<string, InformationGap[]> = {
   'E2': [
     {
       id: 'gap_1',
-      label: 'Legal Regime',
-      description: 'The special legal framework Japan set up in Taiwan',
+      label: '法律制度',
+      description: '日本在台灣建立的特殊法律框架',
       status: 'locked',
-      correctAnswer: 'Law No. 63',
+      correctAnswer: '六三法',
       unlockedClues: []
     },
     {
       id: 'gap_2',
-      label: 'Enforcement Forces',
-      description: 'Grassroots actors executing the policies',
+      label: '執行力量',
+      description: '執行政策的基層執行者',
       status: 'locked',
-      correctAnswer: 'Police',
+      correctAnswer: '警察',
       unlockedClues: []
     }
   ],

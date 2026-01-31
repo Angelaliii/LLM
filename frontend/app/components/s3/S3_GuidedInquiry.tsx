@@ -325,11 +325,11 @@ export default function S3_GuidedInquiry() {
 
     // 根據匹配到的類別生成線索
     if (categories.includes('law')) {
-      clues.push({ text: 'Law No. 63', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
+      clues.push({ text: '六三法', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
     }
 
     if (categories.includes('government')) {
-      clues.push({ text: 'Colonial police system', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
+      clues.push({ text: '警察制度', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
     }
 
     // 檢查已收集的線索，避免重複添加

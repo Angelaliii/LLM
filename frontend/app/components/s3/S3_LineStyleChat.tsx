@@ -55,24 +55,24 @@ export default function S3_LineStyleChat() {
   const npcMap: Record<string, NpcData> = {
     'police_officer': {
       id: 'police_officer',
-      name: 'Keiichi Sato',
-      role: 'Japanese Police Officer',
+      name: '佐藤警官',
+      role: '日本警察官',
       avatar: '/assets/images/police.png',
       color: 'from-slate-700 to-slate-900',
       description: 'Police officer executing Governor-General orders with broad authority.'
     },
     'student': {
       id: 'student',
-      name: 'Xiaoqing',
-      role: 'Public School Student',
+      name: '小清',
+      role: '公學校學生',
       avatar: '/assets/images/student.png',
       color: 'from-emerald-600 to-emerald-800',
       description: 'Student in 1905 Tainan, offering a grassroots Taiwanese perspective.'
     },
     'land_surveyor': {
       id: 'land_surveyor',
-      name: 'Kansuke Yamamoto',
-      role: 'Land Surveyor',
+      name: '山本測量員',
+      role: '土地測量員',
       avatar: '/assets/images/Cadastral_surveyor.png',
       color: 'from-amber-700 to-amber-900',
       description: 'Conducts land surveys and forest inspections; holds fiscal and land insights.'
@@ -340,11 +340,11 @@ export default function S3_LineStyleChat() {
     const clues: Array<any> = [];
 
     if (categories.includes('law')) {
-      clues.push({ text: 'Law No. 63', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
+      clues.push({ text: '六三法', type: 'fact' as const, source: npcName, relatedGapId: 'gap_1' });
     }
 
     if (categories.includes('government')) {
-      clues.push({ text: 'Colonial police system', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
+      clues.push({ text: '警察制度', type: 'fact' as const, source: npcName, relatedGapId: 'gap_2' });
     }
 
     const existingClueTexts = new Set(
@@ -423,8 +423,8 @@ export default function S3_LineStyleChat() {
         {/* 左側：角色選擇欄 */}
         <div className="w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
           <div className="pl-8 pt-16 pb-4 border-b border-gray-200">
-              <h2 className="font-bold text-base lg:text-lg text-dark-900">Interview Targets</h2>
-              <p className="text-xs lg:text-sm text-dark-600 mt-1">Choose a character to interview</p>
+              <h2 className="font-bold text-base lg:text-lg text-dark-900">採訪對象</h2>
+              <p className="text-xs lg:text-sm text-dark-600 mt-1">選擇一個角色進行採訪</p>
             </div>
           
           <div className="flex-1 overflow-y-auto p-2">
@@ -473,7 +473,7 @@ export default function S3_LineStyleChat() {
                     {isInitializingBackground && (
                       <div className="inline-flex items-center gap-2 mt-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                         <Loader className="animate-spin text-gray-600" size={12} />
-                        <span>Loading background context…</span>
+                        <span>載入背景資訊中…</span>
                       </div>
                     )}
                   </div>
@@ -504,7 +504,7 @@ export default function S3_LineStyleChat() {
                       className="flex items-center gap-3 text-gray-600"
                     >
                       <Loader className="animate-spin" size={20} />
-                      <span>{npcData.name} is thinking...</span>
+                      <span>{npcData.name} 正在思考中...</span>
                     </motion.div>
                   )}
 
@@ -533,7 +533,7 @@ export default function S3_LineStyleChat() {
                         }
                       }}
                       disabled={isLoading}
-                      placeholder="Type your question..."
+                      placeholder="輸入你的問題..."
                       className="flex-1 px-5 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 disabled:bg-gray-100 shadow-sm transition-all"
                     />
                     <button
@@ -546,7 +546,7 @@ export default function S3_LineStyleChat() {
                       }`}
                     >
                       <Send size={18} />
-                      Send
+                      傳送
                     </button>
                   </div>
                 </div>

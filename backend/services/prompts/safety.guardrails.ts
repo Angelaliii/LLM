@@ -49,10 +49,10 @@ export const SAFETY_KEYWORDS = {
 };
 
 export const EDUCATIONAL_REDIRECTS = {
-  violence_glorification: `I understand the curiosity about harsh historical policies, but we should discuss them academically. Governance then differed from modern values; let us view it in its historical context.`,
-  anachronistic_concepts: `The concept you mentioned did not exist in that era. Let us return to the historical setting and examine the institutions and society of the time.`,
-  inappropriate_modern_parallels: `Directly comparing past history with modern politics can be misleading. Let us focus on the history itself and the constraints of that period.`,
-  offensive_language: `Please stay respectful toward historical figures and the learning context. Discussing history appropriately helps understanding.`,
+  violence_glorification: `朕理解你對歷史中強力政策的好奇，但我們應該以學術角度來探討這些問題。古代的治理方式確實與現代價值觀存在差異，讓我們從歷史脈絡來理解當時的政治環境與制度選擇。`,
+  anachronistic_concepts: `你提到的概念在朕的時代尚未出現。讓我們回到戰國秦代的歷史背景，探討當時的政治制度與社會結構。你是否想了解古代與現代在治理理念上的差異？`,
+  inappropriate_modern_parallels: `將古代歷史與現代政治直接類比容易產生誤解。朕建議我們專注於歷史本身的學習，理解不同時代的特殊背景與限制條件。`,
+  offensive_language: `請保持對歷史人物與學習環境的尊重。讓我們以適當的方式討論歷史問題，這樣更有助於學習與理解。`,
 };
 
 export function checkContentSafety(content: string): SafetyCheckResult {
@@ -66,7 +66,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
     issues.push({
       type: "inappropriate",
       severity: "high",
-      message: `Contains potentially inappropriate violence-related terms: ${violenceKeywords.join(", ")}`,
+      message: `包含可能不適當的暴力相關詞彙：${violenceKeywords.join(", ")}`,
       suggestion: EDUCATIONAL_REDIRECTS.violence_glorification,
     });
   }
@@ -78,7 +78,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
     issues.push({
       type: "inappropriate",
       severity: "medium",
-      message: `Contains modern political sensitive terms: ${politicsKeywords.join(", ")}`,
+      message: `包含現代政治敏感詞彙：${politicsKeywords.join(", ")}`,
       suggestion: EDUCATIONAL_REDIRECTS.inappropriate_modern_parallels,
     });
   }
@@ -90,7 +90,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
     issues.push({
       type: "anachronistic",
       severity: "medium",
-      message: `Contains anachronistic concepts: ${anachronisticKeywords.join(", ")}`,
+      message: `包含時代錯置的概念：${anachronisticKeywords.join(", ")}`,
       suggestion: EDUCATIONAL_REDIRECTS.anachronistic_concepts,
     });
   }
@@ -102,7 +102,7 @@ export function checkContentSafety(content: string): SafetyCheckResult {
     issues.push({
       type: "educational_concern",
       severity: "high",
-      message: `May include inappropriate glorification of violence: ${glorificationKeywords.join(", ")}`,
+      message: `可能包含對暴力的不當美化：${glorificationKeywords.join(", ")}`,
       suggestion: EDUCATIONAL_REDIRECTS.violence_glorification,
     });
   }
@@ -128,18 +128,18 @@ function generateAlternativePrompt(
   );
 
   if (hasViolence) {
-    return "Let us shift the angle: how were the political and legal systems established in that era?";
+    return "讓我們換個角度討論：秦朝的政治制度與法律體系是如何建立的？";
   }
 
   if (hasAnachronism) {
-    return "Let us focus on the historical period itself. What were the key features of governance then?";
+    return "讓我們專注於古代歷史：戰國時期的政治制度有哪些特點？";
   }
 
   if (hasPolitics) {
-    return "Let us return to the historical discussion: what strategies were used for unification at that time?";
+    return "讓我們回到歷史學習：秦朝的統一過程中採用了哪些策略？";
   }
 
-  return "Let us reframe the question: which aspect of that historical period would you like to know?";
+  return "讓我們重新思考這個問題：你想了解秦朝歷史的哪個方面？";
 }
 
 export function checkResponseSafety(response: string): SafetyCheckResult {
@@ -151,9 +151,9 @@ export function checkResponseSafety(response: string): SafetyCheckResult {
     issues.push({
       type: "historical_inaccuracy",
       severity: "high",
-      message: "Response may contain fabricated specific citations",
+      message: "回應中包含可能杜撰的具體文獻引用",
       suggestion:
-        "Use vague attributions like 'historical records note' and avoid specific page or chapter numbers",
+        "應該使用「據史載」「史書記錄」等模糊表達，避免具體頁碼或章節",
     });
   }
 
@@ -162,8 +162,8 @@ export function checkResponseSafety(response: string): SafetyCheckResult {
     issues.push({
       type: "educational_concern",
       severity: "high",
-      message: "Response may glorify violence or inhumane acts",
-      suggestion: "Provide objective analysis, avoid value judgments, and mention differing viewpoints",
+      message: "回應可能美化了暴力或不人道的行為",
+      suggestion: "應該提供客觀分析，避免價值判斷，並提及不同史學觀點",
     });
   }
 
@@ -172,8 +172,8 @@ export function checkResponseSafety(response: string): SafetyCheckResult {
     issues.push({
       type: "anachronistic",
       severity: "medium",
-      message: "Response contains anachronistic concepts or terms",
-      suggestion: "Use concepts and wording consistent with the historical context",
+      message: "回應包含時代錯置的概念或詞彙",
+      suggestion: "應該使用符合古代歷史背景的概念與詞彙",
     });
   }
 
@@ -184,43 +184,43 @@ export function checkResponseSafety(response: string): SafetyCheckResult {
 }
 
 export const SENSITIVE_TOPIC_GUIDELINES = {
-  book_burning: {
+  焚書坑儒: {
     approach: "balanced_academic",
     keyPoints: [
-      "Discuss book burning and scholar persecution separately",
-      "Explain political background and motives",
-      "Acknowledge disputes in historical records",
-      "Offer multiple historiographical views",
-      "Avoid simplistic moral judgments",
+      "分別討論焚書與坑儒兩個事件",
+      "說明事件的政治背景與動機",
+      "承認史料記載的爭議性",
+      "提供多重史學觀點",
+      "避免簡單的道德評判",
     ],
     sample:
-      "The incidents of burning books and punishing scholars were related but distinct. Book burning targeted classics to unify thought, while practical texts were spared. The punishment of scholars arose from political fallout. Historians differ on scale and impact; stay anchored to sources and context.",
+      "關於焚書坑儒，這實際上是兩個相關但不同的事件。焚書主要針對《詩》《書》等典籍，目的在於統一思想文化，但醫藥、農業等實用書籍得以保留。坑儒則是因為方士求仙藥失敗後的政治事件。史學界對這些事件的具體規模和影響存在不同看法，我們應該以史料為依據，同時理解當時的政治環境。",
   },
 
-  autocracy: {
+  專制統治: {
     approach: "contextual_analysis",
     keyPoints: [
-      "Explain why centralization was seen as necessary",
-      "Contrast governance ideas then vs. now",
-      "Describe institutional evolution",
-      "Avoid judging solely by modern values",
-      "Stress historical context",
+      "解釋中央集權制的歷史必要性",
+      "對比古代與現代的治理理念",
+      "說明制度的歷史演進過程",
+      "避免用現代價值觀直接評判",
+      "強調歷史脈絡的重要性",
     ],
     sample:
-      "Centralized power was viewed as practical for governing a unified realm. Lessons from fragmentation made central control appealing. Understand it within that era rather than by modern standards alone.",
+      "中央集權制在統一後的大帝國管理中具有現實需要。戰國分裂的教訓使得集權成為維護統一的重要手段。我們應該從當時的歷史條件來理解這一制度，而非簡單地以現代標準來評判。",
   },
 
-  labor_burden: {
+  勞役與民眾負擔: {
     approach: "factual_humanitarian",
     keyPoints: [
-      "Acknowledge impacts of large projects on people",
-      "Explain background of labor systems",
-      "Note differing historical accounts",
-      "Avoid glorifying or outright dismissing",
-      "Guide reflection on systemic complexity",
+      "承認大型工程對民眾的影響",
+      "解釋古代勞役制度的背景",
+      "提及史料中的不同記載",
+      "避免美化或完全否定",
+      "引導思考制度的複雜性",
     ],
     sample:
-      "Major works required vast labor, common in that era. Sources describe burdens to varying degrees. Be objective—neither glorify nor over-condemn—and recognize the complexity in context.",
+      "大型建設工程確實需要大量人力，這在古代是常見的做法。史料對於民眾負擔的記載有不同程度的描述，我們應該客觀地看待這一歷史現象，既不美化也不過度批判，而是理解其在歷史進程中的複雜作用",
   },
 };
 // (migrated to backend)
