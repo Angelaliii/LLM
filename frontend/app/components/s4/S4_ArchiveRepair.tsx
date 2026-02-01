@@ -37,11 +37,9 @@ export default function S4_ArchiveRepair() {
     if (notebookClues.length === 0) {
       // Provide a default set when no clues are collected
       return [
-        { id: 'clue_A', text: 'Public Order Police Law', type: 'key', source: 'Lin (student)' },
-        { id: 'clue_B', text: 'Jiang Weishui', type: 'key', source: 'Reporter Chen (article)' },
-        { id: 'clue_C', text: 'Den Kenjiro', type: 'key', source: 'Governor-General notice' },
-        { id: 'clue_err1', text: 'Law No. 63', type: 'info', source: 'History archive' },
-        { id: 'clue_err2', text: 'Lin Hsien-tang', type: 'info', source: 'Petition record' },
+        { id: 'clue_A', text: 'Law No. 63', type: 'key', source: 'Legal Archive' },
+        { id: 'clue_B', text: 'Police System', type: 'key', source: 'Administrative Record' },
+
       ];
     }
     
@@ -62,21 +60,15 @@ export default function S4_ArchiveRepair() {
       return [
         {
           id: 'field_1',
-          label: 'Legal basis',
-          correctText: 'Public Order Police Law',
+          label: 'Legal Instrument',
+          correctText: 'Law No. 63',
           correctClueId: 'clue_A'
         },
         {
           id: 'field_2',
-          label: 'Key figure',
-          correctText: 'Jiang Weishui',
+          label: 'Key Group',
+          correctText: 'Police System',
           correctClueId: 'clue_B'
-        },
-        {
-          id: 'field_3',
-          label: 'Governor at the time',
-          correctText: 'Den Kenjiro',
-          correctClueId: 'clue_C'
         }
       ];
     }
@@ -337,7 +329,7 @@ export default function S4_ArchiveRepair() {
                   config={fields[0]}
                   highlight={isDragging && getFieldState(fields[0]?.id).status === 'empty'}
                 />
-                and other legal instruments to reshape Taiwan's institutions in depth.
+                and other legal instruments to conduct deep institutional transformation in Taiwan.
                 <br />
                 <br />
                 Among them,
@@ -347,7 +339,7 @@ export default function S4_ArchiveRepair() {
                   config={fields[1]}
                   highlight={isDragging && getFieldState(fields[1]?.id).status === 'empty'}
                 />
-                became the key group driving land surveys and power consolidation, deeply affecting grassroots society in Taiwan.
+                became the key force for land surveys and power consolidation, profoundly affecting the grassroots structure of Taiwanese society at that time.
               </div>
             </div>
 

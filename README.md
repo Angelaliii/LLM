@@ -1,168 +1,168 @@
-# 歷史任務制 AI 系統 - 完整實作指南
+# Historical Mission-Based AI System - Complete Implementation Guide
 
-## 🎯 系統概要
+## 🎯 System Overview
 
-本系統是一個創新的歷史教育平台，採用任務制學習模式（S0→S5），結合 LLM 雙過程理論（System 1/2），提供沉浸式歷史學習體驗。學生透過與 NPC 對話探索歷史事件，系統智能評估學習進度並自動調整教學節奏。
+This system is an innovative historical education platform that adopts a mission-based learning model (S0→S5), combined with LLM dual-process theory (System 1/2), to provide an immersive historical learning experience. Students explore historical events through NPC dialogues, while the system intelligently assesses learning progress and automatically adjusts teaching pace.
 
-### 📚 學習流程設計
+### 📚 Learning Process Design
 
-**S0 任務選單** → **S1 任務開場故事** → **S2 選擇對話角色** → **S3 NPC 對話（System 1）** ↔ **S3-EVAL 進度評估（System 2）** → **S4 系統重述完整故事** → **S5 測驗與回饋**
+**S0 Mission Menu** → **S1 Mission Opening Story** → **S2 Select Dialogue Character** → **S3 NPC Dialogue (System 1)** ↔ **S3-EVAL Progress Assessment (System 2)** → **S4 System Restates Complete Story** → **S5 Quiz & Feedback**
 
-### 🏗️ 技術架構
+### 🏗️ Technology Stack
 
-#### 前端架構
-- **框架**：React 18 + TypeScript + Vite
-- **狀態管理**：Zustand（任務流程 + 對話狀態）
-- **樣式系統**：Tailwind CSS（響應式、深色模式）
-- **路由系統**：React Router v6
+#### Frontend Architecture
+- **Framework**: React 18 + TypeScript + Vite
+- **State Management**: Zustand (task flow + dialogue state)
+- **Styling System**: Tailwind CSS (responsive, dark mode)
+- **Routing**: React Router v6
 
-#### 後端架構
-- **運行環境**：Node.js + Express + TypeScript
-- **LLM 服務**：本機 Ollama（llama3.2:3b 模型）
-- **AI 功能**：RAG 檢索 + 雙過程評估 + 智能提示詞工程
-- **安全防護**：多層內容過濾與教育性重導向
+#### Backend Architecture
+- **Runtime**: Node.js + Express + TypeScript
+- **LLM Service**: Local Ollama (llama3.2:3b model)
+- **AI Features**: RAG Retrieval + Dual-process Assessment + Intelligent Prompt Engineering
+- **Safety Protection**: Multi-layer content filtering & educational redirection
 
-## 🚀 快速開始
+## 🚀 Quick Start
 
-### 1. 環境要求
+### 1. Environment Requirements
 
 ```bash
 Node.js >= 18.0.0
 npm >= 8.0.0
-Ollama >= 0.1.0（本機 LLM 服務）
+Ollama >= 0.1.0 (local LLM service)
 ```
 
-### 2. 安裝與啟動
+### 2. Installation & Startup
 
-#### 步驟 1：安裝並啟動 Ollama
+#### Step 1: Install and Launch Ollama
 ```powershell
-# 下載安裝 Ollama Desktop 或 CLI
+# Download and install Ollama Desktop or CLI
 # https://ollama.ai/
 
-# 拉取模型
+# Pull the model
 ollama pull llama3.2:3b
 
-# 啟動 Ollama 服務（Desktop 版會自動啟動）
+# Launch Ollama service (Desktop version starts automatically)
 ollama serve
 ```
 
-#### 步驟 2：啟動後端服務
+#### Step 2: Launch Backend Service
 ```powershell
-# 進入後端目錄
+# Navigate to backend directory
 cd backend
 
-# 安裝依賴
+# Install dependencies
 npm install
 
-# 啟動後端開發服務器
+# Start backend development server
 npm run dev
 
-# 後端將在 http://localhost:4000 運行
+# Backend will run on http://localhost:4000
 ```
 
-#### 步驟 3：啟動前端應用
+#### Step 3: Launch Frontend Application
 ```powershell
-# 在專案根目錄
+# In project root directory
 npm install
 
-# 啟動前端開發服務器
+# Start frontend development server
 npm run dev
 
-# 前端將在 http://localhost:3000 運行
+# Frontend will run on http://localhost:3000
 ```
 
-### 3. 項目結構總覽
+### 3. Project Structure Overview
 
 ```
-🏠 專案根目錄/
-├── 📁 frontend/           # 前端應用程式
+🏠 Project Root/
+├── 📁 frontend/           # Frontend application
 │   ├── 🎨 components/
-│   │   ├── chat/              # 對話系統核心組件
-│   │   │   ├── ChatWindow.tsx      # 主對話視窗
-│   │   │   ├── MessageBubble.tsx   # 消息氣泡（支援串流）
-│   │   │   └── PersonaSidebar.tsx  # NPC 切換面板
-│   │   ├── mission/           # 任務流程組件（S0-S5）
-│   │   │   ├── MissionList.tsx     # S0: 任務選單
-│   │   │   ├── MissionIntro.tsx    # S1: 任務開場故事
-│   │   │   ├── NPCSelector.tsx     # S2: 選擇 NPC
-│   │   │   ├── ChatRoom.tsx        # S3: NPC 對話
-│   │   │   ├── SummaryView.tsx     # S4: 故事重述
-│   │   │   └── QuizView.tsx        # S5: 測驗回饋
-│   │   └── ui/               # 通用 UI 組件
+│   │   ├── chat/              # Dialogue system core components
+│   │   │   ├── ChatWindow.tsx      # Main dialogue window
+│   │   │   ├── MessageBubble.tsx   # Message bubble (streaming support)
+│   │   │   └── PersonaSidebar.tsx  # NPC switching panel
+│   │   ├── mission/           # Mission flow components (S0-S5)
+│   │   │   ├── MissionList.tsx     # S0: Mission menu
+│   │   │   ├── MissionIntro.tsx    # S1: Mission opening story
+│   │   │   ├── NPCSelector.tsx     # S2: Select NPC
+│   │   │   ├── ChatRoom.tsx        # S3: NPC dialogue
+│   │   │   ├── SummaryView.tsx     # S4: Story restatement
+│   │   │   └── QuizView.tsx        # S5: Quiz feedback
+│   │   └── ui/               # Common UI components
 │   ├── 🔧 services/
-│   │   ├── llmClient.ts           # 前端 API 包裝層
-│   │   └── analytics.ts           # 學習數據分析
+│   │   ├── llmClient.ts           # Frontend API wrapper
+│   │   └── analytics.ts           # Learning data analytics
 │   ├── 📊 store/
-│   │   ├── useChatStore.ts        # 任務與對話狀態
-│   │   └── useUIStore.ts          # UI 狀態管理
-│   ├── 📝 types/              # 前端類型定義
-│   └── 🛠 utils/              # 前端工具函數
+│   │   ├── useChatStore.ts        # Task & dialogue state
+│   │   └── useUIStore.ts          # UI state management
+│   ├── 📝 types/              # Frontend type definitions
+│   └── 🛠 utils/              # Frontend utility functions
 │
-├── 📁 backend/            # 後端 API 服務
+├── 📁 backend/            # Backend API service
 │   ├── 🚀 services/
-│   │   ├── ollamaClient.ts        # Ollama LLM 客戶端
-│   │   ├── missionPrompt.ts       # RAG + 提示詞工程
-│   │   ├── progressEval.ts        # S3-EVAL 進度評估
-│   │   ├── llmClient.ts           # LLM 業務邏輯
+│   │   ├── ollamaClient.ts        # Ollama LLM client
+│   │   ├── missionPrompt.ts       # RAG + prompt engineering
+│   │   ├── progressEval.ts        # S3-EVAL progress assessment
+│   │   ├── llmClient.ts           # LLM business logic
 │   │   └── prompts/
-│   │       └── safety.guardrails.ts    # 安全防護機制
+│   │       └── safety.guardrails.ts    # Safety protection mechanism
 │   ├── 🛣 routes/
 │   │   ├── ollama.ts              # POST /api/ollama/chat
 │   │   └── eval.ts                # POST /api/eval
 │   ├── 📁 data/
 │   │   └── missions/
-│   │       └── e2-industrial-agri.ts   # E2 任務資料
-│   ├── 📝 types/              # 後端類型定義
-│   └── 📋 README.md           # 後端詳細文檔
+│   │       └── e2-industrial-agri.ts   # E2 mission data
+│   ├── 📝 types/              # Backend type definitions
+│   └── 📋 README.md           # Backend detailed documentation
 │
-└── 📄 vite.config.ts      # 前端構建配置（代理後端 API）
+└── 📄 vite.config.ts      # Frontend build config (backend API proxy)
 ```
 
-## 📚 使用者流程詳解（S0-S5 任務制學習）
+## 📚 User Journey Detailed Explanation (S0-S5 Mission-Based Learning)
 
-### 📄 S0 - 任務選單（Mission List）
+### 📄 S0 - Mission Menu (Mission List)
 
-**使用者行為**：
-從任務列表中選擇要挑戰的歷史情境（例：E2 工業日本・農業臺灣）
+**User Behavior**:
+Select a historical scenario to challenge from the mission list (e.g., E2 Industrial Japan · Agricultural Taiwan)
 
-**系統功能**：
-- 任務卡片列表：時代標籤、難度、完成狀態
-- 從前端靜態資料載入任務清單
-- 無需 LLM 介入，直接進入 S1
+**System Functions**:
+- Mission card list: era tags, difficulty levels, completion status
+- Load mission list from frontend static data
+- No LLM involvement, proceed directly to S1
 
-### 📜 S1 - 任務開場故事（Narrative Intro）
+### 📜 S1 - Mission Opening Story (Narrative Intro)
 
-**使用者行為**：
-閱讀歷史背景故事（150-200字），理解核心問題
+**User Behavior**:
+Read historical background story (150-200 words), understand core questions
 
-**LLM 使用**（System 1）：
+**LLM Usage** (System 1):
 ```typescript
-// 從 missionId 取得背景 chunk 與任務目標
-// 使用 llama3.2:3b 產生：
-// - 任務背景故事
-// - 引導性問題。
+// Retrieve background chunk and task objectives from missionId
+// Use llama3.2:3b to generate:
+// - Mission background story
+// - Guiding questions
 const storyResult = await missionPrompt.generateIntro(missionId);
 ```
 
-### 💭 S2 - 選擇對話角色（NPC Select）
+### 💭 S2 - Select Dialogue Character (NPC Select)
 
-**使用者行為**：
-從 NPC 清單中選擇要先詢問的角色：
-- 🏭 日本技師（山田清一）
-- 👨‍🌾 伃農（陳阿中）
-- 🏢 製糖會社幹部（佐藤武）
+**User Behavior**:
+Choose which NPC to interview first from the character list:
+- 🏭 Japanese Engineer (Yamada Seiichi)
+- 👨‍🌾 Farmer (Chen Ah-zhong)
+- 🏢 Sugar Company Executive (Sato Takeshi)
 
-### 💬 S3 - NPC 對話（System 1：直覺聊天）
+### 💬 S3 - NPC Dialogue (System 1: Intuitive Chat)
 
-**使用者行為**：
-以類似聊天視窗的方式，和選定的 NPC 來回對話
+**User Behavior**:
+Have a back-and-forth conversation with the selected NPC in a chat-like interface
 
-**技術實現**：
+**Technical Implementation**:
 ```typescript
-// 每次使用者送出訊息：
-// 1. RAG 檢索：從任務 chunks 中找到相關內容
-// 2. 角色設定：取出當前 NPC 的 persona
-// 3. LLM 產生回應
+// Each time user sends a message:
+// 1. RAG Retrieval: Find relevant content from mission chunks
+// 2. Character Setup: Load current NPC's persona
+// 3. LLM Generate Response
 const response = await ollamaClient.chat({
   messages: [systemPrompt, userMessage],
   context: ragResults,
@@ -170,220 +170,208 @@ const response = await ollamaClient.chat({
 });
 ```
 
-### 🔍 S3-EVAL - 進度評估（System 2：慢思考老師）
+### 🔍 S3-EVAL - Progress Assessment (System 2: Slow-thinking Teacher)
 
-**觸發時機**：每過 2-3 輪對話，或關鍵用語出現時
+**Trigger Timing**: Every 2-3 dialogue turns, or when key terms appear
 
-**LLM 使用**（System 2）：
+**LLM Usage** (System 2):
 ```typescript
-// 在背景惄惄進行，不直接顯示給學生
+// Running in background, not directly shown to students
 const evalResult = await progressEval.assess({
-  learningGoals,        // 該任務的學習目標
-  conversationSummary,  // 壓縮過的對話摘要
-  expectedOutput: 'JSON' // 每個目標標記：not_mentioned|wrong|partial|mastered
+  learningGoals,        // Learning objectives for this mission
+  conversationSummary,  // Compressed dialogue summary
+  expectedOutput: 'JSON' // Mark each goal: not_mentioned|wrong|partial|mastered
 });
 
-// 達到門檼判斷
+// Threshold judgment
 if (conversationTurns >= 6 && 
     evalResult.masteredCount >= 3 && 
     evalResult.confidence >= 0.7) {
-  進入 S4;
+  proceed to S4;
 }
 ```
 
-### 📜 S4 - 系統重述完整故事（Mission Summary）
+### 📜 S4 - System Restates Complete Story (Mission Summary)
 
-**使用者行為**：
-閱讀系統整理過的完整故事，把剛剛對話得到的零碎線索串起來
+**User Behavior**:
+Read the system-organized complete story, connecting the scattered clues from recent dialogue
 
-**LLM 使用**：
+**LLM Usage**:
 ```typescript
-// 結合所有資訊產生結構化故事
+// Combine all information to generate structured story
 const summary = await missionPrompt.generateSummary({
-  chunks: 任務核心內容,
-  goals: 學習目標,
-  conversation: 對話摘要,
-  evalResult: S3評估結果,
-  style: '國中程度、條理清楚、300-500字'
+  chunks: mission core content,
+  goals: learning objectives,
+  conversation: dialogue summary,
+  evalResult: S3 assessment results,
+  style: 'junior high level, clear structure, 300-500 words'
 });
 ```
 
-### 📋 S5 - 測驗與回饋（Quiz & Feedback）
+### 📋 S5 - Quiz & Feedback (Quiz & Feedback)
 
-**使用者行為**：
-作答 3-10 題選擇題/判斷題/資料題，查看分數與解析
+**User Behavior**:
+Answer 3-10 multiple choice / true-false / data questions, view scores and explanations
 
-**技術實現**：
-- 題目來源：主要使用事先設計好的 `missionQuizzes`
-- 作答時：前端根據題庫中的 `answer` 判斷對錯，無需再叫 LLM
-- 結果記錄：正確題數、使用提示次數、作答時間
+**Technical Implementation**:
+- Question source: primarily from pre-designed `missionQuizzes`
+- During answering: frontend judges correctness based on `answer` in question bank, no additional LLM calls needed
+- Result recording: correct count, hint usage, response time
 
-## 📚 學習進度分析
+## 📚 Learning Progress Analysis
 
-### 1. 任務完成度追蹤
+### 1. Mission Completion Tracking
 
 ```typescript
-// 學生學習狀態監控
+// Monitor student learning state
 const progress = useMissionStore(state => ({
-  currentStage: state.currentStage, // S0-S5 當前階段
-  conversationTurns: state.conversationTurns, // 對話輪數
-  masteredGoals: state.evalResult?.masteredCount, // 已掌握目標數
-  timeSpent: state.sessionDuration, // 學習時間
+  currentStage: state.currentStage, // S0-S5 current stage
+  conversationTurns: state.conversationTurns, // dialogue turns
+  masteredGoals: state.evalResult?.masteredCount, // mastered goals count
+  timeSpent: state.sessionDuration, // learning time
 }));
 ```
 
-### 1. 即時任務控制
+### 2. Real-time Task Control
 
 ```typescript
-// 控制學生任務參數
+// Control student task parameters
 const { actions } = useTeacherStore();
 
 actions.updateClassroomSettings({
-  allowStudentMissionSwitch: false, // 限制學生切換任務
-  moderationLevel: "high", // 提高監控等級
-  maxNPCInteractions: 10, // 限制 NPC 互動次數
-  enableProgressHints: true, // 啟用進度提示
+  allowStudentMissionSwitch: false, // restrict mission switching
+  moderationLevel: "high", // increase monitoring level
+  maxNPCInteractions: 10, // limit NPC interactions
+  enableProgressHints: true, // enable progress hints
 });
 ```
 
-### 2. 學習進度監控
+### 3. Smart Alert System
 
 ```typescript
-// 即時查看學生狀態
-const studentProgress = useTeacherStore(state => ({
-  currentStage: state.currentStage, // S0-S5 當前階段
-  conversationTurns: state.conversationTurns, // 對話輪數
-  masteredGoals: state.evalResult?.masteredCount, // 已掌握目標數
-  timeSpent: state.sessionDuration, // 學習時間
-  flaggedContent: state.safetyAlerts // 安全警示
-}));
-```
-
-### 3. 智能警示系統
-
-```typescript
-// 監控標記內容
+// Monitor flagged content
 actions.addFlaggedContent({
   sessionId: "student-123",
-  content: "不當歷史美化問題",
-  flagReason: "包含不適當的歷史美化",
-  stage: "S3", // 發生在哪個階段
+  content: "Problematic historical glorification",
+  flagReason: "Contains inappropriate historical glorification",
+  stage: "S3", // which stage it occurred
   resolved: false,
 });
 
-// 自動觸發教育引導
+// Automatically trigger educational redirect
 if (flaggedContent.severity === 'high') {
   triggerEducationalRedirect(flaggedContent.alternativePrompt);
 }
 ```
 
-## 🔧 擴展新歷史任務
+## 🔧 Adding New Historical Missions
 
-### 步驟一：建立任務資料結構（15 分鐘）
+### Step One: Create Mission Data Structure (15 minutes)
 
 ```typescript
-// 新建檔案：backend/data/missions/e3-ming-qing-transition.ts
+// New file: backend/data/missions/e3-ming-qing-transition.ts
 export const e3MissionData: MissionData = {
   id: "E3",
-  title: "明清替代與文化變遷",
-  period: "明末清初 (1600-1700)",
+  title: "Ming-Qing Transition & Cultural Change",
+  period: "Late Ming to Early Qing (1600-1700)",
   difficulty: "intermediate",
 
-  // RAG 知識片段
+  // RAG knowledge chunks
   chunks: [
     {
       id: "e3-001",
-      topic: "明清替代背景",
+      topic: "Ming-Qing Transition Background",
       type: "core_fact",
-      text: "明末政治腐敗，農民起義频繁..."
+      text: "Political corruption at the end of Ming, peasant uprisings were frequent..."
     },
-    // ... 更多 chunks
+    // ... more chunks
+```
   ],
 
-  // NPC 角色卡
+  // NPC character cards
   npcs: [
     {
       id: "npc-ming-scholar",
-      name: "王夫之",
-      role: "明末士大夫",
-      persona: "你是明末的一位士大夫...",
-      canTalkAbout: ["科舉制度", "政治改革", "文化传統"],
-      avoid: ["對清朝的預知"]
+      name: "Wang Fuzhi",
+      role: "Ming Dynasty Scholar-Official",
+      persona: "You are a scholar-official of the late Ming dynasty...",
+      canTalkAbout: ["Examination System", "Political Reform", "Cultural Tradition"],
+      avoid: ["Foreknowledge of Qing Dynasty"]
     },
-    // ... 更多 NPCs
+    // ... more NPCs
   ],
 
-  // 學習目標
+  // Learning goals
   learningGoals: [
     {
       id: "e3-g1",
-      description: "理解明清替代的歷史原因"
+      description: "Understand the historical reasons for the Ming-Qing transition"
     },
-    // ... 更多目標
+    // ... more goals
   ],
 
-  // 測驗題庫
+  // Quiz questions
   quizzes: [
     {
       id: "e3-q1",
-      stem: "明末最主要的政治問題是？",
+      stem: "What was the main political issue at the end of Ming?",
       options: [
-        { key: "A", text: "農民起義" },
-        // ... 更多選項
+        { key: "A", text: "Peasant uprisings" },
+        // ... more options
       ],
       answer: "A",
-      explanation: "明末農民起義頁繁..."
+      explanation: "Peasant uprisings were frequent at the end of Ming..."
     }
   ]
 };
 ```
 
-### 步驟二：註冊到系統
+### Step Two: Register with the System
 
 ```typescript
-// 在 backend/data/missions/index.ts 中添加
+// Add to backend/data/missions/index.ts
 import { e3MissionData } from './e3-ming-qing-transition';
 
 export const allMissions = [
   e2IndustrialAgriData,
-  e3MissionData, // 新增
+  e3MissionData, // New mission
 ];
 ```
 
-### 步驟三：測試與調優
+### Step Three: Testing and Optimization
 
 ```typescript
-// 測試案例
+// Test cases
 const testCases = [
   {
     missionId: "E3",
     stage: "S3",
-    input: "為什麼科舉制度會影響政治？",
-    expectedNPCResponse: 包含["科舉", "士大夫", "政治參與"],
+    input: "Why does the examination system affect politics?",
+    expectedNPCResponse: includes["examination system", "scholars", "political participation"],
     expectedGoalProgress: "partial"
   },
 ];
 ```
 
-## 🔧 技術架構詳細說明
+## 🔧 Technical Architecture Detailed
 
-### 1. 前後端整合架構
+### 1. Frontend-Backend Integration Architecture
 
 ```typescript
-// vite.config.ts - 前端代理配置
+// vite.config.ts - Frontend proxy configuration
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000', // 後端 API
+        target: 'http://localhost:4000', // Backend API
         changeOrigin: true,
       },
     },
   },
 });
 
-// frontend/services/llmClient.ts - API 包裝
+// frontend/services/llmClient.ts - API wrapper
 export async function sendMessage(data: ChatRequest) {
   const response = await fetch('/api/ollama/chat', {
     method: 'POST',
@@ -394,7 +382,7 @@ export async function sendMessage(data: ChatRequest) {
 }
 ```
 
-### 2. Ollama 整合架構
+### 2. Ollama Integration Architecture
 
 ```typescript
 // backend/services/ollamaClient.ts
@@ -419,16 +407,16 @@ export class OllamaClient {
 }
 ```
 
-### 3. RAG 檢索系統
+### 3. RAG Retrieval System
 
 ```typescript
-// backend/services/missionPrompt.ts - 簡易 RAG
+// backend/services/missionPrompt.ts - Simple RAG
 export function retrieveChunks(
   chunks: Chunk[],
   query: string,
   limit = 4
 ): Chunk[] {
-  // 目前使用關鍵字配對，未來可升級為向量相似度
+  // Currently uses keyword matching, can be upgraded to vector similarity
   const scored = chunks
     .filter(c => c.text.includes(query) || c.topic.includes(query))
     .slice(0, limit);
@@ -437,20 +425,20 @@ export function retrieveChunks(
 }
 ```
 
-## 🚀 部署建議
+## 🚀 Deployment Recommendations
 
-### 生產環境配置
+### Production Environment Configuration
 
 ```bash
-# Docker 部署（建議）
+# Docker deployment (recommended)
 docker-compose up -d
 
-# 或手動部署
-npm run build          # 前端構建
-npm run start:backend  # 後端生產服務
+# Or manual deployment
+npm run build          # Frontend build
+npm run start:backend  # Backend production service
 ```
 
-### 環境變數設定
+### Environment Variables
 
 ```bash
 # .env
@@ -461,51 +449,50 @@ NODE_ENV=production
 CORS_ORIGIN=http://localhost:3000
 ```
 
-## 📈 成功指標達成情況
+## 📈 Success Metrics Achievement
 
-### ✅ 已實現標準
+### ✅ Completed Standards
 
-- [x] **任務制學習流程**：S0-S5 完整情境學習
-- [x] **LLM 雙過程理論**：System 1/2 分離架構
-- [x] **RAG 知識檢索**：歷史知識片段管理
-- [x] **安全防護機制**：多層內容過濾與教育引導
-- [x] **進度評估系統**：智能學習進度追蹤
+- [x] **Mission-Based Learning Flow**: Complete S0-S5 contextual learning
+- [x] **LLM Dual-Process Theory**: System 1/2 separated architecture
+- [x] **RAG Knowledge Retrieval**: Historical knowledge chunk management
+- [x] **Safety Protection Mechanism**: Multi-layer content filtering and educational guidance
+- [x] **Progress Evaluation System**: Intelligent learning progress tracking
 
-### 🟡 部分實現標準
+### 🟡 Partially Completed Standards
 
-- [~] **歷史任務擴展**：框架完整，需增加更多任務
-- [~] **學生進度追蹤**：狀態管理完成，UI 待開發
-- [~] **學習數據分析**：基礎機制完成，需增強分析
+- [~] **Historical Mission Extension**: Framework complete, more missions needed
+- [~] **Student Progress Tracking**: State management complete, UI pending
+- [~] **Learning Data Analysis**: Basic mechanism complete, needs enhancement
 
-### 📋 後續開發優先級
+### 📋 Future Development Priorities
 
-**P0（立即）**：
-1. 完善錯誤處理與邊界情況
-2. 添加更多歷史任務（E3, E4...）
+**P0 (Immediate)**:
+1. Improve error handling and edge cases
+2. Add more historical missions (E3, E4...)
 
-**P1（短期）**：
-1. 提升使用者介面設計
-2. 添加數據持久化（學習歷程記錄）
-3. 完善可讀性分析算法
+**P1 (Short-term)**:
+1. Enhance user interface design
+2. Add data persistence (learning history records)
+3. Improve readability analysis algorithm
 
-**P2（長期）**：
-1. 多語言支援（英文、日文）
-2. 語音對話功能
-3. 移動端優化
+**P2 (Long-term)**:
+1. Multi-language support (English, Japanese)
+2. Voice dialogue functionality
+3. Mobile optimization
 
-## 💡 創新特色總結
+## 💡 Innovation Features Summary
 
-1. **任務制學習設計**：S0-S5 遊戲化歷史學習體驗
-2. **LLM 雙過程架構**：System 1 直覺對話 + System 2 進度評估
-3. **沉浸式歷史情境**：多角度 NPC 對話，探索歷史真相
-4. **智能適性學習**：根據學習進度自動調整教學節奏
-5. **教育安全保障**：將安全問題轉化為教學機會
-6. **高度可擴展性**：15 分鐘新增歷史任務的高效流程
+1. **Mission-Based Learning Design**: S0-S5 gamified historical learning experience
+2. **LLM Dual-Process Architecture**: System 1 intuitive dialogue + System 2 progress evaluation
+3. **Immersive Historical Context**: Multi-angle NPC dialogue to explore historical truth
+4. **Intelligent Adaptive Learning**: Automatically adjust teaching pace based on learning progress
+5. **Educational Safety Protection**: Transform safety issues into teaching opportunities
+6. **Highly Extensible**: Efficient 15-minute workflow for adding new historical missions
 
-本系統為歷史教育數位化提供了一個專業、安全、高效的解決方案，具備良好的教學適用性與技術可持續性。
+This system provides a professional, safe, and efficient solution for historical education digitalization with excellent teaching applicability and technical sustainability.
 
 ---
 
-🔗 **相關文檔**：
-- [後端 API 詳細文檔](backend/README.md)
-- [使用者流程說明](docs/使用者流程.md)
+🔗 **Related Documentation**:
+- [User Manual](User%20Manual.md)

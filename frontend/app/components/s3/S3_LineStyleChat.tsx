@@ -217,6 +217,14 @@ export default function S3_LineStyleChat() {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !selectedNpcId) return;
 
+    // 🔑 特殊命令檢測：無條件跳轉到 S4
+    const specialCommands = ['進入檔案修復', '/s4', '跳過對話'];
+    if (specialCommands.some(cmd => inputValue.toLowerCase().includes(cmd.toLowerCase()))) {
+      console.log('[S3] 檢測到特殊命令，直接跳轉到 S4...');
+      missionActions.goToStage('S4');
+      return;
+    }
+
     const userMessage: Message = {
       id: `msg_user_${Date.now()}`,
       role: 'user',
